@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>윰 &amp; 짐 후쿠오카 여행</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#0b0d09; --bg2:#0e110b;
+    --card:#14170f; --card2:#171b11; --line:#252a1d; --line2:#31382a;
+    --ink:#f0f3e8; --sub:#8f9683; --sub2:#6c7261;
+    --lime:#b8f24b; --lime-d:#8fd41f; --mint:#57e6a5;
+    --glow:0 0 0 1px rgba(184,242,75,.55), 0 0 22px rgba(184,242,75,.18);
+    --glow-soft:0 0 0 1px rgba(184,242,75,.28), 0 0 14px rgba(184,242,75,.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+      "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% -5%, rgba(184,242,75,.06), transparent 60%),
+      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
+    background-color:var(--bg);
+    color:var(--ink); line-height:1.65; min-height:100vh;
+    padding:44px 18px 80px;
+    word-break:keep-all; overflow-wrap:break-word;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px; margin:0 auto;}
+  h2{scroll-margin-top:76px;}
+
+  /* ===== 헤더 ===== */
+  .top{text-align:center; margin-bottom:30px;}
+  .eyebrow{
+    font-size:12px; font-weight:800; letter-spacing:.34em; color:var(--lime);
+    text-transform:uppercase; margin-bottom:12px;
+  }
+  .top h1{
+    font-size:40px; font-weight:900; letter-spacing:-.02em; line-height:1.25; margin-bottom:10px;
+  }
+  .top h1 .hl{
+    background:linear-gradient(92deg, var(--lime) 20%, var(--mint) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .who{font-size:14px; color:var(--sub); display:inline-flex; align-items:center; gap:7px;}
+  .who::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--lime);
+    box-shadow:0 0 8px rgba(184,242,75,.8);}
+
+  /* ===== 스티키 내비 ===== */
+  nav.toc{
+    position:sticky; top:10px; z-index:50; display:flex; gap:8px; justify-content:center;
+    flex-wrap:wrap; margin:26px 0 34px; padding:6px 0;
+  }
+  nav.toc a{
+    font-size:12.5px; font-weight:800; text-decoration:none; color:var(--sub);
+    background:rgba(20,23,15,.85); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); padding:8px 16px; border-radius:999px;
+    transition:color .18s, border-color .18s, box-shadow .18s;
+  }
+  nav.toc a:hover{color:var(--lime); border-color:rgba(184,242,75,.5); box-shadow:var(--glow-soft);}
+
+  /* ===== 공통 패널 ===== */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:24px 26px; margin-bottom:18px;
+  }
+  .panel-title{
+    font-size:15.5px; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .panel-title .g{color:var(--lime); font-weight:800;}
+  .caption{font-size:12.5px; color:var(--sub2); line-height:1.7;}
+  .caption b{color:var(--sub); font-weight:800;}
+
+  /* ===== D-day 스테이터스 ===== */
+  .status{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;}
+  .stat{
+    background:var(--card2); border:1px solid var(--line2); border-radius:14px;
+    padding:18px 16px; text-align:center;
+  }
+  .stat.live{border-color:rgba(184,242,75,.55); box-shadow:var(--glow); background:#181d0f;}
+  .stat .k{font-size:11.5px; font-weight:800; letter-spacing:.08em; color:var(--sub); margin-bottom:4px;}
+  .stat .v{font-size:22px; font-weight:900; letter-spacing:-.01em;}
+  .stat.live .v{color:var(--lime);}
+  .stat .s{font-size:12px; color:var(--sub2); margin-top:2px;}
+
+  /* ===== 섹션 헤더 ===== */
+  h2.sec{
+    font-size:17px; font-weight:900; margin:44px 4px 6px; letter-spacing:-.01em;
+    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  }
+  h2.sec .g{color:var(--lime); font-weight:800; font-size:14px;}
+  .sec-sub{font-size:13px; color:var(--sub2); margin:0 4px 16px;}
+
+  /* ===== 일정 타임라인 ===== */
+  .tl{display:flex; flex-direction:column; gap:12px;}
+  .row{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    display:grid; grid-template-columns:118px 1fr; overflow:hidden;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .row:hover{border-color:var(--line2);}
+  .row.hot{border-color:rgba(184,242,75,.4); box-shadow:var(--glow-soft);}
+  .row .t{
+    background:var(--card2); border-right:1px solid var(--line);
+    padding:18px 12px; display:flex; flex-direction:column; justify-content:center;
+    align-items:center; text-align:center; gap:2px;
+  }
+  .row .t .dn{font-size:16px; font-weight:900; color:var(--lime); letter-spacing:-.01em;}
+  .row .t .dt{font-size:12px; color:var(--sub); font-weight:700; font-variant-numeric:tabular-nums;}
+  .row .c{padding:17px 20px;}
+  .row .head{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:10px;}
+  .row .ttl{font-size:15.5px; font-weight:800;}
+  .tag{
+    font-size:11px; font-weight:800; padding:3px 11px; border-radius:999px; white-space:nowrap;
+    border:1px solid var(--line2); color:var(--sub); background:var(--card2);
+  }
+  .tag.lime{color:var(--lime); border-color:rgba(184,242,75,.4); background:rgba(184,242,75,.07);}
+  .tag.mint{color:var(--mint); border-color:rgba(87,230,165,.4); background:rgba(87,230,165,.07);}
+  .row ul{list-style:none; display:flex; flex-direction:column; gap:6px;}
+  .row li{
+    font-size:13.5px; color:var(--sub); display:flex; gap:9px; align-items:flex-start;
+  }
+  .row li::before{
+    content:""; width:5px; height:5px; border-radius:50%; background:var(--lime-d);
+    margin-top:8px; flex-shrink:0; opacity:.8;
+  }
+  .row li b{color:var(--ink); font-weight:700;}
+  .row .stayline{
+    margin-top:12px; padding-top:11px; border-top:1px dashed var(--line2);
+    font-size:12.5px; color:var(--sub2); display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+  }
+  .row .stayline .pin{color:var(--lime); font-weight:800; font-size:11px; letter-spacing:.05em;}
+
+  /* ===== 숙소 칩 카드 ===== */
+  .stays{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .hotel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 18px 16px;
+    display:flex; flex-direction:column; gap:8px;
+    transition:border-color .2s, box-shadow .2s, transform .2s;
+  }
+  .hotel:hover{border-color:rgba(184,242,75,.45); box-shadow:var(--glow-soft); transform:translateY(-2px);}
+  .hotel .n{
+    font-size:11px; font-weight:800; letter-spacing:.06em; color:var(--lime);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .hotel .n::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--lime);}
+  .hotel .nm{font-size:15px; font-weight:800; line-height:1.4;}
+  .hotel .ar{font-size:12.5px; color:var(--sub); flex:1;}
+  .hotel a{
+    align-self:flex-start; font-size:12px; font-weight:800; text-decoration:none;
+    color:var(--lime); border:1px solid rgba(184,242,75,.35); background:rgba(184,242,75,.06);
+    padding:6px 13px; border-radius:999px; transition:box-shadow .18s, background .18s;
+  }
+  .hotel a:hover{box-shadow:var(--glow-soft); background:rgba(184,242,75,.12);}
+
+  /* ===== 체크리스트 ===== */
+  .prog-label{
+    text-align:center; font-size:13.5px; font-weight:800; margin:16px 0 10px;
+    font-variant-numeric:tabular-nums;
+  }
+  .prog-track{
+    position:relative; height:9px; background:#1c2115; border-radius:999px; overflow:visible;
+  }
+  .prog-bar{
+    height:100%; width:0; border-radius:999px;
+    background:linear-gradient(90deg, #6ea224, var(--lime) 70%, var(--mint));
+    box-shadow:0 0 14px rgba(184,242,75,.35);
+    transition:width .4s cubic-bezier(.2,.6,.2,1);
+  }
+  .prog-tick{
+    position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--line2); left:50%;
+  }
+  .tasks{margin-top:18px; display:flex; flex-direction:column; gap:9px;}
+  .task{
+    display:flex; align-items:center; gap:14px; cursor:pointer;
+    background:var(--card2); border:1px solid var(--line2); border-radius:13px;
+    padding:14px 17px; transition:border-color .18s, box-shadow .18s;
+  }
+  .task:hover{border-color:rgba(184,242,75,.35);}
+  .task input{
+    appearance:none; -webkit-appearance:none; width:20px; height:20px; flex-shrink:0;
+    border:1.5px solid var(--line2); border-radius:6px; background:transparent;
+    display:inline-grid; place-content:center; cursor:pointer;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  .task input:checked{
+    background:var(--lime); border-color:var(--lime); box-shadow:0 0 10px rgba(184,242,75,.4);
+  }
+  .task input:checked::before{
+    content:"✓"; font-size:13px; font-weight:900; color:#10130a; line-height:1;
+  }
+  .task .b{flex:1; min-width:0;}
+  .task .l{font-size:14px; font-weight:700;}
+  .task .s{font-size:12px; color:var(--sub2);}
+  .task .s .warn{color:var(--lime); font-weight:800;}
+  .task input:checked ~ .b .l{color:var(--sub2); text-decoration:line-through;}
+  .task .st{
+    font-size:10.5px; font-weight:800; letter-spacing:.05em; white-space:nowrap;
+    padding:3px 10px; border-radius:999px; border:1px solid var(--line2); color:var(--sub2);
+  }
+  .task input:checked ~ .st{
+    color:var(--lime); border-color:rgba(184,242,75,.4); background:rgba(184,242,75,.07);
+  }
+
+  /* ===== 꿀팁 ===== */
+  .tips{display:flex; flex-direction:column; gap:9px;}
+  .tip{
+    background:var(--card); border:1px solid var(--line); border-radius:13px;
+    padding:14px 17px; font-size:13.5px; color:var(--sub); line-height:1.7;
+    display:flex; gap:11px; align-items:flex-start;
+  }
+  .tip .no{
+    font-size:11px; font-weight:900; color:var(--lime); border:1px solid rgba(184,242,75,.4);
+    background:rgba(184,242,75,.06); border-radius:999px; padding:2px 9px; margin-top:2px;
+    flex-shrink:0; letter-spacing:.04em;
+  }
+  .tip b{color:var(--ink); font-weight:800;}
+  .tip .g{color:var(--lime); font-weight:800;}
+
+  /* ===== 푸터 링크 ===== */
+  .footer{
+    margin-top:52px; text-align:center; display:flex; flex-direction:column; gap:10px;
+    font-size:13px;
+  }
+  .footer a{color:var(--sub); text-decoration:none; transition:color .15s;}
+  .footer a:hover{color:var(--lime);}
+  .footer .cr{font-size:11.5px; color:var(--sub2); margin-top:8px; letter-spacing:.02em;}
+
+  /* ===== 반응형 ===== */
+  @media(max-width:640px){
+    body{padding:32px 14px 64px;}
+    .top h1{font-size:29px;}
+    .row{grid-template-columns:92px 1fr;}
+    .row .c{padding:15px 16px;}
+    .stays{grid-template-columns:1fr;}
+    .status{grid-template-columns:1fr;}
+    .panel{padding:20px 18px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .prog-bar,.hotel,.task input,.row{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <div class="top">
+    <div class="eyebrow">Yum &amp; Jim · Fukuoka Trip</div>
+    <h1>윰 &amp; 짐 <span class="hl">후쿠오카</span> 여행</h1>
+    <span class="who">2026.08.20 (목) — 08.24 (월) · 4박 5일</span>
+  </div>
+
+  <nav class="toc">
+    <a href="#sched">일정</a>
+    <a href="#hotels">숙소</a>
+    <a href="#check">예약 현황</a>
+    <a href="#tips">꿀팁</a>
+  </nav>
+
+  <!-- D-day 스테이터스 -->
+  <div class="panel">
+    <div class="panel-title">출발까지 — <span class="g" id="dday-line">계산 중…</span></div>
+    <p class="caption">귀국편은 <b>08.24(월) 저녁 8시</b> 한국 출발. 마지막 날 쇼핑은 여유있게, 공항 이동은 넉넉하게.</p>
+    <div class="status">
+      <div class="stat live">
+        <div class="k">D-DAY</div>
+        <div class="v" id="dday-big">…</div>
+        <div class="s">08.20 (목) 출발</div>
+      </div>
+      <div class="stat">
+        <div class="k">예약 진행률</div>
+        <div class="v" id="stat-prog">…</div>
+        <div class="s">숙소 3곳 확보 완료</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 일정 -->
+  <h2 class="sec" id="sched">일정 <span class="g">5 DAYS</span></h2>
+  <p class="sec-sub">후쿠오카 3.5일 + 유후인 온천 1박 — 쇼핑·미식·온천 밸런스형</p>
+  <div class="tl" id="timeline"></div>
+
+  <!-- 숙소 -->
+  <h2 class="sec" id="hotels">숙소 <span class="g">3 STAYS · 예약 완료</span></h2>
+  <p class="sec-sub">텐진 쇼핑권 → 유후인 료칸 → 나카스·캐널시티권 순서로 이동</p>
+  <div class="stays" id="stays"></div>
+
+  <!-- 체크리스트 -->
+  <h2 class="sec" id="check">예약 현황 <span class="g">남은 것부터 처리</span></h2>
+  <div class="panel">
+    <div class="panel-title">체크리스트 — <span class="g">교통편 예약이 남았어요</span></div>
+    <p class="caption">숙소는 3곳 모두 확보. 남은 건 <b>유후인노모리(왕편) · 료칸 픽업 · 복귀 버스(복편)</b> — 열차가 확정돼야 픽업 시각도 정해지니 <b>열차부터</b> 잡는 게 순서.</p>
+    <div class="prog-label" id="ptext">…</div>
+    <div class="prog-track">
+      <div class="prog-tick"></div>
+      <div class="prog-bar" id="bar"></div>
+    </div>
+    <div class="tasks" id="checklist"></div>
+  </div>
+
+  <!-- 꿀팁 -->
+  <h2 class="sec" id="tips">여행 꿀팁 <span class="g">MEMO</span></h2>
+  <div class="tips" id="tipbox"></div>
+
+  <div class="footer">
+    <a href="https://www.jrkyushu.co.jp/korean/" target="_blank" rel="noopener">🚄 JR큐슈 — 유후인노모리 예약</a>
+    <a href="https://www.highwaybus.com/" target="_blank" rel="noopener">🚌 하이웨이버스 — 유후인호 예약</a>
+    <a href="https://1kuji.com/" target="_blank" rel="noopener">🎯 이치반쿠지 — 취급점 검색</a>
+    <div class="cr">YUM &amp; JIM · FUKUOKA 2026</div>
+  </div>
+
+</div>
+
+<script>
+/* ===== 데이터 ===== */
+const days=[
+  {no:"1일차",date:"08.20 목",tag:"후쿠오카",tc:"lime",title:"도착 · 텐진 점심 · 쿠지 사전 답사",
+   items:["후쿠오카 공항 도착 → <b>택시</b>로 숙소 이동","숙소에 짐 맡기고 <b>텐진에서 점심</b>","<b>쿠지 취급 편의점</b> 둘러보며 통털기 가능 여부 사전 확인","저녁 식사 후 숙소 복귀"],
+   stay:"THE KNOT FUKUOKA Tenjin · 1박째"},
+  {no:"2일차",date:"08.21 금",tag:"후쿠오카",tc:"lime",title:"쿠지 통털기 & 쇼핑 데이",
+   items:["<b>이른 아침</b> 쿠지 편의점으로 — <b>통털기 진행</b>","(전날 확인한 편의점이 없으면 → <b>캐널시티</b>로 이동해 구매)","점심 식사 → 쇼핑 & 거리 구경","저녁 식사 → 숙소 복귀 후 <b>짐 정리</b> (내일 유후인行)"],
+   stay:"THE KNOT FUKUOKA Tenjin · 2박째"},
+  {no:"3일차",date:"08.22 토",tag:"유후인",tc:"mint",hot:true,title:"유후인노모리 타고 온천 마을로",
+   items:["체크아웃 → <b>택시</b>로 하카타역 이동","<b>특급 유후인노모리</b> 탑승 → 유후인 (약 2h10)","료칸 <b>픽업 서비스</b>로 숙소 이동","체크인 후 <b>온천 즐기기</b> → 숙소 내 저녁 식사"],
+   stay:"유후노 오야도 호타루 · 온천 료칸"},
+  {no:"4일차",date:"08.23 일",tag:"유후인 → 복귀",tc:"mint",title:"유후인 거리 → 하카타 복귀 · 나카스 밤",
+   items:["체크아웃, 짐 맡기고 <b>유후인 메인 거리</b>로 — 쇼핑 & 구경","짐 찾아서 <b>버스(유후인호)</b>로 하카타 복귀 — 좌석 예약제","<b>택시</b>로 숙소 이동·체크인 (<b>늦어도 20시까지</b>)","저녁 식사 or <b>나카스 유람선</b> (순서 유동)","포장마차 거리 · 야경 구경 후 숙소 복귀"],
+   stay:"더 원파이브 테라스 후쿠오카 · 1박"},
+  {no:"5일차",date:"08.24 월",tag:"출국",tc:"lime",title:"마지막 쇼핑 & 귀국",
+   items:["체크아웃, 짐 맡기고 <b>남은 쇼핑 + 점심</b> (텐진 or 캐널시티 or 하카타역 주변)","<b>17시</b> 숙소에서 짐 찾기","<b>18시 전후 공항 도착</b>","<b>저녁 8시</b> 한국 출발"],
+   stay:null}
+];
+
+const stays=[
+  {n:"1·2박",nm:"THE KNOT FUKUOKA Tenjin",ar:"다이묘 · 텐진 쇼핑권 · 지하철 텐진역 인근",
+   map:"https://www.google.com/maps/place/THE+KNOT+FUKUOKA+Tenjin%EF%BC%88%E3%82%B6+%E3%83%8E%E3%83%83%E3%83%88+%E7%A6%8F%E5%B2%A1%E5%A4%A9%E7%A5%9E%EF%BC%89/@33.5875248,130.3820197,15z/data=!4m13!1m2!2m1!1z7ZuE7L-g7Jik7Lm0IOyghOunneuMgA!3m9!1s0x354191f5a9d1ec2b:0x997e522400290e08!5m3!1s2026-08-23!4m1!1i2!8m2!3d33.5875165!4d130.3936757!16s%2Fg%2F11n4p_jy66"},
+  {n:"3박",nm:"유후노 오야도 호타루",ar:"유후인 온천 마을 · 가와키타 · 료칸 (가이세키+온천)",
+   map:"https://www.google.com/maps/place/%EC%9C%A0%ED%9B%84%EB%85%B8+%EC%98%A4%EC%95%BC%EB%8F%84+%ED%98%B8%ED%83%80%EB%A3%A8/@33.2508458,131.314201,15z/data=!4m13!1m2!2m1!1z7ZuE7L-g7Jik7Lm0IOyghOunneuMgA!3m9!1s0x3546ad868f7d2da3:0xb59ce9c308ee09d8!5m3!1s2026-08-23!4m1!1i2!8m2!3d33.2508456!4d131.3280704!16s%2Fg%2F1v44n6mk"},
+  {n:"4박",nm:"더 원파이브 테라스 후쿠오카",ar:"하루요시 · 나카스/캐널시티 인근 · 야타이 도보권",
+   map:"https://www.google.com/maps/place/%EB%8D%94+%EC%9B%90%ED%8C%8C%EC%9D%B4%EB%B8%8C+%ED%85%8C%EB%9D%BC%EC%8A%A4+%ED%9B%84%EC%BF%A0%EC%98%A4%EC%B9%B4/@33.5894925,130.4036668,17z/data=!3m1!4b1!4m6!3m5!1s0x354191969f2b95c1:0x8ea5a8e9b53ef413!8m2!3d33.5894925!4d130.4074477!16s%2Fg%2F1thn38t7"}
+];
+
+const tasks=[
+  {l:"유후인노모리 열차 예약",s:'8/22(토) 하카타→유후인 · <span class="warn">주말 매진 주의 — 최우선!</span>',done:false},
+  {l:"비행편 예약",s:"08.20 출발 / 08.24 20:00 귀국",done:false},
+  {l:"료칸 픽업 서비스 예약",s:"호타루에 열차 도착 시각 전달 · 유후인역 픽업 (사전 예약제)",done:false},
+  {l:"유후인 → 하카타 버스 확인",s:'8/23(일) 복귀편 · 고속버스(유후인호)는 <span class="warn">좌석 예약제</span> — 미리 잡아두면 안심',done:false},
+  {l:"THE KNOT 후쿠오카 텐진 (1·2박)",s:"다이묘 · 텐진",done:true},
+  {l:"유후노 오야도 호타루 (3박)",s:"유후인 온천 료칸",done:true},
+  {l:"더 원파이브 테라스 (4박)",s:"하루요시",done:true}
+];
+
+const tips=[
+  {no:"01",t:'<b>제일 급한 것</b> — 료칸은 잡았으니 <span class="g">유후인노모리 특급</span>부터 예약. 8월 주말은 매진이 빠름 (JR큐슈 홈페이지 or 하카타역 미도리노마도구치).'},
+  {no:"02",t:'8월 후쿠오카는 <b>덥고 습함 (체감 35도+)</b>. 낮엔 실내·쇼핑·온천, 야외 산책은 오전이나 해질녘으로.'},
+  {no:"03",t:'THE KNOT(다이묘) · 원파이브(하루요시) 둘 다 <span class="g">텐진·나카스 쇼핑권</span>. 쇼핑·야타이·캐널시티가 도보권이라 동선 좋음.'},
+  {no:"04",t:'이 구간만 왕복이면 <b>개별 발권</b>이 대체로 유리. 벳푸까지 확장하면 JR큐슈 북부큐슈 3일권 검토.'},
+  {no:"05",t:'<b>쿠지 통털기</b> — 이치반쿠지 공식 사이트의 <span class="g">취급점 검색</span>으로 텐진 인근 편의점을 미리 찍어두면 1일차 답사가 빨라짐. 인기 회차는 발매 직후 소진되니 <b>2일차 이른 아침</b> 방문이 정답.'}
+];
+
+/* ===== 렌더 ===== */
+document.getElementById("timeline").innerHTML=days.map(d=>`
+  <div class="row${d.hot?" hot":""}">
+    <div class="t">
+      <span class="dn">${d.no}</span>
+      <span class="dt">${d.date}</span>
+    </div>
+    <div class="c">
+      <div class="head">
+        <span class="ttl">${d.title}</span>
+        <span class="tag ${d.tc}">${d.tag}</span>
+      </div>
+      <ul>${d.items.map(it=>`<li><span>${it}</span></li>`).join("")}</ul>
+      ${d.stay?`<div class="stayline"><span class="pin">STAY</span> ${d.stay}</div>`:""}
+    </div>
+  </div>`).join("");
+
+document.getElementById("stays").innerHTML=stays.map(s=>`
+  <div class="hotel">
+    <span class="n">${s.n}</span>
+    <div class="nm">${s.nm}</div>
+    <div class="ar">${s.ar}</div>
+    <a href="${s.map}" target="_blank" rel="noopener">지도에서 보기 →</a>
+  </div>`).join("");
+
+const cl=document.getElementById("checklist");
+cl.innerHTML=tasks.map((t,i)=>`
+  <label class="task">
+    <input type="checkbox" data-i="${i}" ${t.done?"checked":""}>
+    <span class="b">
+      <span class="l">${t.l}</span><br>
+      <span class="s">${t.s}</span>
+    </span>
+    <span class="st">${t.done?"완료":"대기"}</span>
+  </label>`).join("");
+
+document.getElementById("tipbox").innerHTML=tips.map(t=>`
+  <div class="tip"><span class="no">${t.no}</span><span>${t.t}</span></div>`).join("");
+
+/* ===== 진행률 ===== */
+function upd(){
+  const b=cl.querySelectorAll("input"); let done=0;
+  b.forEach(x=>{
+    if(x.checked)done++;
+    const st=x.parentElement.querySelector(".st");
+    st.textContent=x.checked?"완료":"대기";
+  });
+  document.getElementById("bar").style.width=(done/b.length*100)+"%";
+  document.getElementById("ptext").textContent="완료 "+done+" / 전체 "+b.length;
+  document.getElementById("stat-prog").textContent=done+" / "+b.length;
+}
+cl.addEventListener("change",upd); upd();
+
+/* ===== D-day ===== */
+(function(){
+  const start=new Date(2026,7,20);
+  const now=new Date(); now.setHours(0,0,0,0);
+  const d=Math.round((start-now)/86400000);
+  const big=document.getElementById("dday-big");
+  const line=document.getElementById("dday-line");
+  if(d>0){ big.textContent="D-"+d; line.textContent=d+"일 남았어요"; }
+  else if(d===0){ big.textContent="D-DAY"; line.textContent="오늘 출발!"; }
+  else{ big.textContent="여행 중"; line.textContent="즐거운 여행 되세요"; }
+})();
+</script>
+</body>
+</html>
