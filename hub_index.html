@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jim's Document</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#0b0d09; --bg2:#0e110b;
+    --card:#14170f; --card2:#171b11; --line:#252a1d; --line2:#31382a;
+    --ink:#f0f3e8; --sub:#8f9683; --sub2:#6c7261;
+    --lime:#b8f24b; --mint:#57e6a5;
+    --glow-soft:0 0 0 1px rgba(184,242,75,.28), 0 0 14px rgba(184,242,75,.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+      "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% -5%, rgba(184,242,75,.06), transparent 60%),
+      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
+    background-color:var(--bg);
+    color:var(--ink); line-height:1.65; min-height:100vh;
+    padding:60px 18px 80px;
+    word-break:keep-all;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto;}
+
+  .top{text-align:center; margin-bottom:40px;}
+  .eyebrow{
+    font-size:12px; font-weight:800; letter-spacing:.34em; color:var(--lime);
+    text-transform:uppercase; margin-bottom:12px;
+  }
+  .top h1{font-size:36px; font-weight:900; letter-spacing:-.02em; line-height:1.25; margin-bottom:8px;}
+  .top h1 .hl{
+    background:linear-gradient(92deg, var(--lime) 20%, var(--mint) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .top p{font-size:14px; color:var(--sub);}
+
+  .docs{display:flex; flex-direction:column; gap:14px;}
+  a.doc{
+    display:grid; grid-template-columns:1fr auto; gap:4px 16px; align-items:center;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:20px 22px; text-decoration:none; color:var(--ink);
+    transition:border-color .2s, box-shadow .2s, transform .2s;
+  }
+  a.doc:hover{border-color:rgba(184,242,75,.45); box-shadow:var(--glow-soft); transform:translateY(-2px);}
+  .doc .nm{font-size:17px; font-weight:800; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .doc .tag{
+    font-size:10.5px; font-weight:800; letter-spacing:.05em; padding:3px 10px; border-radius:999px;
+    color:var(--lime); border:1px solid rgba(184,242,75,.4); background:rgba(184,242,75,.07);
+  }
+  .doc .ds{font-size:13px; color:var(--sub); grid-column:1;}
+  .doc .go{
+    grid-row:1 / span 2; font-size:20px; color:var(--sub2); font-weight:800;
+    transition:color .2s, transform .2s;
+  }
+  a.doc:hover .go{color:var(--lime); transform:translateX(3px);}
+
+  .empty{
+    text-align:center; border:1px dashed var(--line2); border-radius:16px;
+    padding:26px; font-size:13px; color:var(--sub2); margin-top:14px;
+  }
+
+  .footer{margin-top:56px; text-align:center; font-size:11.5px; color:var(--sub2); letter-spacing:.02em;}
+
+  @media(max-width:640px){
+    body{padding:44px 14px 64px;}
+    .top h1{font-size:28px;}
+    a.doc{padding:17px 18px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="eyebrow">Jim's Document</div>
+    <h1>짐의 <span class="hl">문서</span> 저장소</h1>
+    <p>만든 페이지들을 여기서 모아 봅니다</p>
+  </div>
+
+  <div class="docs" id="docs"></div>
+  <div class="empty">새 문서가 생기면 이 목록에 추가됩니다</div>
+
+  <div class="footer">JIM · GITHUB PAGES</div>
+
+</div>
+
+<script>
+/* 새 문서가 생기면 여기에 한 줄씩 추가하면 됩니다.
+   href는 폴더명 (저장소 안의 폴더 = 주소 경로) */
+const docs=[
+  {nm:"윰 & 짐 후쿠오카 여행", tag:"TRIP", ds:"2026.08.20 – 24 · 4박 5일 · 실시간 체크리스트", href:"fukuoka/"}
+];
+
+document.getElementById("docs").innerHTML=docs.map(d=>`
+  <a class="doc" href="${d.href}">
+    <span class="nm">${d.nm} <span class="tag">${d.tag}</span></span>
+    <span class="ds">${d.ds}</span>
+    <span class="go">→</span>
+  </a>`).join("");
+</script>
+</body>
+</html>
