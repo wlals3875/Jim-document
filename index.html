@@ -315,6 +315,8 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 /* ===== 데이터 ===== */
 const days=[
@@ -388,7 +390,7 @@ document.getElementById("stays").innerHTML=stays.map(s=>`
   </div>`).join("");
 
 const cl=document.getElementById("checklist");
-/* 저장된 체크 상태 불러오기 (없으면 기본값) */
+/* 오프라인 대비: 마지막 상태를 로컬에도 저장 */
 let saved=null;
 try{ saved=JSON.parse(localStorage.getItem("fukuoka-checklist")); }catch(e){}
 if(Array.isArray(saved)&&saved.length===tasks.length){
@@ -404,27 +406,65 @@ cl.innerHTML=tasks.map((t,i)=>`
     <span class="st">${t.done?"완료":"대기"}</span>
   </label>`).join("");
 
-document.getElementById("tipbox").innerHTML=tips.map(t=>`
-  <div class="tip"><span class="no">${t.no}</span><span>${t.t}</span></div>`).join("");
-
-/* ===== 진행률 ===== */
-function upd(){
+/* ===== 진행률 그리기 (쓰기 없음) ===== */
+function refresh(){
   const b=cl.querySelectorAll("input"); let done=0;
   b.forEach(x=>{
     if(x.checked)done++;
-    const st=x.parentElement.querySelector(".st");
-    st.textContent=x.checked?"완료":"대기";
+    x.parentElement.querySelector(".st").textContent=x.checked?"완료":"대기";
   });
   document.getElementById("bar").style.width=(done/b.length*100)+"%";
   document.getElementById("ptext").textContent="완료 "+done+" / 전체 "+b.length;
   document.getElementById("stat-prog").textContent=done+" / "+b.length;
-  /* 상태 저장 */
   try{
     const st=[]; b.forEach(x=>st.push(x.checked));
     localStorage.setItem("fukuoka-checklist",JSON.stringify(st));
   }catch(e){}
 }
-cl.addEventListener("change",upd); upd();
+
+/* ===== Firebase 실시간 동기화 ===== */
+const firebaseConfig={
+  apiKey:"AIzaSyBWK9r4-HwOfhJWxFCy2uzvIceRDoMfZxQ",
+  authDomain:"jim-s-document.firebaseapp.com",
+  databaseURL:"https://jim-s-document-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"jim-s-document",
+  storageBucket:"jim-s-document.firebasestorage.app",
+  messagingSenderId:"210701764992",
+  appId:"1:210701764992:web:87517da8493493f84a1965"
+};
+let fdb=null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  fdb=firebase.database().ref("fukuoka/checklist");
+}catch(e){ /* 오프라인/차단 시 로컬 저장만으로 동작 */ }
+
+function currentStates(){
+  const st=[]; cl.querySelectorAll("input").forEach(x=>st.push(x.checked)); return st;
+}
+function applyStates(arr){
+  const b=cl.querySelectorAll("input");
+  b.forEach((x,i)=>{ x.checked=!!arr[i]; });
+  refresh();
+}
+
+/* 체크 → 서버로 전송 */
+cl.addEventListener("change",()=>{
+  refresh();
+  if(fdb) fdb.set(currentStates()).catch(()=>{});
+});
+
+/* 서버 변경 → 화면 반영 (다른 폰에서 체크해도 즉시 갱신) */
+if(fdb){
+  fdb.on("value",snap=>{
+    const v=snap.val();
+    if(Array.isArray(v)&&v.length===tasks.length){ applyStates(v); }
+    else if(v==null){ fdb.set(currentStates()).catch(()=>{}); } /* 최초 1회: 현재 상태를 시드로 */
+  });
+}
+refresh();
+
+document.getElementById("tipbox").innerHTML=tips.map(t=>`
+  <div class="tip"><span class="no">${t.no}</span><span>${t.t}</span></div>`).join("");
 
 /* ===== D-day ===== */
 (function(){
