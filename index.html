@@ -66,8 +66,7 @@
     max-width:1060px; margin:0 auto; padding:13px 18px;
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
-  .logo{font-size:14px; font-weight:900; font-style:italic; letter-spacing:.2em; color:var(--ink); cursor:pointer; white-space:nowrap;}
-  .logo::before{content:"///"; color:var(--lime); margin-right:8px; letter-spacing:0;}
+  .logo{font-size:15px; font-weight:900; letter-spacing:.06em; color:var(--ink); cursor:pointer; white-space:nowrap;}
   .s-mark{color:var(--lime); font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);}
   .hsearch{
     flex:1; min-width:150px; display:flex; align-items:center; gap:8px;
@@ -109,9 +108,16 @@
   }
   .s-item:hover{background:rgba(0,210,190,.07); color:var(--ink);}
   .s-item.on{background:rgba(0,210,190,.1); color:var(--lime);}
-  .s-item .ic{font-size:13px; width:17px; text-align:center; flex-shrink:0;}
+  .s-item .ic{width:18px; height:16px; flex-shrink:0; display:inline-flex; align-items:center;}
+  .s-item .ic svg{width:16px; height:16px;}
   .s-item .tx{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .s-empty{font-size:12px; color:var(--sub2); padding:4px 10px;}
+  .stor{margin:22px 8px 0; padding:13px 13px 12px; background:var(--card); border:1px solid var(--line); border-radius:11px;}
+  .stor .st-t{display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:var(--sub); margin-bottom:8px;}
+  .stor .st-t b{color:var(--ink); font-variant-numeric:tabular-nums;}
+  .stor .st-track{height:5px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden;}
+  .stor .st-bar{height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,var(--lime),#8be9e0); transition:width .5s;}
+  .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
   body.side-off aside{display:none;}
   main{flex:1; min-width:0; padding:22px 18px 90px;}
   @media(max-width:860px){
@@ -161,7 +167,7 @@
     transition:border-color .18s, box-shadow .18s, transform .18s;
   }
   .fcard:hover,.dcard:hover{border-color:rgba(0,210,190,.42); box-shadow:var(--glow-soft); transform:translateY(-2px);}
-  .fcard .fi{font-size:20px; margin-bottom:6px; display:block;}
+  .fcard .fi{margin-bottom:7px; display:block; height:20px;}
   .fcard .nm,.dcard .nm{font-size:14.5px; font-weight:800; line-height:1.45; padding-right:26px;}
   .dcard .nm .pin{color:var(--lime); font-size:12px; margin-right:4px;}
   .fcard .meta,.dcard .meta{font-size:11.5px; color:var(--sub2); margin-top:5px;}
@@ -357,6 +363,11 @@
   <button class="s-item hidden" id="s-stats"><span class="ic">📊</span><span class="tx">방문 통계</span></button>
   <div class="s-label">폴더</div>
   <div id="tree"></div>
+  <div class="stor hidden" id="stor">
+    <div class="st-t"><span>스토리지</span><b id="st-num">—</b></div>
+    <div class="st-track"><div class="st-bar" id="st-bar"></div></div>
+    <div class="st-s" id="st-pct"></div>
+  </div>
 </aside>
 
 <main>
@@ -427,6 +438,9 @@ let curFolder="root";
 let curDoc=null, curDocScope=null;
 let viewedThisSession={};
 
+const I_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="#00d2be"/><path d="M3 7q0-2 2-2h5l1.2 1.2H5q-1 0-1 1Z" fill="#00a89a"/></svg>';
+const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="#00d2be"/><g transform="translate(11.5,9.5)"><rect x="0" y="3.4" width="8.4" height="6.2" rx="1.6" fill="#c9ced4"/><path d="M1.8 3.4V2.4a2.4 2.4 0 0 1 4.8 0v1" fill="none" stroke="#c9ced4" stroke-width="1.5"/><circle cx="4.2" cy="6.4" r="1" fill="#121416"/></g></svg>';
+const I_LOCK='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style="vertical-align:-1.5px"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="#c9ced4"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="#c9ced4" stroke-width="2.4"/><circle cx="12" cy="15" r="1.7" fill="#121416"/></svg>';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2400);}
@@ -456,6 +470,8 @@ auth.onAuthStateChanged(u=>{
     $("role").className="role "+(IS_MASTER?"master":"guest");
     $("stats-btn").classList.toggle("hidden",!IS_MASTER);
     $("s-stats").classList.toggle("hidden",!IS_MASTER);
+    $("stor").classList.toggle("hidden",!IS_MASTER);
+    if(IS_MASTER)computeStorage();
     $("toolbar").classList.toggle("hidden",!IS_MASTER);
     $("drop").classList.toggle("hidden",!IS_MASTER);
     subscribe();
@@ -498,7 +514,7 @@ function render(){
   path.forEach(p=>{ c+=`<span class="sep">›</span><a href="#" data-nav="${p.id}">${esc(p.name)}</a>`; });
   if(curFolder!=="root"){
     const sc=fScope(curFolder);
-    c+=`<span class="vis ${sc==="priv"?"priv":"pub"}">${sc==="priv"?"🔒 비공개":"공개"}</span>`;
+    c+=`<span class="vis ${sc==="priv"?"priv":"pub"}">${sc==="priv"?I_LOCK+" 비공개":"공개"}</span>`;
   }
   $("crumb").innerHTML=c;
   $("crumb").querySelectorAll("a").forEach(a=>a.onclick=e=>{e.preventDefault();curFolder=a.dataset.nav;render();});
@@ -543,7 +559,7 @@ function render(){
         +(IS_MASTER?Object.values(DATA.priv.docs).filter(d=>d.folder===f.id).length:0);
       return `<div class="fcard" data-f="${f.id}">
         ${IS_MASTER?`<button class="kebab" data-fm="${f.id}">⋯</button>`:""}
-        <span class="fi">${f.scope==="priv"?"🔒":"📁"}</span><div class="nm">${esc(f.name)}</div>
+        <span class="fi">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><div class="nm">${esc(f.name)}</div>
         <div class="meta">문서 ${cnt}개${f.scope==="priv"?" · 나만 보기":""}</div></div>`;
     }).join("")+`</div>`;
   }
@@ -552,7 +568,7 @@ function render(){
       const link=d.type==="link";
       return `<div class="dcard" data-d="${d.id}">
         ${IS_MASTER?`<button class="kebab" data-dm="${d.id}">⋯</button>`:""}
-        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?"🔒 ":""}${link?"🔗 ":""}${esc(d.name)}</div>
+        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?"🔗 ":""}${esc(d.name)}</div>
         ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
         ${d.tags?`<div class="tags">${d.tags.split(",").map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
         <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.secret?" · 🔑 비밀링크":""}</div></div>`;
@@ -596,7 +612,7 @@ function renderTree(){
     const kids=(byParent[pid]||[]).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
     return kids.map(f=>`
       <button class="s-item${curFolder===f.id?" on":""}" data-go="${f.id}" style="padding-left:${10+depth*15}px">
-        <span class="ic">${f.scope==="priv"?"🔒":"📁"}</span><span class="tx">${esc(f.name)}</span>
+        <span class="ic">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><span class="tx">${esc(f.name)}</span>
       </button>`+build(f.id,depth+1)).join("");
   };
   const html=build("root",0);
@@ -726,7 +742,7 @@ async function deleteFolder(fid){
     up[`hub/${d.scope}/versions/${d.id}`]=null;
     up[`hub/comments/${d.id}`]=null; up[`hub/views/${d.id}`]=null;
   }
-  await db.ref().update(up); toast("삭제됨");
+  await db.ref().update(up); toast("삭제됨"); computeStorageSoon();
   if(fids.some(f=>f.id===curFolder))curFolder="root";
 }
 async function moveFolderScope(fid){
@@ -803,12 +819,12 @@ async function saveDoc(name,html){
     /* 비밀 링크 활성 시 스냅샷 갱신 */
     const meta=D[did];
     if(meta.secret)await db.ref(`hub/secret/${meta.secret}`).update({html,name:meta.name,at:Date.now()});
-    toast(`"${name}" 교체됨 (댓글·조회수 유지)`);
+    toast(`"${name}" 교체됨 (댓글·조회수 유지)`); computeStorageSoon();
   }else{
     const ref=db.ref(`hub/${scope}/docs`).push();
     await ref.set({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"html"});
     await db.ref(`hub/${scope}/contents/${ref.key}`).set(html);
-    toast(scope==="priv"?`🔒 "${name}" 업로드됨 (비공개)`:`"${name}" 업로드됨`);
+    toast(scope==="priv"?`🔒 "${name}" 업로드됨 (비공개)`:`"${name}" 업로드됨`); computeStorageSoon();
   }
 }
 $("add-link").onclick=()=>{
@@ -860,7 +876,7 @@ function docMenu(did,anchor){
       up[`hub/${scope}/versions/${did}`]=null;
       up[`hub/comments/${did}`]=null; up[`hub/views/${did}`]=null;
       if(d.secret)up[`hub/secret/${d.secret}`]=null;
-      await db.ref().update(up); toast("삭제됨");
+      await db.ref().update(up); toast("삭제됨"); computeStorageSoon();
     }}
   ]);
 }
@@ -980,6 +996,28 @@ function sendComment(){
   const t=$("c-input").value.trim(); if(!t||!curDoc)return;
   db.ref(`hub/comments/${curDoc}`).push({uid:ME.uid,name:ME.displayName||ME.email,photo:ME.photoURL||"",text:t,at:Date.now()});
   $("c-input").value="";
+}
+
+/* ================= 스토리지 사용량 (마스터) ================= */
+const STORAGE_LIMIT=1024*1024*1024; /* Firebase 무료 플랜 1GB */
+let storTimer=null;
+function computeStorageSoon(){ clearTimeout(storTimer); storTimer=setTimeout(computeStorage,1500); }
+async function computeStorage(){
+  if(!IS_MASTER)return;
+  try{
+    const paths=["hub/pub/contents","hub/priv/contents","hub/pub/versions","hub/priv/versions","hub/secret","hub/pub/docs","hub/priv/docs","hub/comments","fukuoka"];
+    let bytes=0;
+    for(const p of paths){
+      const v=(await db.ref(p).get()).val();
+      if(v!=null)bytes+=new Blob([JSON.stringify(v)]).size;
+    }
+    const mb=bytes/1048576;
+    const num=mb>=1024?(mb/1024).toFixed(2)+" GB":mb>=1?mb.toFixed(1)+" MB":(bytes/1024).toFixed(0)+" KB";
+    $("st-num").textContent=num+" / 1 GB";
+    const pct=Math.min(100,bytes/STORAGE_LIMIT*100);
+    $("st-bar").style.width=Math.max(1,pct)+"%";
+    $("st-pct").textContent=pct<0.1?pct.toFixed(3)+"% 사용 중":pct.toFixed(2)+"% 사용 중";
+  }catch(e){ $("st-num").textContent="측정 실패"; }
 }
 
 /* ================= 통계 ================= */
