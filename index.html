@@ -44,9 +44,6 @@
   /* ===== 로그인 게이트 ===== */
   #gate{
     position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-    background:
-      radial-gradient(ellipse 70% 40% at 50% -5%, rgba(0,210,190,.07), transparent 60%),
-      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
   }
   .gate-box{text-align:center; padding:20px;}
   .gate-box .eyebrow{font-size:12px; font-weight:800; letter-spacing:.34em; color:var(--lime); text-transform:uppercase; margin-bottom:12px;}
@@ -382,7 +379,7 @@
     background:radial-gradient(closest-side, rgba(45,105,170,.15), transparent 72%);
     animation:bloom 2.1s cubic-bezier(.16,.7,.3,1) both, breathe 13s ease-in-out 2.3s infinite;}
   @keyframes bloom{from{opacity:0; transform:translate(-50%,-50%) scale(.5)}to{opacity:1; transform:translate(-50%,-50%) scale(1)}}
-  @keyframes breathe{0%,100%{opacity:.8; transform:translate(-50%,-50%) scale(1)}50%{opacity:1; transform:translate(-50%,-50%) scale(1.05)}}
+  @keyframes breathe{0%,100%{opacity:1; transform:translate(-50%,-50%) scale(1)}50%{opacity:.88; transform:translate(-50%,-50%) scale(1.04)}}
   .layout{position:relative; z-index:1;}
 
   .widget{
