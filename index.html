@@ -106,10 +106,9 @@
   .s-item .ic{font-size:13px; width:17px; text-align:center; flex-shrink:0;}
   .s-item .tx{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .s-empty{font-size:12px; color:var(--sub2); padding:4px 10px;}
-  #menu-btn{display:none;}
+  body.side-off aside{display:none;}
   main{flex:1; min-width:0; padding:22px 18px 90px;}
   @media(max-width:860px){
-    #menu-btn{display:inline-block;}
     aside{
       position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
       background:var(--bg2); border-right:1px solid var(--line2);
@@ -220,10 +219,16 @@
   .v-bar .nm{font-size:14.5px; font-weight:800; flex:1; min-width:120px;}
   .v-meta{font-size:11.5px; color:var(--sub2); white-space:nowrap;}
   .v-frame{flex:1; border:none; width:100%; background:#fff;}
-  .v-side{
-    border-top:1px solid var(--line); max-height:38vh; overflow:auto; padding:16px 18px;
-    background:var(--bg2);
+  .v-side{border-top:1px solid var(--line); background:var(--bg2);}
+  #c-toggle{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    background:none; border:none; cursor:pointer;
+    font-size:12.5px; font-weight:800; color:var(--sub); padding:11px 18px;
   }
+  #c-toggle .arr{margin-left:auto; color:var(--sub2); transition:transform .18s;}
+  .v-side.closed #c-toggle .arr{transform:rotate(-90deg);}
+  #c-wrap{max-height:34vh; overflow:auto; padding:0 18px 16px;}
+  .v-side.closed #c-wrap{display:none;}
   .c-item{display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px;}
   .c-item img{width:26px; height:26px; border-radius:50%; flex-shrink:0;}
   .c-item .cn{font-weight:800; font-size:12.5px;}
@@ -266,7 +271,11 @@
 
   @media(max-width:640px){
     .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
-    .v-side{max-height:44vh;}
+    .drop{display:none !important;}
+    .v-bar{padding:8px 10px; gap:8px;}
+    .v-bar .nm{font-size:12.5px;}
+    .v-meta{display:none;}
+    #c-wrap{max-height:30vh;}
   }
 </style>
 </head>
@@ -341,12 +350,14 @@
     <button class="hbtn hidden" id="v-restore">이전 버전</button>
   </div>
   <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
-  <div class="v-side">
-    <div style="font-size:12px;font-weight:800;color:var(--sub2);letter-spacing:.08em;margin-bottom:4px">댓글</div>
-    <div id="c-list"></div>
-    <div class="c-form">
-      <input id="c-input" type="text" placeholder="댓글 남기기" maxlength="500">
-      <button class="mbtn pri" id="c-send">등록</button>
+  <div class="v-side" id="v-side">
+    <button id="c-toggle">💬 댓글 <span id="c-count"></span><span class="arr">▾</span></button>
+    <div id="c-wrap">
+      <div id="c-list"></div>
+      <div class="c-form">
+        <input id="c-input" type="text" placeholder="댓글 남기기" maxlength="500">
+        <button class="mbtn pri" id="c-send">등록</button>
+      </div>
     </div>
   </div>
 </div>
@@ -556,12 +567,18 @@ function renderTree(){
 let asideBg=null;
 function closeAside(){ $("aside").classList.remove("open"); if(asideBg){asideBg.remove();asideBg=null;} }
 $("menu-btn").onclick=()=>{
-  const a=$("aside");
-  if(a.classList.contains("open")){closeAside();return;}
-  a.classList.add("open");
-  asideBg=document.createElement("div"); asideBg.id="aside-bg";
-  asideBg.onclick=closeAside; document.body.appendChild(asideBg);
+  if(matchMedia("(max-width:860px)").matches){
+    const a=$("aside");
+    if(a.classList.contains("open")){closeAside();return;}
+    a.classList.add("open");
+    asideBg=document.createElement("div"); asideBg.id="aside-bg";
+    asideBg.onclick=closeAside; document.body.appendChild(asideBg);
+  }else{
+    document.body.classList.toggle("side-off");
+    try{localStorage.setItem("hub-side-off",document.body.classList.contains("side-off")?"1":"");}catch(e){}
+  }
 };
+try{ if(localStorage.getItem("hub-side-off")==="1")document.body.classList.add("side-off"); }catch(e){}
 $("s-stats").onclick=()=>{closeAside();$("stats-btn").click();};
 $("search").oninput=render;
 $("sort").onchange=render;
@@ -752,7 +769,7 @@ async function saveDoc(name,html){
   }
 }
 $("add-link").onclick=()=>{
-  modal(`<h3>링크 추가</h3><label>표시 이름</label><input type="text" id="m-name" placeholder="예: 윰 & 짐 후쿠오카 여행">
+  modal(`<h3>링크 추가</h3><label>표시 이름</label><input type="text" id="m-name" placeholder="예: 프로젝트 소개 페이지">
     <label>URL</label><input type="text" id="m-url" placeholder="https:// 또는 fukuoka/ 같은 상대경로">
     <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>추가</button></div>`,
   bg=>{
@@ -830,6 +847,7 @@ async function openDoc(did,scope){
   if(d.type==="link"){ window.open(d.url,"_blank"); return; }
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
+  $("v-side").classList.toggle("closed",matchMedia("(max-width:640px)").matches);
   $("v-name").textContent=d.name;
   document.querySelector(".v-side").style.display="";
   $("v-frame").srcdoc="<p style='font-family:sans-serif;color:#888;padding:20px'>불러오는 중…</p>";
@@ -895,6 +913,7 @@ function loadComments(did){
   const r=db.ref(`hub/comments/${did}`);
   const h=r.on("value",s=>{
     const v=s.val()||{};
+    $("c-count").textContent=Object.keys(v).length||"";
     $("c-list").innerHTML=Object.entries(v).sort((a,b)=>a[1].at-b[1].at).map(([cid,c])=>`
       <div class="c-item">
         ${c.photo?`<img src="${esc(c.photo)}" alt="">`:`<span style="width:26px"></span>`}
@@ -911,6 +930,7 @@ function loadComments(did){
   });
   cOff=()=>r.off("value",h);
 }
+$("c-toggle").onclick=()=>$("v-side").classList.toggle("closed");
 $("c-send").onclick=sendComment;
 $("c-input").addEventListener("keydown",e=>{if(e.key==="Enter")sendComment();});
 function sendComment(){
