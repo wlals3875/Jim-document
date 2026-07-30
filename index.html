@@ -292,8 +292,9 @@
   .dash{display:flex; flex-direction:column; gap:16px;}
   .qadd{
     display:flex; gap:9px; align-items:center;
-    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px 12px;
+    background:var(--card2); border:1px solid var(--line2); border-radius:12px; padding:7px 9px; margin-bottom:10px;
   }
+  .qprev{margin-bottom:11px;}
   .qadd input{flex:1; background:none; border:none; outline:none; font-size:14px; min-width:0; padding:6px 4px;}
   .qadd .qbtn{
     background:var(--lime); border:none; color:#021413; font-weight:800; font-size:13px;
@@ -324,7 +325,6 @@
     display:flex; align-items:baseline; gap:9px; font-size:13px; font-weight:800;
     letter-spacing:.1em; color:var(--sub2); text-transform:uppercase; margin-bottom:13px;
   }
-  .widget .wt::before{content:"// "; color:var(--lime); font-weight:900;}
   .widget .wt .r{margin-left:auto; letter-spacing:0; text-transform:none; font-size:11.5px; font-weight:700;}
   .w-empty{font-size:12.5px; color:var(--sub2); padding:8px 0;}
   .connect-btn{
@@ -367,6 +367,49 @@
   .wd .t{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .wd .a{font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums;}
   @media(max-width:860px){ .wgrid{grid-template-columns:1fr;} }
+
+  /* ===== 모션 & 앰비언스 ===== */
+  .orbs{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+  .orbs i{position:absolute; border-radius:50%; filter:blur(110px); opacity:.13;}
+  .orbs i:nth-child(1){width:480px;height:480px;background:#00d2be;top:-160px;left:-120px;animation:drift1 26s ease-in-out infinite alternate;}
+  .orbs i:nth-child(2){width:380px;height:380px;background:#3f7f8f;bottom:-140px;right:-100px;animation:drift2 34s ease-in-out infinite alternate;}
+  @keyframes drift1{from{transform:translate(0,0) scale(1)}to{transform:translate(90px,70px) scale(1.15)}}
+  @keyframes drift2{from{transform:translate(0,0) scale(1.1)}to{transform:translate(-80px,-60px) scale(1)}}
+  header,.layout,#gate,#viewer{position:relative; z-index:1;}
+  header{position:sticky;}
+
+  .widget{
+    transition:border-color .25s, box-shadow .25s, transform .25s;
+    animation:rise .55s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .widget:hover{border-color:rgba(0,210,190,.35); box-shadow:var(--glow-soft); transform:translateY(-2px);}
+  .wgrid .widget:nth-child(1){animation-delay:.04s}
+  .wgrid .widget:nth-child(2){animation-delay:.1s}
+  .wgrid .widget:nth-child(3){animation-delay:.16s}
+  .wgrid .widget:nth-child(4){animation-delay:.22s}
+  @keyframes rise{from{opacity:0; transform:translateY(16px)}to{opacity:1; transform:none}}
+  .fcard,.dcard{animation:pop .28s ease both;}
+  @keyframes pop{from{opacity:0; transform:translateY(8px) scale(.985)}to{opacity:1; transform:none}}
+
+  .gauge .gb{position:relative; overflow:hidden;}
+  .gauge .gb::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(100deg, transparent 32%, rgba(255,255,255,.3) 50%, transparent 68%);
+    transform:translateX(-100%); animation:shine 3s ease 1.2s infinite;
+  }
+  @keyframes shine{60%,100%{transform:translateX(100%)}}
+  .cat .cb i{transform-origin:left; animation:growx .7s cubic-bezier(.2,.7,.2,1) both;}
+  @keyframes growx{from{transform:scaleX(0)}}
+  header::after{animation:stripe 7s ease-in-out infinite alternate;}
+  @keyframes stripe{from{opacity:.55}to{opacity:1}}
+  .ev-next{animation:glowpulse 4.5s ease-in-out infinite;}
+  @keyframes glowpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,210,190,0)}50%{box-shadow:0 0 18px 0 rgba(0,210,190,.12)}}
+  .fxline{
+    margin-top:13px; padding-top:12px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--sub2); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .fxline b{color:var(--sub); font-weight:800;}
   .checker{
     height:10px; width:170px; margin:0 auto;
     background:repeating-conic-gradient(#c9ced4 0% 25%, transparent 0% 50%);
@@ -386,6 +429,7 @@
 </style>
 </head>
 <body>
+<div class="orbs" aria-hidden="true"><i></i><i></i></div>
 
 <!-- 로그인 게이트 -->
 <div id="gate">
@@ -460,18 +504,19 @@
 <main>
 <div id="view-home" class="hidden">
   <div class="dash">
-    <div>
-      <div class="qadd">
-        <input id="q-in" type="text" placeholder="예: 점심 8500 · 택시 1.2만 · 월급 300만 수입" autocomplete="off">
-        <button class="qbtn" id="q-save" disabled>기록</button>
-      </div>
-      <div class="qprev hidden" id="q-prev"></div>
-    </div>
     <div class="wgrid">
-      <div class="widget" id="w-cal"><div class="wt">이번 주</div><div class="w-empty">연결 필요</div></div>
-      <div class="widget" id="w-money"><div class="wt">가계부</div><div class="w-empty">연결 필요</div></div>
-      <div class="widget" id="w-wd"><div class="wt">다음 출금</div><div class="w-empty">연결 필요</div></div>
-      <div class="widget" id="w-docs"><div class="wt">최근 문서</div><div class="w-empty">—</div></div>
+      <div class="widget" id="w-cal"><div class="wt">📅 이번 주</div><div class="w-empty">연결 필요</div></div>
+      <div class="widget" id="w-money">
+        <div class="wt">💰 가계부 <span class="r" id="money-mon"></span></div>
+        <div class="qadd">
+          <input id="q-in" type="text" placeholder="예: 점심 8500 · 물 4400" autocomplete="off">
+          <button class="qbtn" id="q-save" disabled>기록</button>
+        </div>
+        <div class="qprev hidden" id="q-prev"></div>
+        <div id="money-body"><div class="w-empty">연결 필요</div></div>
+      </div>
+      <div class="widget" id="w-wd"><div class="wt">💸 다음 출금</div><div class="w-empty">연결 필요</div></div>
+      <div class="widget" id="w-docs"><div class="wt">📄 최근 문서</div><div class="w-empty">—</div></div>
     </div>
   </div>
 </div>
@@ -1223,17 +1268,57 @@ $("stats-btn").onclick=async()=>{
 const SHEET_ID="1KvYLd8fOOWvj1aapI4zBGgyeIT2T7wQyZLW8ZvEt6X0";
 const GSCOPES="https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/spreadsheets";
 const CATS=["교통비","회사 식비","개인 식비","사회생활비","품위유지비","생활비","건강","기타 지출","데이트"];
-const CATKEY={
-  "교통비":["택시","버스","지하철","기차","ktx","srt","주유","주차","톨비","대중교통"],
-  "회사 식비":["점심","커피","카페","스벅","회사"],
-  "개인 식비":["배달","포장","식료품","마트","편의점","저녁","아침","간식","야식","외식","치킨","피자"],
-  "사회생활비":["술","회식","모임","회비","친구","맥주","소주"],
-  "품위유지비":["옷","신발","미용","미용실","피부","취미","게임","쿠지","피규어","네일"],
-  "생활비":["생필품","다이소","가구","패브릭","세제","휴지","이케아"],
-  "건강":["병원","약","약국","운동","헬스","필라테스","보조제","영양제"],
-  "기타 지출":["선물","경조사","여행","가족","부모님","축의","조의"],
-  "데이트":["데이트","윰"]
-};
+/* 시트 세부항목 트리 — 입력은 세부항목 행에, 부모는 수식이 자동 합산 */
+const CATTREE=[
+  {cat:"교통비",subs:[
+    {n:"대중교통",k:["버스","지하철","기차","ktx","srt","대중교통","따릉이"]},
+    {n:"자차",k:["주유","주차","톨비","세차","하이패스"]},
+    {n:"그 외",k:["택시"]}]},
+  {cat:"회사 식비",subs:[
+    {n:"점심",k:["점심","회사밥"]},
+    {n:"커피",k:["커피","카페","스벅","라떼","아아"]}]},
+  {cat:"개인 식비",subs:[
+    {n:"식료품",k:["식료품","마트","편의점","물","장보기","과일","우유","계란"]},
+    {n:"배달, 포장",k:["배달","포장","치킨","피자","야식","외식","저녁","족발"]}]},
+  {cat:"사회생활비",subs:[
+    {n:"노는 비용",k:["술","회식","모임","친구","맥주","소주","노래방"]},
+    {n:"회비",k:["회비"]}]},
+  {cat:"품위유지비",subs:[
+    {n:"옷",k:["옷","신발","의류","셔츠","바지"]},
+    {n:"취미",k:["취미","게임","쿠지","피규어","레고"]},
+    {n:"미용실",k:["미용실","머리","펌","염색"]},
+    {n:"피부과",k:["피부"]}]},
+  {cat:"생활비",subs:[
+    {n:"생필품",k:["생필품","다이소","세제","휴지","샴푸","치약"]},
+    {n:"패브릭, 가구",k:["가구","패브릭","이케아","이불","커튼"]}]},
+  {cat:"건강",subs:[
+    {n:"병원",k:["병원","약","약국","진료"]},
+    {n:"보조",k:["보조제","영양제","유산균"]},
+    {n:"운동",k:["운동","헬스","필라테스","수영"]}]},
+  {cat:"기타 지출",subs:[
+    {n:"가족",k:["가족","부모님","본가"]},
+    {n:"선물",k:["선물"]},
+    {n:"경조사비",k:["경조사","축의","조의","부조"]},
+    {n:"여행",k:["여행","숙소","항공"]},
+    {n:"행운",k:["복권","로또","행운"]}]},
+  {cat:"데이트",subs:[],k:["데이트","윰"]}
+];
+function catOptions(sel){
+  return CATTREE.map(c=>{
+    if(!c.subs.length)return '<option value="'+c.cat+'" '+(sel===c.cat?"selected":"")+'>'+c.cat+'</option>';
+    return '<optgroup label="'+c.cat+'">'+c.subs.map(s=>{
+      const v=c.cat+">"+s.n;
+      return '<option value="'+v+'" '+(sel===v?"selected":"")+'>'+s.n+'</option>';
+    }).join("")+'</optgroup>';
+  }).join("");
+}
+function guessTarget(desc){
+  for(const c of CATTREE){
+    if(c.k){for(const k of c.k)if(desc.includes(k))return c.cat;}
+    for(const s of c.subs)for(const k of s.k)if(desc.includes(k))return c.cat+">"+s.n;
+  }
+  return null;
+}
 function gtoken(){
   try{const v=JSON.parse(localStorage.getItem("hub-gtoken"));if(v&&v.exp>Date.now())return v.t;}catch(e){}
   return null;
@@ -1261,11 +1346,15 @@ function needConnect(el){
 let dashLoaded=0;
 function initDash(){
   renderRecentDocs();
-  if(!gtoken()){ ["w-cal","w-money","w-wd"].forEach(id=>needConnect($(id))); dashLoaded=0; return; }
+  if(!gtoken()){
+    ["w-cal","w-wd"].forEach(id=>needConnect($(id)));
+    $("money-body").innerHTML='<div class="w-empty" style="display:flex;gap:12px;align-items:center">구글 데이터 연결이 필요해요 <button class="connect-btn" onclick="connectGoogle()">연결</button></div>';
+    dashLoaded=0; return;
+  }
   if(dashLoaded&&Date.now()-dashLoaded<60000)return;
   dashLoaded=Date.now();
-  loadCalendar().catch(e=>{if(e.message!=="expired")$("w-cal").innerHTML='<div class="wt">이번 주</div><div class="w-empty">불러오기 실패</div>';});
-  loadSheet().catch(e=>{if(e.message!=="expired")$("w-money").innerHTML='<div class="wt">가계부</div><div class="w-empty">불러오기 실패 — Sheets API 활성화 확인</div>';});
+  loadCalendar().catch(e=>{if(e.message!=="expired")$("w-cal").innerHTML='<div class="wt">📅 이번 주</div><div class="w-empty">불러오기 실패</div>';});
+  loadSheet().catch(e=>{if(e.message!=="expired")$("money-body").innerHTML='<div class="w-empty">불러오기 실패 — Sheets API 활성화 확인</div>';});
 }
 
 /* ---- 캘린더 ---- */
@@ -1283,7 +1372,7 @@ async function loadCalendar(){
   const plain=evs.filter(e=>!isWd(e));
   const week=plain.filter(e=>evDate(e)<weekEnd);
   const next=plain[0];
-  let html='<div class="wt">이번 주 <span class="r">기본 캘린더</span></div>';
+  let html='<div class="wt">📅 이번 주 <span class="r">기본 캘린더</span></div>';
   if(next){
     const dd=evDate(next);
     html+='<div class="ev-next"><div class="k">NEXT</div>'+esc(next.summary||"(제목 없음)")
@@ -1310,7 +1399,7 @@ async function loadCalendar(){
     if(KNOWN.test(s))return {e,amt:null};
     return null;
   }).filter(Boolean).slice(0,8);
-  let wh='<div class="wt">다음 출금 <span class="r">45일 이내</span></div>';
+  let wh='<div class="wt">💸 다음 출금 <span class="r">45일 이내</span></div>';
   if(wds.length){
     const total=wds.reduce((s,x)=>s+(x.amt||0),0);
     wh+=wds.map(x=>{
@@ -1335,25 +1424,36 @@ async function loadSheet(){
   const mk=monKey();
   let mc=-1;
   hdr.forEach((v,i)=>{if(String(v).trim()===mk)mc=i;});
-  if(mc<0){$("w-money").innerHTML='<div class="wt">가계부</div><div class="w-empty">시트에 '+mk+' 월 컬럼이 없어요</div>';return;}
-  const find=lbl=>{for(let r=0;r<g.length;r++){if(String((g[r]||[])[1]||"").trim()===lbl)return r;}return -1;};
-  const rows={예산:find("예산"),잔여:find("잔여"),소진율:find("소진율"),지출금액:find("지출 금액"),지출가능:find("지출 가능")};
-  /* 지출 카테고리 행 (41행 이후 구간에서 탐색) */
-  const catRows={};
+  if(mc<0){$("money-body").innerHTML='<div class="w-empty">시트에 '+mk+' 월 컬럼이 없어요</div>';return;}
+  const norm=s=>String(s||"").replace(/\s+/g,"");
+  const find=lbl=>{const L=norm(lbl);for(let r=0;r<g.length;r++){if(norm((g[r]||[])[1])===L)return r;}return -1;};
+  const rows={예산:find("예산"),잔여:find("잔여"),소진율:find("소진율"),지출금액:find("지출 금액"),지출가능:find("지출 가능"),
+              보험:find("보험"),고정지출:find("고정 지출"),저축:find("저축")};
+  /* 지출 카테고리·세부항목 행 매핑 */
+  const catRows={}, targetRows={};
   for(let r=38;r<g.length;r++){
     const lbl=String((g[r]||[])[1]||"").trim();
     if(CATS.includes(lbl)&&catRows[lbl]===undefined)catRows[lbl]=r;
   }
-  SHEET={g,mc,rows,catRows};
+  for(const c of CATTREE){
+    const pr=catRows[c.cat]; if(pr===undefined)continue;
+    if(!c.subs.length){targetRows[c.cat]=pr;continue;}
+    for(const s of c.subs){
+      for(let r=pr+1;r<Math.min(pr+9,g.length);r++){
+        if(String((g[r]||[])[1]||"").trim()===s.n){targetRows[c.cat+">"+s.n]=r;break;}
+      }
+    }
+  }
+  SHEET={g,mc,rows,catRows,targetRows};
   const num=r=>{const v=r>=0?(g[r]||[])[mc]:null;return typeof v==="number"?v:(v&&!isNaN(+v)?+v:null);};
   const budget=num(rows.예산), spent=num(rows.지출금액), remain=num(rows.잔여), cap=num(rows.지출가능);
   const rate=cap&&spent!=null?spent/cap:null;
   const w=v=>v==null?"—":Math.round(v).toLocaleString();
-  let html='<div class="wt">가계부 <span class="r">'+mk+'</span></div>';
-  html+='<div class="mon-nums">'
-    +'<div class="mn"><div class="k">예산</div><div class="v">'+w(budget)+'</div></div>'
-    +'<div class="mn"><div class="k">지출</div><div class="v">'+w(spent)+'</div></div>'
-    +'<div class="mn"><div class="k">잔여</div><div class="v '+(remain!=null&&remain<0?"red":"lime")+'">'+w(remain)+'</div></div>'
+  $("money-mon").textContent=mk;
+  let html='<div class="mon-nums">'
+    +'<div class="mn"><div class="k">예산</div><div class="v" data-n="'+(budget!=null?Math.round(budget):"")+'">'+w(budget)+'</div></div>'
+    +'<div class="mn"><div class="k">지출</div><div class="v" data-n="'+(spent!=null?Math.round(spent):"")+'">'+w(spent)+'</div></div>'
+    +'<div class="mn"><div class="k">잔여</div><div class="v '+(remain!=null&&remain<0?"red":"lime")+'" data-n="'+(remain!=null?Math.round(remain):"")+'">'+w(remain)+'</div></div>'
     +'</div>';
   if(rate!=null){
     const pct=Math.min(100,rate*100);
@@ -1368,7 +1468,25 @@ async function loadSheet(){
       '<div class="cat"><span class="cn">'+x.c+'</span><span class="cb"><i style="width:'+(x.v/mx*100)+'%"></i></span><span class="cv">'+Math.round(x.v).toLocaleString()+'</span></div>'
     ).join("")+'</div>';
   }
-  $("w-money").innerHTML=html;
+  /* 고정지출·보험·저축 */
+  const fx=num(rows.고정지출), ins=num(rows.보험), sav=num(rows.저축);
+  html+='<div class="fxline">고정지출 <b>'+w(fx)+'</b><span>·</span>보험 <b>'+w(ins)+'</b><span>·</span>저축 <b>'+w(sav)+'</b></div>';
+  $("money-body").innerHTML=html;
+  animateNums($("money-body"));
+}
+/* 숫자 카운트업 */
+function animateNums(root){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  root.querySelectorAll("[data-n]").forEach(el=>{
+    const target=+el.dataset.n; if(!el.dataset.n||isNaN(target))return;
+    const st=performance.now(), dur=650;
+    const tick=t=>{
+      const p=Math.min(1,(t-st)/dur), e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(target*e).toLocaleString();
+      if(p<1)requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
 }
 
 
@@ -1378,7 +1496,7 @@ function renderRecentDocs(){
   if(IS_MASTER)docs=docs.concat(Object.entries(DATA.priv.docs).map(([id,d])=>({id,...d})));
   docs.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
   const top=docs.slice(0,4);
-  $("w-docs").innerHTML='<div class="wt">최근 문서</div>'+(top.length?top.map(d=>
+  $("w-docs").innerHTML='<div class="wt">📄 최근 문서</div>'+(top.length?top.map(d=>
     '<div class="ev" style="cursor:pointer" onclick="openDoc(\''+d.id+'\')"><span class="d">'+fmtDate(d.updatedAt||d.createdAt)+'</span><span class="t">'+esc(d.name)+'</span></div>'
   ).join(""):'<div class="w-empty">문서 없음</div>');
 }
@@ -1395,10 +1513,7 @@ function qParse(s){
   let amt=parseFloat(m[1].replace(/,/g,""));
   if(m[2])amt*=10000;
   const desc=(s.slice(0,m.index)+s.slice(m.index+m[0].length)).replace(/\s+/g," ").trim()||"기타";
-  let cat=null;
-  if(type==="지출"){
-    outer: for(const c of CATS){for(const k of CATKEY[c]){if(desc.includes(k)){cat=c;break outer;}}}
-  }
+  const cat=type==="지출"?guessTarget(desc):null;
   return {amt:Math.round(amt),desc,cat,type};
 }
 $("q-in").addEventListener("input",()=>{
@@ -1410,7 +1525,7 @@ $("q-in").addEventListener("input",()=>{
   pv.classList.remove("hidden");
   pv.innerHTML='<span class="amt">'+p.amt.toLocaleString()+'원</span><span>'+esc(p.desc)+'</span>'
     +'<span class="tsel"><button data-t="지출" class="'+(p.type==="지출"?"on":"")+'">지출</button><button data-t="수입" class="'+(p.type==="수입"?"on":"")+'">수입</button></span>'
-    +(p.type==="지출"?'<select id="q-cat">'+CATS.map(c=>'<option '+(c===p.cat?"selected":"")+'>'+c+'</option>').join("")+(p.cat?"":'<option selected>카테고리?</option>')+'</select>':"");
+    +(p.type==="지출"?'<select id="q-cat">'+(p.cat?"":'<option selected value="">항목 선택</option>')+catOptions(p.cat)+'</select>':"");
   pv.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{Q.type=b.dataset.t;$("q-in").dispatchEvent(new Event("input"));const v=$("q-in").value;});
 });
 $("q-in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("q-save").disabled)qSave();});
@@ -1418,8 +1533,8 @@ $("q-save").onclick=qSave;
 async function qSave(){
   const p=qParse($("q-in").value); if(!p)return;
   if(Q.type)p.type=Q.type;
-  const sel=$("q-cat"); if(sel&&CATS.includes(sel.value))p.cat=sel.value;
-  if(p.type==="지출"&&!p.cat){toast("카테고리를 골라주세요");return;}
+  const sel=$("q-cat"); if(sel&&sel.value)p.cat=sel.value;
+  if(p.type==="지출"&&!p.cat){toast("항목을 골라주세요");return;}
   if(!gtoken()){toast("구글 데이터 연결이 필요해요");return;}
   $("q-save").disabled=true;
   try{
@@ -1440,7 +1555,7 @@ async function qSave(){
     /* 2) 지출이면 Details 카테고리 셀 가산 */
     if(p.type==="지출"){
       if(!SHEET)await loadSheet();
-      const r=SHEET.catRows[p.cat];
+      const r=SHEET.targetRows[p.cat];
       if(r!==undefined){
         const a1="Details!"+colA1(SHEET.mc)+(r+1);
         /* 수식이면 "+금액"을 이어붙여 내역 보존, 숫자면 합산, 비었으면 새로 */
