@@ -4,8 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JimStorage</title>
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAC70lEQVR4nO2aTWgTQRiG39ndpEma4j+KIgXNIYXSU0BCISrY2IK2FLx7kZ48eBE8eJIigqAXoeJBpB681EMSkZr4hxQr4h9SUVQU8QdrK9JG0jTZ3fGwdNOQ5NDJ4LeQeU7Zb7Lzvfsws7uQsFB7mKOF0agDUKMEUAegRgmgDkCNEkAdgBolgDoANUoAdQBqlADqANQoAdQBqFECqANQowRQB6DGkD3h0sQV8B3b3ONQfBAAUJhOuzX2/SeCR0Zq6gDA/hYQPHwUKC7XnZ+v68BS5hrg81XVV/qsFc+tAB4OwexLNBw3Dx2oufhm8JwAADCHB+oPMAZz6KDUXp4UYHdFYEcjNXUr1gO+c7vUXp4UAADmcH+dWoOV0QTeFdCXAG8Pucd80wZYiT3S+3hKAPs1D7aQdw6CAVgD+90xczAJ6DoAQPvyDezHrJSenhKAsgl98oF76G4DjcEcSrp1PZMDuJxf9LwlAICRuuN+tnd1wu7pghWPgW/d4hRNC8bt+/L6SZtJEtrnr9Bm3sHujgJwbny8I+yO61NPwf4sSOvnOQEAYKSyKK0ISO4F2KqxTE5uL5GTls+eAvx+AABbzMN/5mJlMBhwP7LFvFioe1MonzjmPAW0ytWzud/Qn7wQmrMRQvcAvrsTVm8MVm8MZv8+96XF7o6Cb1xfmfz9J7FUS0XouUc1ZePWXcC2xeZsgJAAPbsqHGMoXj6H4tULKF4arfqecSMlHMxIZ6sLnDsCJCMkwHf9JrSXM5VCmx92VwRoc7YFbA7f2Dj0x8/Eg739CO1DZQXpz19Le/ZX9RE6q1RC4Php+M+PQXv1xtnrZRNsdg7G5EMERk7CNz7RdDgjVVkFRlruzW8Fpv4j1OIoAdQBqBF+EyxMp+dlBpFBKD64ea3nCK0AL148IJar5beAEiBykshe+x+I5FIvQtQBqFECqANQowRQB6BGCaAOQI0SQB2AGiWAOgA1SgB1AGqUAOoA1CgB1AGoaXkB/wC+dLi6UQJ2wAAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAE1UlEQVR4nO2Yf2hVZRjHP+85996zeafOVhNTJEOnZjbdVLRQNxH7paD0h1FJVAgROX+ESsmCNQ0zSDNMJJV+QFMqdUjhTCQapZNcSytzTrc2AmtOtt3Nee/ue05/COXduebumfEMPN//7vM+z3m+53PPe973PWpAOMPhNpYhbUBaPgBpA9LyAUgbkJYPQNqAtHwA0gak5QOQNiAtH4C0AWn5AKQNSMsHIG1AWrc9gIC0AZfS09DT89CzpmOPvgcnawhORhjVHkFdbsU4V4/5bRVmVTVcjfa5neo33wSVIj5/Lt0vPYuTOejm6ZcuE9q6C/Pryr617RcADIPom2vRs2ekXBrYe5DQlg+8t/ZceQsVe/VlTzcPEF+8gO6nF3nu/b89AeFwmLPn6lzxEXcPS/itp+QSfa806TXMYycxqk+jIp042XcSnzcLZ8Qwd2I0RvrCF1CtbSn7FH8Jxhc9kjQe2riNQHlFQiy4q4zo+jXowgcTk60QumAGgQOHUu4vPgXsB8a7YupKF4GDh5Mk24Q2J5/vds4oT/3FnwBnyGB3LM3CCYdRkQ7XmGpuwVqzHoLBxPjFZk/9xQGorqs4GeHEoGEQ3bQOa/27qD8uumrMyhO3rL84AKP2AjpvoituT5pA197tmD/+jPndDxjVpzHq6sG+te9scQDmV0eTArg2aKKn5KKn5AKgOjoxTtRgVlYROPo9xGJ97i++DGIYRLeWovNvAOEGUm0Rgrv3EPj8S7Btzz7FVwFsm9DaDdf29inIGTyQ2MqlRLeU4IQHeG4vDwBQnVewVpYQemMzRkNTSrV6ai6xDWtAKW+9xadAEtnjx6Bn5GPnT0RPGAtW6KY1VvHbmEdSPxj1SwAJCpjY9+Wgp+cRf2wOztC7kqaZx05irSpJ2afoKuDckel+dLWduKePa4xTZzBOnSG4ew+xV14kvvBh17XscaM9eRAF0LV/J4QSH28V6SB93lPJC+Ka0Ds7iD9a6JoWzqAMTx48AZicl4fq8c/9VFOD1vqf36ZpuupiPdZt9VeL63TnDMzAHjca4zf39AHAdlBa03Peqkhn72/gOnkC8OFHH5OVlZUQK5g1k7q6f02PHDnSVdfUlPiGN2t+IZ7keBt7bRnW6lLUn5dcY93PP4kzIN0VN86e77X/6+UJQENDvQvAsqLlrFq5Aq01gWCQouUrXHUnqo4nNi8/THz+XFeePWYUXZ/tIHCkEnW+ERXpwMnOQhc+hH2vGyyAWfGNl1vxtgo8s2QJG9/a5Io3NjZyvq6OnLFjGT58eMKYbdvMnVNIbW1tQjy2rigphFRk/FpL2tLVns4JngBYlsUX+/YzafLkXte8XlzM7l073QPBINENa9Ezp6VqAwCjvgmrqBh16bKnes/7gMzMTLa9v53ZBQX/mdfe3k5pSQllZZ/eOMlQxJ94nO7nFif9PpBU3d0E9h0itOMT6Lrae+M91OeN0OyCAuYvWMDUqdMYmp2NlZZGc3MzDfX1VFRUUH5gPy0tLb27WCiEzp+InjYJ+/5x1/YJmYNwgkFUWwTV2oZx4XeM49WYx06iWtv7Yh3oL5/FBdUvDkOS8gFIG5CWD0DagLR8ANIGpOUDkDYgLR+AtAFp+QCkDUjLByBtQFo+AGkD0vIBSBuQ1t+eZoG+5amvKwAAAABJRU5ErkJggg==">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JimStorage">
+<meta name="theme-color" content="#0a0b0c">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
@@ -68,7 +73,7 @@
     max-width:1060px; margin:0 auto; padding:13px 18px;
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
-  .logo{font-size:15px; font-weight:900; letter-spacing:.06em; color:var(--ink); cursor:pointer; white-space:nowrap;}
+  .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap;}
   .s-mark{color:var(--lime); font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);}
   .hsearch{
     flex:1; min-width:150px; display:flex; align-items:center; gap:8px;
@@ -451,7 +456,13 @@ const fmtTime=ts=>{const d=new Date(ts);return fmtDate(ts)+" "+String(d.getHours
 /* ================= 인증 ================= */
 $("login-btn").onclick=()=>{
   const p=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(p).catch(e=>toast("로그인 실패: "+e.code));
+  const standalone=(navigator.standalone===true)||matchMedia("(display-mode: standalone)").matches;
+  if(standalone){ auth.signInWithRedirect(p); return; }
+  auth.signInWithPopup(p).catch(e=>{
+    if(e.code==="auth/popup-blocked"||e.code==="auth/popup-closed-by-user"||e.code==="auth/operation-not-supported-in-this-environment"){
+      auth.signInWithRedirect(p);
+    }else toast("로그인 실패: "+e.code);
+  });
 };
 $("avatar").onclick=()=>{ if(confirm("로그아웃할까요?")){ localStorage.removeItem("hub-login-at"); auth.signOut(); } };
 
