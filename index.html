@@ -80,9 +80,45 @@
   }
   .hbtn:hover{color:var(--lime); border-color:rgba(184,242,75,.4);}
   .avatar{width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line2); cursor:pointer; display:block;}
+  .who{display:flex; align-items:center; gap:8px;}
+  .who .un{font-size:12.5px; font-weight:800; color:var(--sub); max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .role{font-size:10px; font-weight:800; letter-spacing:.08em; padding:3px 10px; border-radius:999px; white-space:nowrap;}
+  .role.master{color:var(--lime); border:1px solid rgba(184,242,75,.45); background:rgba(184,242,75,.08); box-shadow:var(--glow-soft);}
+  .role.guest{color:var(--sub); border:1px solid var(--line2); background:var(--card2);}
+  @media(max-width:520px){ .who .un{display:none;} }
 
-  /* ===== 본문 ===== */
-  main{max-width:1060px; margin:0 auto; padding:22px 18px 90px;}
+  /* ===== 레이아웃: 사이드바 + 본문 ===== */
+  .layout{max-width:1180px; margin:0 auto; display:flex; align-items:flex-start;}
+  aside{
+    width:230px; flex-shrink:0; position:sticky; top:57px;
+    height:calc(100vh - 57px); overflow-y:auto; padding:20px 10px 30px 18px;
+    border-right:1px solid var(--line);
+  }
+  .s-label{font-size:10.5px; font-weight:800; letter-spacing:.14em; color:var(--sub2); margin:16px 8px 8px;}
+  .s-item{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    background:none; border:none; cursor:pointer; border-radius:10px;
+    font-size:13px; font-weight:700; color:var(--sub); padding:7.5px 10px;
+    transition:background .15s, color .15s;
+  }
+  .s-item:hover{background:rgba(184,242,75,.07); color:var(--ink);}
+  .s-item.on{background:rgba(184,242,75,.1); color:var(--lime);}
+  .s-item .ic{font-size:13px; width:17px; text-align:center; flex-shrink:0;}
+  .s-item .tx{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .s-empty{font-size:12px; color:var(--sub2); padding:4px 10px;}
+  #menu-btn{display:none;}
+  main{flex:1; min-width:0; padding:22px 18px 90px;}
+  @media(max-width:860px){
+    #menu-btn{display:inline-block;}
+    aside{
+      position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
+      background:var(--bg2); border-right:1px solid var(--line2);
+      transform:translateX(-105%); transition:transform .22s ease; padding-top:24px;
+      box-shadow:20px 0 60px rgba(0,0,0,.45); width:250px;
+    }
+    aside.open{transform:translateX(0);}
+    #aside-bg{position:fixed; inset:0; z-index:115; background:rgba(5,6,4,.6);}
+  }
   .crumb{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; margin-bottom:16px; min-height:24px;}
   .crumb a{color:var(--sub); text-decoration:none; font-weight:700;}
   .crumb a:hover{color:var(--lime);}
@@ -254,6 +290,7 @@
 <div id="app" class="hidden">
 <header>
   <div class="hbar">
+    <button class="hbtn" id="menu-btn">☰</button>
     <div class="logo" id="logo">JIM'S DOCUMENT</div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
     <select class="hsel" id="sort">
@@ -262,9 +299,22 @@
       <option value="views">조회순</option>
     </select>
     <button class="hbtn hidden" id="stats-btn">방문 통계</button>
-    <img class="avatar" id="avatar" title="로그아웃" alt="me">
+    <div class="who">
+      <span class="role" id="role"></span>
+      <span class="un" id="uname"></span>
+      <img class="avatar" id="avatar" title="로그아웃" alt="me">
+    </div>
   </div>
 </header>
+
+<div class="layout">
+<aside id="aside">
+  <div class="s-label">메뉴</div>
+  <button class="s-item" data-go="root"><span class="ic">🏠</span><span class="tx">전체</span></button>
+  <button class="s-item hidden" id="s-stats"><span class="ic">📊</span><span class="tx">방문 통계</span></button>
+  <div class="s-label">폴더</div>
+  <div id="tree"></div>
+</aside>
 
 <main>
   <div class="crumb" id="crumb"></div>
@@ -272,13 +322,13 @@
     <button class="tbtn" id="new-folder">＋ 새 폴더</button>
     <button class="tbtn" id="upload-btn">↑ HTML 업로드</button>
     <button class="tbtn" id="add-link">🔗 링크 추가</button>
-    <button class="tbtn" id="vis-toggle"></button>
     <input type="file" id="file-input" accept=".html,.htm,text/html" multiple class="hidden">
   </div>
   <div class="drop hidden" id="drop"><b>HTML 파일을 여기로 드래그</b>하거나 위의 업로드 버튼을 누르세요<br>같은 이름이면 내용만 교체되고 댓글·조회수는 유지돼요</div>
 
   <div id="listing"></div>
 </main>
+</div>
 </div>
 
 <!-- 뷰어 -->
@@ -290,7 +340,7 @@
     <button class="hbtn hidden" id="v-secret">비밀 링크</button>
     <button class="hbtn hidden" id="v-restore">이전 버전</button>
   </div>
-  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-popups"></iframe>
+  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <div class="v-side">
     <div style="font-size:12px;font-weight:800;color:var(--sub2);letter-spacing:.08em;margin-bottom:4px">댓글</div>
     <div id="c-list"></div>
@@ -328,7 +378,7 @@ const db=firebase.database();
 let ME=null, IS_MASTER=false;
 let DATA={pub:{folders:{},docs:{}}, priv:{folders:{},docs:{}}};
 let VIEWS={};
-let curScope="pub", curFolder="root";
+let curFolder="root";
 let curDoc=null, curDocScope=null;
 let viewedThisSession={};
 
@@ -356,7 +406,11 @@ auth.onAuthStateChanged(u=>{
     ME=u; IS_MASTER=(u.email===MASTER_EMAIL);
     $("gate").classList.add("hidden"); $("app").classList.remove("hidden");
     $("avatar").src=u.photoURL||"";
+    $("uname").textContent=u.displayName||u.email;
+    $("role").textContent=IS_MASTER?"MASTER":"방문자";
+    $("role").className="role "+(IS_MASTER?"master":"guest");
     $("stats-btn").classList.toggle("hidden",!IS_MASTER);
+    $("s-stats").classList.toggle("hidden",!IS_MASTER);
     $("toolbar").classList.toggle("hidden",!IS_MASTER);
     $("drop").classList.toggle("hidden",!IS_MASTER);
     subscribe();
@@ -381,38 +435,53 @@ function subscribe(){
 }
 
 /* ================= 렌더 ================= */
-function folderPath(scope,fid){
-  const out=[]; let cur=fid;
-  while(cur&&cur!=="root"){ const f=DATA[scope].folders[cur]; if(!f)break; out.unshift({id:cur,name:f.name}); cur=f.parent; }
+function fScope(fid){ if(DATA.priv.folders[fid])return"priv"; if(DATA.pub.folders[fid])return"pub"; return null; }
+function dScope(did){ if(DATA.priv.docs[did])return"priv"; if(DATA.pub.docs[did])return"pub"; return null; }
+function getFolder(fid){ return DATA.priv.folders[fid]||DATA.pub.folders[fid]; }
+function curFolderScope(){ return curFolder==="root"?"pub":(fScope(curFolder)||"pub"); }
+
+function folderPath(fid){
+  const out=[]; let cur=fid; let guard=0;
+  while(cur&&cur!=="root"&&guard++<50){ const f=getFolder(cur); if(!f)break; out.unshift({id:cur,name:f.name}); cur=f.parent; }
   return out;
 }
 function render(){
   if(!ME) return;
   /* 크럼 */
-  const path=folderPath(curScope,curFolder);
+  const path=folderPath(curFolder);
   let c=`<a href="#" data-nav="root">전체</a>`;
   path.forEach(p=>{ c+=`<span class="sep">›</span><a href="#" data-nav="${p.id}">${esc(p.name)}</a>`; });
-  c+=`<span class="vis ${curScope==="pub"?"pub":"priv"}">${curScope==="pub"?"공개":"비공개"}</span>`;
+  if(curFolder!=="root"){
+    const sc=fScope(curFolder);
+    c+=`<span class="vis ${sc==="priv"?"priv":"pub"}">${sc==="priv"?"🔒 비공개":"공개"}</span>`;
+  }
   $("crumb").innerHTML=c;
   $("crumb").querySelectorAll("a").forEach(a=>a.onclick=e=>{e.preventDefault();curFolder=a.dataset.nav;render();});
 
-  /* 공개/비공개 토글 버튼 라벨 */
-  $("vis-toggle").textContent=curScope==="pub"?"🔒 비공개 보기":"🌐 공개 보기";
-
-  /* 목록 */
+  /* 목록 (마스터: 공개+비공개 병합 / 방문자: 공개만) */
   const q=($("search").value||"").trim().toLowerCase();
   const sort=$("sort").value;
-  const F=DATA[curScope].folders, D=DATA[curScope].docs;
 
-  let folders=Object.entries(F).map(([id,f])=>({id,...f}));
-  let docs=Object.entries(D).map(([id,d])=>({id,...d,views:(VIEWS[id]||0)}));
-
+  let folders=Object.entries(DATA.pub.folders).map(([id,f])=>({id,...f,scope:"pub"}));
+  let docs=Object.entries(DATA.pub.docs).map(([id,d])=>({id,...d,scope:"pub",views:(VIEWS[id]||0)}));
+  if(IS_MASTER){
+    folders=folders.concat(Object.entries(DATA.priv.folders).map(([id,f])=>({id,...f,scope:"priv"})));
+    docs=docs.concat(Object.entries(DATA.priv.docs).map(([id,d])=>({id,...d,scope:"priv",views:(VIEWS[id]||0)})));
+  }
+  const inCur=x=>{
+    const p=x.parent!==undefined?x.parent:x.folder;
+    const pid=p||"root";
+    if(pid===curFolder)return true;
+    /* 부모가 사라진 항목은 최상위로 */
+    if(curFolder==="root"&&pid!=="root"&&!getFolder(pid))return true;
+    return false;
+  };
   if(q){
     folders=folders.filter(f=>f.name.toLowerCase().includes(q));
     docs=docs.filter(d=>d.name.toLowerCase().includes(q)||(d.tags||"").toLowerCase().includes(q));
   }else{
-    folders=folders.filter(f=>(f.parent||"root")===curFolder);
-    docs=docs.filter(d=>(d.folder||"root")===curFolder);
+    folders=folders.filter(inCur);
+    docs=docs.filter(inCur);
   }
   const cmp={recent:(a,b)=>(b.updatedAt||0)-(a.updatedAt||0),
              name:(a,b)=>a.name.localeCompare(b.name,"ko"),
@@ -420,15 +489,17 @@ function render(){
   folders.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
   docs.sort((a,b)=>((b.pinned?1:0)-(a.pinned?1:0))||cmp(a,b));
 
+  const allDocs=docs=>docs; /* noop */
   let html="";
-  if(q) html+=`<div class="sec-label">"${esc(q)}" 검색 결과 · ${curScope==="pub"?"공개":"비공개"} 영역</div>`;
+  if(q) html+=`<div class="sec-label">"${esc(q)}" 검색 결과</div>`;
   if(folders.length){
     html+=`<div class="sec-label">폴더</div><div class="grid">`+folders.map(f=>{
-      const cnt=Object.values(D).filter(d=>d.folder===f.id).length;
+      const cnt=Object.values(DATA.pub.docs).filter(d=>d.folder===f.id).length
+        +(IS_MASTER?Object.values(DATA.priv.docs).filter(d=>d.folder===f.id).length:0);
       return `<div class="fcard" data-f="${f.id}">
         ${IS_MASTER?`<button class="kebab" data-fm="${f.id}">⋯</button>`:""}
-        <span class="fi">📁</span><div class="nm">${esc(f.name)}</div>
-        <div class="meta">문서 ${cnt}개</div></div>`;
+        <span class="fi">${f.scope==="priv"?"🔒":"📁"}</span><div class="nm">${esc(f.name)}</div>
+        <div class="meta">문서 ${cnt}개${f.scope==="priv"?" · 나만 보기":""}</div></div>`;
     }).join("")+`</div>`;
   }
   if(docs.length){
@@ -436,10 +507,10 @@ function render(){
       const link=d.type==="link";
       return `<div class="dcard" data-d="${d.id}">
         ${IS_MASTER?`<button class="kebab" data-dm="${d.id}">⋯</button>`:""}
-        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${link?"🔗 ":""}${esc(d.name)}</div>
+        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?"🔒 ":""}${link?"🔗 ":""}${esc(d.name)}</div>
         ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
         ${d.tags?`<div class="tags">${d.tags.split(",").map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
-        <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.secret?" · 🔑":""}</div></div>`;
+        <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.secret?" · 🔑 비밀링크":""}</div></div>`;
     }).join("")+`</div>`;
   }
   if(!folders.length&&!docs.length){
@@ -453,14 +524,48 @@ function render(){
   });
   $("listing").querySelectorAll(".dcard").forEach(el=>el.onclick=e=>{
     if(e.target.closest(".kebab"))return;
-    openDoc(el.dataset.d,curScope);
+    openDoc(el.dataset.d);
   });
   $("listing").querySelectorAll("[data-fm]").forEach(b=>b.onclick=e=>{e.stopPropagation();folderMenu(b.dataset.fm,b);});
   $("listing").querySelectorAll("[data-dm]").forEach(b=>b.onclick=e=>{e.stopPropagation();docMenu(b.dataset.dm,b);});
+  renderTree();
 }
+function renderTree(){
+  let folders=Object.entries(DATA.pub.folders).map(([id,f])=>({id,...f,scope:"pub"}));
+  if(IS_MASTER)folders=folders.concat(Object.entries(DATA.priv.folders).map(([id,f])=>({id,...f,scope:"priv"})));
+  const byParent={};
+  folders.forEach(f=>{
+    let p=f.parent||"root"; if(p!=="root"&&!getFolder(p))p="root";
+    (byParent[p]=byParent[p]||[]).push(f);
+  });
+  const build=(pid,depth)=>{
+    const kids=(byParent[pid]||[]).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+    return kids.map(f=>`
+      <button class="s-item${curFolder===f.id?" on":""}" data-go="${f.id}" style="padding-left:${10+depth*15}px">
+        <span class="ic">${f.scope==="priv"?"🔒":"📁"}</span><span class="tx">${esc(f.name)}</span>
+      </button>`+build(f.id,depth+1)).join("");
+  };
+  const html=build("root",0);
+  $("tree").innerHTML=html||`<div class="s-empty">폴더가 없어요</div>`;
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+    curFolder=b.dataset.go; $("search").value=""; render(); closeAside();
+  });
+  document.querySelectorAll('.s-item[data-go="root"]').forEach(b=>b.classList.toggle("on",curFolder==="root"));
+}
+/* 모바일 사이드바 토글 */
+let asideBg=null;
+function closeAside(){ $("aside").classList.remove("open"); if(asideBg){asideBg.remove();asideBg=null;} }
+$("menu-btn").onclick=()=>{
+  const a=$("aside");
+  if(a.classList.contains("open")){closeAside();return;}
+  a.classList.add("open");
+  asideBg=document.createElement("div"); asideBg.id="aside-bg";
+  asideBg.onclick=closeAside; document.body.appendChild(asideBg);
+};
+$("s-stats").onclick=()=>{closeAside();$("stats-btn").click();};
 $("search").oninput=render;
 $("sort").onchange=render;
-$("logo").onclick=()=>{curScope="pub";curFolder="root";$("search").value="";render();};
+$("logo").onclick=()=>{curFolder="root";$("search").value="";render();};
 
 /* ================= 팝업 메뉴 ================= */
 let menuEl=null;
@@ -494,23 +599,28 @@ function modal(html,onOpen){
 
 /* ================= 폴더 CRUD ================= */
 $("new-folder").onclick=()=>{
+  const parentPriv=curFolderScope()==="priv";
   modal(`<h3>새 폴더</h3><label>폴더 이름</label><input type="text" id="m-name">
+    ${parentPriv
+      ?`<p style="font-size:12px;color:var(--sub2);margin-top:12px">🔒 비공개 폴더 안이라 자동으로 비공개로 만들어져요</p>`
+      :`<label class="m-check"><input type="checkbox" id="m-priv"> 🔒 비공개 폴더 (나만 보기)</label>`}
     <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>만들기</button></div>`,
   bg=>{
     const inp=bg.querySelector("#m-name"); inp.focus();
     bg.querySelector("[data-x]").onclick=()=>bg.remove();
     bg.querySelector("[data-ok]").onclick=()=>{
       const name=inp.value.trim(); if(!name)return;
-      db.ref(`hub/${curScope}/folders`).push({name,parent:curFolder,createdAt:Date.now()});
-      bg.remove(); toast("폴더 생성됨");
+      const priv=parentPriv||(bg.querySelector("#m-priv")&&bg.querySelector("#m-priv").checked);
+      db.ref(`hub/${priv?"priv":"pub"}/folders`).push({name,parent:curFolder,createdAt:Date.now()});
+      bg.remove(); toast(priv?"🔒 비공개 폴더 생성됨":"폴더 생성됨");
     };
   });
 };
 function folderMenu(fid,anchor){
-  const scope=curScope;
+  const scope=fScope(fid);
   showMenu(anchor,[
     {label:"이름 변경",fn:()=>{
-      const f=DATA[scope].folders[fid];
+      const f=getFolder(fid);
       modal(`<h3>이름 변경</h3><label>폴더 이름</label><input type="text" id="m-name" value="${esc(f.name)}">
         <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>저장</button></div>`,
       bg=>{
@@ -521,58 +631,73 @@ function folderMenu(fid,anchor){
         };
       });
     }},
-    {label:scope==="pub"?"비공개로 전환":"공개로 전환",fn:()=>moveFolderScope(fid,scope)},
+    {label:scope==="pub"?"🔒 비공개로 전환":"🌐 공개로 전환",fn:()=>moveFolderScope(fid)},
     "—",
-    {label:"삭제 (하위 포함)",warn:true,fn:()=>deleteFolder(fid,scope)}
+    {label:"삭제 (하위 포함)",warn:true,fn:()=>deleteFolder(fid)}
   ]);
 }
-function collectTree(scope,fid){
-  const fids=[fid], dids=[];
+function collectTree(fid){
+  /* 양쪽 영역을 모두 순회 (마스터 전용 기능) */
+  const fids=[{id:fid,scope:fScope(fid)}], dids=[];
   const walk=id=>{
-    Object.entries(DATA[scope].folders).forEach(([k,f])=>{if(f.parent===id){fids.push(k);walk(k);}});
+    for(const sc of ["pub","priv"]){
+      Object.entries(DATA[sc].folders).forEach(([k,f])=>{
+        if(f.parent===id){fids.push({id:k,scope:sc});walk(k);}
+      });
+    }
   };
   walk(fid);
-  Object.entries(DATA[scope].docs).forEach(([k,d])=>{if(fids.includes(d.folder||"root"))dids.push(k);});
+  const fidSet=fids.map(x=>x.id);
+  for(const sc of ["pub","priv"]){
+    Object.entries(DATA[sc].docs).forEach(([k,d])=>{
+      if(fidSet.includes(d.folder||"root"))dids.push({id:k,scope:sc});
+    });
+  }
   return {fids,dids};
 }
-async function deleteFolder(fid,scope){
-  const {fids,dids}=collectTree(scope,fid);
+async function deleteFolder(fid){
+  const {fids,dids}=collectTree(fid);
   if(!confirm(`폴더와 하위 폴더 ${fids.length-1}개, 문서 ${dids.length}개가 삭제돼요. 계속?`))return;
   const up={};
-  fids.forEach(f=>up[`hub/${scope}/folders/${f}`]=null);
+  fids.forEach(f=>up[`hub/${f.scope}/folders/${f.id}`]=null);
   for(const d of dids){
-    up[`hub/${scope}/docs/${d}`]=null;
-    up[`hub/${scope}/contents/${d}`]=null;
-    up[`hub/${scope}/versions/${d}`]=null;
-    up[`hub/comments/${d}`]=null; up[`hub/views/${d}`]=null;
+    up[`hub/${d.scope}/docs/${d.id}`]=null;
+    up[`hub/${d.scope}/contents/${d.id}`]=null;
+    up[`hub/${d.scope}/versions/${d.id}`]=null;
+    up[`hub/comments/${d.id}`]=null; up[`hub/views/${d.id}`]=null;
   }
   await db.ref().update(up); toast("삭제됨");
+  if(fids.some(f=>f.id===curFolder))curFolder="root";
 }
-async function moveFolderScope(fid,scope){
-  const dst=scope==="pub"?"priv":"pub";
-  const {fids,dids}=collectTree(scope,fid);
+async function moveFolderScope(fid){
+  const src=fScope(fid), dst=src==="pub"?"priv":"pub";
+  const {fids,dids}=collectTree(fid);
   const up={};
   for(const f of fids){
-    up[`hub/${dst}/folders/${f}`]=DATA[scope].folders[f];
-    up[`hub/${scope}/folders/${f}`]=null;
+    up[`hub/${dst}/folders/${f.id}`]=DATA[f.scope].folders[f.id];
+    if(f.scope!==dst)up[`hub/${f.scope}/folders/${f.id}`]=null;
   }
-  /* 이동 대상 최상위 폴더는 현재 위치의 부모를 유지할 수 없으니 root로 */
   for(const d of dids){
-    const meta=DATA[scope].docs[d];
-    const cont=(await db.ref(`hub/${scope}/contents/${d}`).get()).val();
-    const vers=(await db.ref(`hub/${scope}/versions/${d}`).get()).val();
-    up[`hub/${dst}/docs/${d}`]=meta;
-    up[`hub/${dst}/contents/${d}`]=cont;
-    if(vers)up[`hub/${dst}/versions/${d}`]=vers;
-    up[`hub/${scope}/docs/${d}`]=null;
-    up[`hub/${scope}/contents/${d}`]=null;
-    up[`hub/${scope}/versions/${d}`]=null;
+    const meta=DATA[d.scope].docs[d.id];
+    const cont=(await db.ref(`hub/${d.scope}/contents/${d.id}`).get()).val();
+    const vers=(await db.ref(`hub/${d.scope}/versions/${d.id}`).get()).val();
+    up[`hub/${dst}/docs/${d.id}`]=meta;
+    if(cont!=null)up[`hub/${dst}/contents/${d.id}`]=cont;
+    if(vers)up[`hub/${dst}/versions/${d.id}`]=vers;
+    if(d.scope!==dst){
+      up[`hub/${d.scope}/docs/${d.id}`]=null;
+      up[`hub/${d.scope}/contents/${d.id}`]=null;
+      up[`hub/${d.scope}/versions/${d.id}`]=null;
+    }
   }
-  up[`hub/${dst}/folders/${fid}/parent`]="root";
+  /* 공개로 전환하는데 부모가 비공개면 최상위로 이동 */
+  const parent=getFolder(fid)?.parent||"root";
+  if(dst==="pub"&&parent!=="root"&&fScope(parent)==="priv"){
+    up[`hub/${dst}/folders/${fid}/parent`]="root";
+  }
   await db.ref().update(up);
-  toast(dst==="priv"?"비공개로 이동됨":"공개로 이동됨");
+  toast(dst==="priv"?"🔒 비공개로 전환됨":"🌐 공개로 전환됨");
 }
-$("vis-toggle").onclick=()=>{curScope=curScope==="pub"?"priv":"pub";curFolder="root";render();};
 
 /* ================= 문서 업로드 ================= */
 $("upload-btn").onclick=()=>$("file-input").click();
@@ -594,14 +719,15 @@ async function handleFiles(files){
   }
 }
 async function saveDoc(name,html){
-  const D=DATA[curScope].docs;
+  const scope=curFolderScope();
+  const D=DATA[scope].docs;
   const exist=Object.entries(D).find(([id,d])=>d.name===name&&(d.folder||"root")===curFolder&&d.type!=="link");
   if(exist){
     const [did]=exist;
     /* 이전 버전 보관 */
-    const prev=(await db.ref(`hub/${curScope}/contents/${did}`).get()).val();
+    const prev=(await db.ref(`hub/${scope}/contents/${did}`).get()).val();
     if(prev){
-      const vref=db.ref(`hub/${curScope}/versions/${did}`);
+      const vref=db.ref(`hub/${scope}/versions/${did}`);
       const vs=(await vref.get()).val()||{};
       const keys=Object.keys(vs).sort();
       while(keys.length>=MAX_VERSIONS){const k=keys.shift(); vs[k]=null;}
@@ -611,18 +737,18 @@ async function saveDoc(name,html){
       await vref.update(up);
     }
     const up2={};
-    up2[`hub/${curScope}/contents/${did}`]=html;
-    up2[`hub/${curScope}/docs/${did}/updatedAt`]=Date.now();
+    up2[`hub/${scope}/contents/${did}`]=html;
+    up2[`hub/${scope}/docs/${did}/updatedAt`]=Date.now();
     await db.ref().update(up2);
     /* 비밀 링크 활성 시 스냅샷 갱신 */
     const meta=D[did];
     if(meta.secret)await db.ref(`hub/secret/${meta.secret}`).update({html,name:meta.name,at:Date.now()});
     toast(`"${name}" 교체됨 (댓글·조회수 유지)`);
   }else{
-    const ref=db.ref(`hub/${curScope}/docs`).push();
+    const ref=db.ref(`hub/${scope}/docs`).push();
     await ref.set({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"html"});
-    await db.ref(`hub/${curScope}/contents/${ref.key}`).set(html);
-    toast(`"${name}" 업로드됨`);
+    await db.ref(`hub/${scope}/contents/${ref.key}`).set(html);
+    toast(scope==="priv"?`🔒 "${name}" 업로드됨 (비공개)`:`"${name}" 업로드됨`);
   }
 }
 $("add-link").onclick=()=>{
@@ -635,7 +761,7 @@ $("add-link").onclick=()=>{
       const name=bg.querySelector("#m-name").value.trim();
       const url=bg.querySelector("#m-url").value.trim();
       if(!name||!url)return;
-      db.ref(`hub/${curScope}/docs`).push({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"link",url});
+      db.ref(`hub/${curFolderScope()}/docs`).push({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"link",url});
       bg.remove(); toast("링크 추가됨");
     };
   });
@@ -643,7 +769,7 @@ $("add-link").onclick=()=>{
 
 /* ================= 문서 메뉴 ================= */
 function docMenu(did,anchor){
-  const scope=curScope, d=DATA[scope].docs[did];
+  const scope=dScope(did), d=DATA[scope].docs[did];
   showMenu(anchor,[
     {label:"메타 편집 (설명·태그)",fn:()=>{
       modal(`<h3>문서 정보</h3>
@@ -664,7 +790,7 @@ function docMenu(did,anchor){
         };
       });
     }},
-    {label:scope==="pub"?"비공개로 이동":"공개로 이동",fn:()=>moveDocScope(did,scope)},
+    {label:scope==="pub"?"🔒 비공개로 전환":"🌐 공개로 전환",fn:()=>moveDocScope(did,scope)},
     "—",
     {label:"삭제",warn:true,fn:async()=>{
       if(!confirm(`"${d.name}" 삭제? 댓글·조회수도 함께 지워져요.`))return;
@@ -683,20 +809,24 @@ async function moveDocScope(did,scope){
   const meta=DATA[scope].docs[did];
   const cont=(await db.ref(`hub/${scope}/contents/${did}`).get()).val();
   const vers=(await db.ref(`hub/${scope}/versions/${did}`).get()).val();
+  /* 공개 전환인데 폴더가 비공개면 최상위로 */
+  let folder=meta.folder||"root";
+  if(dst==="pub"&&folder!=="root"&&fScope(folder)==="priv")folder="root";
   const up={};
-  up[`hub/${dst}/docs/${did}`]={...meta,folder:"root"};
+  up[`hub/${dst}/docs/${did}`]={...meta,folder};
   if(cont!=null)up[`hub/${dst}/contents/${did}`]=cont;
   if(vers)up[`hub/${dst}/versions/${did}`]=vers;
   up[`hub/${scope}/docs/${did}`]=null;
   up[`hub/${scope}/contents/${did}`]=null;
   up[`hub/${scope}/versions/${did}`]=null;
   await db.ref().update(up);
-  toast(dst==="priv"?"비공개로 이동됨 (최상위)":"공개로 이동됨 (최상위)");
+  toast(dst==="priv"?"🔒 비공개로 전환됨":"🌐 공개로 전환됨");
 }
 
 /* ================= 뷰어 ================= */
 async function openDoc(did,scope){
-  const d=DATA[scope].docs[did]; if(!d)return;
+  scope=scope||dScope(did);
+  const d=scope?DATA[scope].docs[did]:null; if(!d)return;
   if(d.type==="link"){ window.open(d.url,"_blank"); return; }
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
