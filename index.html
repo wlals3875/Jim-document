@@ -439,7 +439,7 @@ let curDoc=null, curDocScope=null;
 let viewedThisSession={};
 
 const I_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="#00d2be"/><path d="M3 7q0-2 2-2h5l1.2 1.2H5q-1 0-1 1Z" fill="#00a89a"/></svg>';
-const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="#00d2be"/><g transform="translate(11.5,9.5)"><rect x="0" y="3.4" width="8.4" height="6.2" rx="1.6" fill="#c9ced4"/><path d="M1.8 3.4V2.4a2.4 2.4 0 0 1 4.8 0v1" fill="none" stroke="#c9ced4" stroke-width="1.5"/><circle cx="4.2" cy="6.4" r="1" fill="#121416"/></g></svg>';
+const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.6" fill="#c9ced4"/><path d="M7.8 10V7.4a4.2 4.2 0 0 1 8.4 0V10" fill="none" stroke="#c9ced4" stroke-width="2.5"/><circle cx="12" cy="15.2" r="1.8" fill="#121416"/></svg>';
 const I_LOCK='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style="vertical-align:-1.5px"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="#c9ced4"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="#c9ced4" stroke-width="2.4"/><circle cx="12" cy="15" r="1.7" fill="#121416"/></svg>';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1005,12 +1005,15 @@ function computeStorageSoon(){ clearTimeout(storTimer); storTimer=setTimeout(com
 async function computeStorage(){
   if(!IS_MASTER)return;
   try{
-    const paths=["hub/pub/contents","hub/priv/contents","hub/pub/versions","hub/priv/versions","hub/secret","hub/pub/docs","hub/priv/docs","hub/comments","fukuoka"];
-    let bytes=0;
+    const paths=["hub/pub/contents","hub/priv/contents","hub/pub/versions","hub/priv/versions","hub/secret","hub/pub/docs","hub/priv/docs","hub/comments","hub/visits","fukuoka"];
+    let bytes=0, fails=0;
     for(const p of paths){
-      const v=(await db.ref(p).get()).val();
-      if(v!=null)bytes+=new Blob([JSON.stringify(v)]).size;
+      try{
+        const v=(await db.ref(p).get()).val();
+        if(v!=null)bytes+=new Blob([JSON.stringify(v)]).size;
+      }catch(e){ fails++; }
     }
+    if(fails===paths.length)throw new Error("all failed");
     const mb=bytes/1048576;
     const num=mb>=1024?(mb/1024).toFixed(2)+" GB":mb>=1?mb.toFixed(1)+" MB":(bytes/1024).toFixed(0)+" KB";
     $("st-num").textContent=num+" / 1 GB";
