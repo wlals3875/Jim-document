@@ -10,7 +10,8 @@
     --bg:#0b0d09; --bg2:#0e110b;
     --card:#14170f; --card2:#171b11; --line:#252a1d; --line2:#31382a;
     --ink:#f0f3e8; --sub:#8f9683; --sub2:#6c7261;
-    --lime:#b8f24b; --mint:#57e6a5;
+    --lime:#b8f24b; --lime-d:#8fd41f; --mint:#57e6a5; --red:#f27a6a;
+    --glow:0 0 0 1px rgba(184,242,75,.55), 0 0 22px rgba(184,242,75,.18);
     --glow-soft:0 0 0 1px rgba(184,242,75,.28), 0 0 14px rgba(184,242,75,.10);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -21,88 +22,814 @@
       radial-gradient(ellipse 70% 40% at 50% -5%, rgba(184,242,75,.06), transparent 60%),
       linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
     background-color:var(--bg);
-    color:var(--ink); line-height:1.65; min-height:100vh;
-    padding:60px 18px 80px;
-    word-break:keep-all;
-    -webkit-font-smoothing:antialiased;
+    color:var(--ink); line-height:1.6; min-height:100vh;
+    word-break:keep-all; -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:760px; margin:0 auto;}
+  button{font-family:inherit;}
+  input,textarea,select{font-family:inherit; color:var(--ink);}
+  ::placeholder{color:var(--sub2);}
+  a{color:var(--lime);}
 
-  .top{text-align:center; margin-bottom:40px;}
-  .eyebrow{
-    font-size:12px; font-weight:800; letter-spacing:.34em; color:var(--lime);
-    text-transform:uppercase; margin-bottom:12px;
+  /* ===== 로그인 게이트 ===== */
+  #gate{
+    position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% -5%, rgba(184,242,75,.07), transparent 60%),
+      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
   }
-  .top h1{font-size:36px; font-weight:900; letter-spacing:-.02em; line-height:1.25; margin-bottom:8px;}
-  .top h1 .hl{
-    background:linear-gradient(92deg, var(--lime) 20%, var(--mint) 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
+  .gate-box{text-align:center; padding:20px;}
+  .gate-box .eyebrow{font-size:12px; font-weight:800; letter-spacing:.34em; color:var(--lime); text-transform:uppercase; margin-bottom:12px;}
+  .gate-box h1{font-size:34px; font-weight:900; letter-spacing:-.02em; margin-bottom:8px;}
+  .gate-box h1 .hl{background:linear-gradient(92deg,var(--lime) 20%,var(--mint) 100%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .gate-box p{font-size:13.5px; color:var(--sub); margin-bottom:26px;}
+  .gbtn{
+    display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+    background:var(--card2); border:1px solid var(--line2); border-radius:14px;
+    color:var(--ink); font-size:14.5px; font-weight:800; padding:13px 26px;
+    transition:border-color .2s, box-shadow .2s;
   }
-  .top p{font-size:14px; color:var(--sub);}
+  .gbtn:hover{border-color:rgba(184,242,75,.5); box-shadow:var(--glow-soft);}
+  .gbtn svg{width:19px; height:19px;}
+  .gate-note{margin-top:16px; font-size:11.5px; color:var(--sub2);}
 
-  .docs{display:flex; flex-direction:column; gap:14px;}
-  a.doc{
-    display:grid; grid-template-columns:1fr auto; gap:4px 16px; align-items:center;
-    background:var(--card); border:1px solid var(--line); border-radius:16px;
-    padding:20px 22px; text-decoration:none; color:var(--ink);
-    transition:border-color .2s, box-shadow .2s, transform .2s;
+  /* ===== 상단 바 ===== */
+  header{
+    position:sticky; top:0; z-index:60;
+    background:rgba(11,13,9,.86); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
   }
-  a.doc:hover{border-color:rgba(184,242,75,.45); box-shadow:var(--glow-soft); transform:translateY(-2px);}
-  .doc .nm{font-size:17px; font-weight:800; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
-  .doc .tag{
-    font-size:10.5px; font-weight:800; letter-spacing:.05em; padding:3px 10px; border-radius:999px;
-    color:var(--lime); border:1px solid rgba(184,242,75,.4); background:rgba(184,242,75,.07);
+  .hbar{
+    max-width:1060px; margin:0 auto; padding:13px 18px;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
-  .doc .ds{font-size:13px; color:var(--sub); grid-column:1;}
-  .doc .go{
-    grid-row:1 / span 2; font-size:20px; color:var(--sub2); font-weight:800;
-    transition:color .2s, transform .2s;
+  .logo{font-size:14px; font-weight:900; letter-spacing:.18em; color:var(--lime); cursor:pointer; white-space:nowrap;}
+  .hsearch{
+    flex:1; min-width:150px; display:flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 15px;
   }
-  a.doc:hover .go{color:var(--lime); transform:translateX(3px);}
+  .hsearch input{flex:1; background:none; border:none; outline:none; font-size:13px; min-width:0;}
+  .hsearch .hs-i{color:var(--sub2); font-size:13px;}
+  .hsel{
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    font-size:12px; font-weight:700; color:var(--sub); padding:7px 12px; outline:none; cursor:pointer;
+  }
+  .hbtn{
+    background:var(--card); border:1px solid var(--line); border-radius:999px; cursor:pointer;
+    font-size:12px; font-weight:800; color:var(--sub); padding:7px 14px; white-space:nowrap;
+    transition:color .15s, border-color .15s;
+  }
+  .hbtn:hover{color:var(--lime); border-color:rgba(184,242,75,.4);}
+  .avatar{width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line2); cursor:pointer; display:block;}
 
-  .empty{
-    text-align:center; border:1px dashed var(--line2); border-radius:16px;
-    padding:26px; font-size:13px; color:var(--sub2); margin-top:14px;
+  /* ===== 본문 ===== */
+  main{max-width:1060px; margin:0 auto; padding:22px 18px 90px;}
+  .crumb{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; margin-bottom:16px; min-height:24px;}
+  .crumb a{color:var(--sub); text-decoration:none; font-weight:700;}
+  .crumb a:hover{color:var(--lime);}
+  .crumb .sep{color:var(--sub2);}
+  .crumb .cur{color:var(--ink); font-weight:800;}
+  .crumb .vis{
+    font-size:10.5px; font-weight:800; letter-spacing:.05em; padding:2.5px 10px; border-radius:999px; margin-left:4px;
+  }
+  .vis.pub{color:var(--lime); border:1px solid rgba(184,242,75,.4); background:rgba(184,242,75,.07);}
+  .vis.priv{color:var(--gold,#e6c592); border:1px solid rgba(230,197,146,.4); background:rgba(230,197,146,.07); color:#e6c592;}
+
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+  .tbtn{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; cursor:pointer;
+    font-size:12.5px; font-weight:800; color:var(--sub); padding:9px 16px;
+    transition:color .15s, border-color .15s, box-shadow .15s;
+  }
+  .tbtn:hover{color:var(--lime); border-color:rgba(184,242,75,.4); box-shadow:var(--glow-soft);}
+  .tbtn.warn:hover{color:var(--red); border-color:rgba(242,122,106,.4); box-shadow:none;}
+
+  .drop{
+    border:1.5px dashed var(--line2); border-radius:16px; padding:22px; text-align:center;
+    font-size:13px; color:var(--sub2); margin-bottom:20px; transition:border-color .2s, background .2s;
+  }
+  .drop.over{border-color:var(--lime); background:rgba(184,242,75,.05); color:var(--lime);}
+  .drop b{color:var(--sub);}
+
+  .sec-label{font-size:12px; font-weight:800; letter-spacing:.1em; color:var(--sub2); margin:6px 2px 10px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; margin-bottom:26px;}
+
+  .fcard,.dcard{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:15px 16px;
+    cursor:pointer; position:relative;
+    transition:border-color .18s, box-shadow .18s, transform .18s;
+  }
+  .fcard:hover,.dcard:hover{border-color:rgba(184,242,75,.42); box-shadow:var(--glow-soft); transform:translateY(-2px);}
+  .fcard .fi{font-size:20px; margin-bottom:6px; display:block;}
+  .fcard .nm,.dcard .nm{font-size:14.5px; font-weight:800; line-height:1.45; padding-right:26px;}
+  .dcard .nm .pin{color:var(--lime); font-size:12px; margin-right:4px;}
+  .fcard .meta,.dcard .meta{font-size:11.5px; color:var(--sub2); margin-top:5px;}
+  .dcard .desc{font-size:12px; color:var(--sub); margin-top:6px; line-height:1.55;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .dcard .tags{display:flex; gap:5px; flex-wrap:wrap; margin-top:8px;}
+  .dcard .tag{font-size:10px; font-weight:800; color:var(--mint); border:1px solid rgba(87,230,165,.35); padding:2px 8px; border-radius:999px;}
+  .kebab{
+    position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:8px;
+    background:none; border:none; color:var(--sub2); font-size:15px; cursor:pointer; line-height:1;
+  }
+  .kebab:hover{color:var(--lime); background:rgba(184,242,75,.08);}
+  .empty-msg{
+    border:1px dashed var(--line2); border-radius:16px; padding:30px; text-align:center;
+    font-size:13px; color:var(--sub2); margin-bottom:26px;
   }
 
-  .footer{margin-top:56px; text-align:center; font-size:11.5px; color:var(--sub2); letter-spacing:.02em;}
+  /* ===== 메뉴 팝업 ===== */
+  .menu{
+    position:fixed; z-index:100; min-width:170px;
+    background:var(--card2); border:1px solid var(--line2); border-radius:13px; overflow:hidden;
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+  }
+  .menu button{
+    display:block; width:100%; text-align:left; background:none; border:none; cursor:pointer;
+    font-size:13px; font-weight:700; color:var(--sub); padding:10px 16px;
+  }
+  .menu button:hover{background:rgba(184,242,75,.08); color:var(--lime);}
+  .menu button.warn:hover{background:rgba(242,122,106,.08); color:var(--red);}
+  .menu .div{height:1px; background:var(--line);}
+
+  /* ===== 모달 ===== */
+  .modal-bg{position:fixed; inset:0; z-index:110; background:rgba(5,6,4,.72); display:flex; align-items:center; justify-content:center; padding:18px;}
+  .modal{
+    width:100%; max-width:440px; background:var(--card); border:1px solid var(--line2);
+    border-radius:18px; padding:22px;
+  }
+  .modal h3{font-size:16px; font-weight:900; margin-bottom:14px;}
+  .modal label{display:block; font-size:11.5px; font-weight:800; color:var(--sub2); margin:12px 0 5px; letter-spacing:.04em;}
+  .modal input[type=text],.modal textarea{
+    width:100%; background:var(--card2); border:1px solid var(--line2); border-radius:11px;
+    padding:10px 13px; font-size:13.5px; outline:none;
+  }
+  .modal input:focus,.modal textarea:focus{border-color:rgba(184,242,75,.5);}
+  .modal textarea{resize:vertical; min-height:64px;}
+  .m-row{display:flex; gap:9px; margin-top:18px; justify-content:flex-end;}
+  .mbtn{
+    border-radius:11px; cursor:pointer; font-size:13px; font-weight:800; padding:9px 18px;
+    background:var(--card2); border:1px solid var(--line2); color:var(--sub);
+  }
+  .mbtn.pri{background:var(--lime); border-color:var(--lime); color:#10130a;}
+  .mbtn.pri:hover{box-shadow:var(--glow-soft);}
+  .m-check{display:flex; align-items:center; gap:9px; margin-top:14px; font-size:13px; color:var(--sub); cursor:pointer;}
+  .m-check input{width:17px; height:17px; accent-color:var(--lime);}
+
+  /* ===== 뷰어 ===== */
+  #viewer{position:fixed; inset:0; z-index:90; background:var(--bg); display:flex; flex-direction:column;}
+  .v-bar{
+    display:flex; align-items:center; gap:10px; padding:11px 16px;
+    border-bottom:1px solid var(--line); flex-wrap:wrap;
+  }
+  .v-bar .nm{font-size:14.5px; font-weight:800; flex:1; min-width:120px;}
+  .v-meta{font-size:11.5px; color:var(--sub2); white-space:nowrap;}
+  .v-frame{flex:1; border:none; width:100%; background:#fff;}
+  .v-side{
+    border-top:1px solid var(--line); max-height:38vh; overflow:auto; padding:16px 18px;
+    background:var(--bg2);
+  }
+  .c-item{display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .c-item img{width:26px; height:26px; border-radius:50%; flex-shrink:0;}
+  .c-item .cn{font-weight:800; font-size:12.5px;}
+  .c-item .ct{color:var(--sub); margin-top:1px;}
+  .c-item .cd{font-size:10.5px; color:var(--sub2); margin-top:2px;}
+  .c-del{background:none; border:none; color:var(--sub2); cursor:pointer; font-size:11px; margin-left:auto;}
+  .c-del:hover{color:var(--red);}
+  .c-form{display:flex; gap:8px; margin-top:12px;}
+  .c-form input{
+    flex:1; background:var(--card); border:1px solid var(--line2); border-radius:999px;
+    padding:9px 16px; font-size:13px; outline:none;
+  }
+  .c-form input:focus{border-color:rgba(184,242,75,.5);}
+
+  /* ===== 통계 ===== */
+  .chart{display:flex; align-items:flex-end; gap:4px; height:110px; margin:14px 0 6px;}
+  .chart .bar{
+    flex:1; background:linear-gradient(180deg,var(--lime),var(--lime-d)); border-radius:4px 4px 0 0;
+    min-height:2px; position:relative;
+  }
+  .chart .bar span{
+    position:absolute; top:-17px; left:50%; transform:translateX(-50%);
+    font-size:9.5px; color:var(--sub2); font-weight:700;
+  }
+  .chart-x{display:flex; gap:4px; font-size:9px; color:var(--sub2); text-align:center;}
+  .chart-x div{flex:1;}
+  .visit-list{margin-top:16px; max-height:200px; overflow:auto;}
+  .visit-list .vi{display:flex; gap:9px; font-size:12px; color:var(--sub); padding:6px 0; border-bottom:1px solid var(--line);}
+  .visit-list .vi b{color:var(--ink);}
+  .visit-list .vi .t{margin-left:auto; color:var(--sub2); font-size:11px; white-space:nowrap;}
+
+  #toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:150;
+    background:var(--card2); border:1px solid rgba(184,242,75,.4); color:var(--ink);
+    font-size:13px; font-weight:700; padding:11px 20px; border-radius:999px;
+    box-shadow:var(--glow-soft); opacity:0; pointer-events:none; transition:opacity .25s;
+  }
+  #toast.show{opacity:1;}
+  .hidden{display:none !important;}
 
   @media(max-width:640px){
-    body{padding:44px 14px 64px;}
-    .top h1{font-size:28px;}
-    a.doc{padding:17px 18px;}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+    .v-side{max-height:44vh;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="top">
+<!-- 로그인 게이트 -->
+<div id="gate">
+  <div class="gate-box">
     <div class="eyebrow">Jim's Document</div>
     <h1>짐의 <span class="hl">문서</span> 저장소</h1>
-    <p>만든 페이지들을 여기서 모아 봅니다</p>
+    <p>구글 계정으로 로그인하면 열람할 수 있어요</p>
+    <button class="gbtn" id="login-btn">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.7l6.2 5.2C36.9 40.4 44 36 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+      Google로 로그인
+    </button>
+    <div class="gate-note">로그인은 24시간 유지되고, 이후 다시 로그인해요</div>
   </div>
-
-  <div class="docs" id="docs"></div>
-  <div class="empty">새 문서가 생기면 이 목록에 추가됩니다</div>
-
-  <div class="footer">JIM · GITHUB PAGES</div>
-
 </div>
 
-<script>
-/* 새 문서가 생기면 여기에 한 줄씩 추가하면 됩니다.
-   href는 폴더명 (저장소 안의 폴더 = 주소 경로) */
-const docs=[
-  {nm:"윰 & 짐 후쿠오카 여행", tag:"TRIP", ds:"2026.08.20 – 24 · 4박 5일 · 실시간 체크리스트", href:"fukuoka/"}
-];
+<!-- 앱 -->
+<div id="app" class="hidden">
+<header>
+  <div class="hbar">
+    <div class="logo" id="logo">JIM'S DOCUMENT</div>
+    <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
+    <select class="hsel" id="sort">
+      <option value="recent">최신순</option>
+      <option value="name">이름순</option>
+      <option value="views">조회순</option>
+    </select>
+    <button class="hbtn hidden" id="stats-btn">방문 통계</button>
+    <img class="avatar" id="avatar" title="로그아웃" alt="me">
+  </div>
+</header>
 
-document.getElementById("docs").innerHTML=docs.map(d=>`
-  <a class="doc" href="${d.href}">
-    <span class="nm">${d.nm} <span class="tag">${d.tag}</span></span>
-    <span class="ds">${d.ds}</span>
-    <span class="go">→</span>
-  </a>`).join("");
+<main>
+  <div class="crumb" id="crumb"></div>
+  <div class="toolbar hidden" id="toolbar">
+    <button class="tbtn" id="new-folder">＋ 새 폴더</button>
+    <button class="tbtn" id="upload-btn">↑ HTML 업로드</button>
+    <button class="tbtn" id="add-link">🔗 링크 추가</button>
+    <button class="tbtn" id="vis-toggle"></button>
+    <input type="file" id="file-input" accept=".html,.htm,text/html" multiple class="hidden">
+  </div>
+  <div class="drop hidden" id="drop"><b>HTML 파일을 여기로 드래그</b>하거나 위의 업로드 버튼을 누르세요<br>같은 이름이면 내용만 교체되고 댓글·조회수는 유지돼요</div>
+
+  <div id="listing"></div>
+</main>
+</div>
+
+<!-- 뷰어 -->
+<div id="viewer" class="hidden">
+  <div class="v-bar">
+    <button class="hbtn" id="v-back">← 목록</button>
+    <div class="nm" id="v-name"></div>
+    <div class="v-meta" id="v-meta"></div>
+    <button class="hbtn hidden" id="v-secret">비밀 링크</button>
+    <button class="hbtn hidden" id="v-restore">이전 버전</button>
+  </div>
+  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-popups"></iframe>
+  <div class="v-side">
+    <div style="font-size:12px;font-weight:800;color:var(--sub2);letter-spacing:.08em;margin-bottom:4px">댓글</div>
+    <div id="c-list"></div>
+    <div class="c-form">
+      <input id="c-input" type="text" placeholder="댓글 남기기" maxlength="500">
+      <button class="mbtn pri" id="c-send">등록</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ================= 설정 ================= */
+const MASTER_EMAIL="wlals3875@gmail.com";   /* 마스터 계정 (본인 구글 이메일) */
+const SESSION_HOURS=24;
+const MAX_VERSIONS=3;
+const firebaseConfig={
+  apiKey:"AIzaSyBWK9r4-HwOfhJWxFCy2uzvIceRDoMfZxQ",
+  authDomain:"jim-s-document.firebaseapp.com",
+  databaseURL:"https://jim-s-document-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"jim-s-document",
+  storageBucket:"jim-s-document.firebasestorage.app",
+  messagingSenderId:"210701764992",
+  appId:"1:210701764992:web:87517da8493493f84a1965"
+};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.database();
+
+/* ================= 상태 ================= */
+let ME=null, IS_MASTER=false;
+let DATA={pub:{folders:{},docs:{}}, priv:{folders:{},docs:{}}};
+let VIEWS={};
+let curScope="pub", curFolder="root";
+let curDoc=null, curDocScope=null;
+let viewedThisSession={};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2400);}
+const fmtDate=ts=>{const d=new Date(ts);return d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");};
+const fmtTime=ts=>{const d=new Date(ts);return fmtDate(ts)+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
+
+/* ================= 인증 ================= */
+$("login-btn").onclick=()=>{
+  const p=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(p).catch(e=>toast("로그인 실패: "+e.code));
+};
+$("avatar").onclick=()=>{ if(confirm("로그아웃할까요?")){ localStorage.removeItem("hub-login-at"); auth.signOut(); } };
+
+auth.onAuthStateChanged(u=>{
+  if(u){
+    /* 24시간 세션 체크 */
+    const at=+localStorage.getItem("hub-login-at")||0;
+    if(at && Date.now()-at > SESSION_HOURS*3600*1000){
+      localStorage.removeItem("hub-login-at"); auth.signOut(); return;
+    }
+    if(!at) localStorage.setItem("hub-login-at",Date.now());
+    ME=u; IS_MASTER=(u.email===MASTER_EMAIL);
+    $("gate").classList.add("hidden"); $("app").classList.remove("hidden");
+    $("avatar").src=u.photoURL||"";
+    $("stats-btn").classList.toggle("hidden",!IS_MASTER);
+    $("toolbar").classList.toggle("hidden",!IS_MASTER);
+    $("drop").classList.toggle("hidden",!IS_MASTER);
+    subscribe();
+  }else{
+    ME=null; IS_MASTER=false;
+    $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); $("viewer").classList.add("hidden");
+  }
+});
+
+/* ================= 데이터 구독 ================= */
+let subs=[];
+function subscribe(){
+  subs.forEach(fn=>fn()); subs=[];
+  const watch=(path,cb)=>{const r=db.ref(path);const h=r.on("value",s=>{cb(s.val()||{});render();});subs.push(()=>r.off("value",h));};
+  watch("hub/pub/folders",v=>DATA.pub.folders=v);
+  watch("hub/pub/docs",v=>DATA.pub.docs=v);
+  watch("hub/views",v=>VIEWS=v);
+  if(IS_MASTER){
+    watch("hub/priv/folders",v=>DATA.priv.folders=v);
+    watch("hub/priv/docs",v=>DATA.priv.docs=v);
+  }
+}
+
+/* ================= 렌더 ================= */
+function folderPath(scope,fid){
+  const out=[]; let cur=fid;
+  while(cur&&cur!=="root"){ const f=DATA[scope].folders[cur]; if(!f)break; out.unshift({id:cur,name:f.name}); cur=f.parent; }
+  return out;
+}
+function render(){
+  if(!ME) return;
+  /* 크럼 */
+  const path=folderPath(curScope,curFolder);
+  let c=`<a href="#" data-nav="root">전체</a>`;
+  path.forEach(p=>{ c+=`<span class="sep">›</span><a href="#" data-nav="${p.id}">${esc(p.name)}</a>`; });
+  c+=`<span class="vis ${curScope==="pub"?"pub":"priv"}">${curScope==="pub"?"공개":"비공개"}</span>`;
+  $("crumb").innerHTML=c;
+  $("crumb").querySelectorAll("a").forEach(a=>a.onclick=e=>{e.preventDefault();curFolder=a.dataset.nav;render();});
+
+  /* 공개/비공개 토글 버튼 라벨 */
+  $("vis-toggle").textContent=curScope==="pub"?"🔒 비공개 보기":"🌐 공개 보기";
+
+  /* 목록 */
+  const q=($("search").value||"").trim().toLowerCase();
+  const sort=$("sort").value;
+  const F=DATA[curScope].folders, D=DATA[curScope].docs;
+
+  let folders=Object.entries(F).map(([id,f])=>({id,...f}));
+  let docs=Object.entries(D).map(([id,d])=>({id,...d,views:(VIEWS[id]||0)}));
+
+  if(q){
+    folders=folders.filter(f=>f.name.toLowerCase().includes(q));
+    docs=docs.filter(d=>d.name.toLowerCase().includes(q)||(d.tags||"").toLowerCase().includes(q));
+  }else{
+    folders=folders.filter(f=>(f.parent||"root")===curFolder);
+    docs=docs.filter(d=>(d.folder||"root")===curFolder);
+  }
+  const cmp={recent:(a,b)=>(b.updatedAt||0)-(a.updatedAt||0),
+             name:(a,b)=>a.name.localeCompare(b.name,"ko"),
+             views:(a,b)=>(b.views||0)-(a.views||0)}[sort];
+  folders.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  docs.sort((a,b)=>((b.pinned?1:0)-(a.pinned?1:0))||cmp(a,b));
+
+  let html="";
+  if(q) html+=`<div class="sec-label">"${esc(q)}" 검색 결과 · ${curScope==="pub"?"공개":"비공개"} 영역</div>`;
+  if(folders.length){
+    html+=`<div class="sec-label">폴더</div><div class="grid">`+folders.map(f=>{
+      const cnt=Object.values(D).filter(d=>d.folder===f.id).length;
+      return `<div class="fcard" data-f="${f.id}">
+        ${IS_MASTER?`<button class="kebab" data-fm="${f.id}">⋯</button>`:""}
+        <span class="fi">📁</span><div class="nm">${esc(f.name)}</div>
+        <div class="meta">문서 ${cnt}개</div></div>`;
+    }).join("")+`</div>`;
+  }
+  if(docs.length){
+    html+=`<div class="sec-label">문서</div><div class="grid">`+docs.map(d=>{
+      const link=d.type==="link";
+      return `<div class="dcard" data-d="${d.id}">
+        ${IS_MASTER?`<button class="kebab" data-dm="${d.id}">⋯</button>`:""}
+        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${link?"🔗 ":""}${esc(d.name)}</div>
+        ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
+        ${d.tags?`<div class="tags">${d.tags.split(",").map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
+        <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.secret?" · 🔑":""}</div></div>`;
+    }).join("")+`</div>`;
+  }
+  if(!folders.length&&!docs.length){
+    html+=`<div class="empty-msg">${q?"검색 결과가 없어요":"아직 비어 있어요"+(IS_MASTER?" — 폴더를 만들거나 HTML을 올려보세요":"")}</div>`;
+  }
+  $("listing").innerHTML=html;
+
+  $("listing").querySelectorAll(".fcard").forEach(el=>el.onclick=e=>{
+    if(e.target.closest(".kebab"))return;
+    curFolder=el.dataset.f; $("search").value=""; render();
+  });
+  $("listing").querySelectorAll(".dcard").forEach(el=>el.onclick=e=>{
+    if(e.target.closest(".kebab"))return;
+    openDoc(el.dataset.d,curScope);
+  });
+  $("listing").querySelectorAll("[data-fm]").forEach(b=>b.onclick=e=>{e.stopPropagation();folderMenu(b.dataset.fm,b);});
+  $("listing").querySelectorAll("[data-dm]").forEach(b=>b.onclick=e=>{e.stopPropagation();docMenu(b.dataset.dm,b);});
+}
+$("search").oninput=render;
+$("sort").onchange=render;
+$("logo").onclick=()=>{curScope="pub";curFolder="root";$("search").value="";render();};
+
+/* ================= 팝업 메뉴 ================= */
+let menuEl=null;
+function closeMenu(){if(menuEl){menuEl.remove();menuEl=null;}}
+document.addEventListener("click",e=>{if(menuEl&&!menuEl.contains(e.target))closeMenu();},true);
+function showMenu(anchor,items){
+  closeMenu();
+  menuEl=document.createElement("div"); menuEl.className="menu";
+  items.forEach(it=>{
+    if(it==="—"){const d=document.createElement("div");d.className="div";menuEl.appendChild(d);return;}
+    const b=document.createElement("button"); b.textContent=it.label;
+    if(it.warn)b.className="warn";
+    b.onclick=()=>{closeMenu();it.fn();};
+    menuEl.appendChild(b);
+  });
+  document.body.appendChild(menuEl);
+  const r=anchor.getBoundingClientRect();
+  menuEl.style.top=Math.min(r.bottom+4,innerHeight-menuEl.offsetHeight-10)+"px";
+  menuEl.style.left=Math.min(r.left,innerWidth-menuEl.offsetWidth-10)+"px";
+}
+
+/* ================= 모달 ================= */
+function modal(html,onOpen){
+  const bg=document.createElement("div"); bg.className="modal-bg";
+  bg.innerHTML=`<div class="modal">${html}</div>`;
+  bg.onclick=e=>{if(e.target===bg)bg.remove();};
+  document.body.appendChild(bg);
+  if(onOpen)onOpen(bg);
+  return bg;
+}
+
+/* ================= 폴더 CRUD ================= */
+$("new-folder").onclick=()=>{
+  modal(`<h3>새 폴더</h3><label>폴더 이름</label><input type="text" id="m-name">
+    <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>만들기</button></div>`,
+  bg=>{
+    const inp=bg.querySelector("#m-name"); inp.focus();
+    bg.querySelector("[data-x]").onclick=()=>bg.remove();
+    bg.querySelector("[data-ok]").onclick=()=>{
+      const name=inp.value.trim(); if(!name)return;
+      db.ref(`hub/${curScope}/folders`).push({name,parent:curFolder,createdAt:Date.now()});
+      bg.remove(); toast("폴더 생성됨");
+    };
+  });
+};
+function folderMenu(fid,anchor){
+  const scope=curScope;
+  showMenu(anchor,[
+    {label:"이름 변경",fn:()=>{
+      const f=DATA[scope].folders[fid];
+      modal(`<h3>이름 변경</h3><label>폴더 이름</label><input type="text" id="m-name" value="${esc(f.name)}">
+        <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>저장</button></div>`,
+      bg=>{
+        bg.querySelector("[data-x]").onclick=()=>bg.remove();
+        bg.querySelector("[data-ok]").onclick=()=>{
+          const v=bg.querySelector("#m-name").value.trim(); if(!v)return;
+          db.ref(`hub/${scope}/folders/${fid}/name`).set(v); bg.remove();
+        };
+      });
+    }},
+    {label:scope==="pub"?"비공개로 전환":"공개로 전환",fn:()=>moveFolderScope(fid,scope)},
+    "—",
+    {label:"삭제 (하위 포함)",warn:true,fn:()=>deleteFolder(fid,scope)}
+  ]);
+}
+function collectTree(scope,fid){
+  const fids=[fid], dids=[];
+  const walk=id=>{
+    Object.entries(DATA[scope].folders).forEach(([k,f])=>{if(f.parent===id){fids.push(k);walk(k);}});
+  };
+  walk(fid);
+  Object.entries(DATA[scope].docs).forEach(([k,d])=>{if(fids.includes(d.folder||"root"))dids.push(k);});
+  return {fids,dids};
+}
+async function deleteFolder(fid,scope){
+  const {fids,dids}=collectTree(scope,fid);
+  if(!confirm(`폴더와 하위 폴더 ${fids.length-1}개, 문서 ${dids.length}개가 삭제돼요. 계속?`))return;
+  const up={};
+  fids.forEach(f=>up[`hub/${scope}/folders/${f}`]=null);
+  for(const d of dids){
+    up[`hub/${scope}/docs/${d}`]=null;
+    up[`hub/${scope}/contents/${d}`]=null;
+    up[`hub/${scope}/versions/${d}`]=null;
+    up[`hub/comments/${d}`]=null; up[`hub/views/${d}`]=null;
+  }
+  await db.ref().update(up); toast("삭제됨");
+}
+async function moveFolderScope(fid,scope){
+  const dst=scope==="pub"?"priv":"pub";
+  const {fids,dids}=collectTree(scope,fid);
+  const up={};
+  for(const f of fids){
+    up[`hub/${dst}/folders/${f}`]=DATA[scope].folders[f];
+    up[`hub/${scope}/folders/${f}`]=null;
+  }
+  /* 이동 대상 최상위 폴더는 현재 위치의 부모를 유지할 수 없으니 root로 */
+  for(const d of dids){
+    const meta=DATA[scope].docs[d];
+    const cont=(await db.ref(`hub/${scope}/contents/${d}`).get()).val();
+    const vers=(await db.ref(`hub/${scope}/versions/${d}`).get()).val();
+    up[`hub/${dst}/docs/${d}`]=meta;
+    up[`hub/${dst}/contents/${d}`]=cont;
+    if(vers)up[`hub/${dst}/versions/${d}`]=vers;
+    up[`hub/${scope}/docs/${d}`]=null;
+    up[`hub/${scope}/contents/${d}`]=null;
+    up[`hub/${scope}/versions/${d}`]=null;
+  }
+  up[`hub/${dst}/folders/${fid}/parent`]="root";
+  await db.ref().update(up);
+  toast(dst==="priv"?"비공개로 이동됨":"공개로 이동됨");
+}
+$("vis-toggle").onclick=()=>{curScope=curScope==="pub"?"priv":"pub";curFolder="root";render();};
+
+/* ================= 문서 업로드 ================= */
+$("upload-btn").onclick=()=>$("file-input").click();
+$("file-input").onchange=e=>{handleFiles(e.target.files);e.target.value="";};
+const drop=$("drop");
+["dragenter","dragover"].forEach(ev=>document.addEventListener(ev,e=>{
+  if(!IS_MASTER)return; e.preventDefault(); drop.classList.add("over");
+}));
+["dragleave","drop"].forEach(ev=>document.addEventListener(ev,e=>{
+  e.preventDefault(); if(ev==="drop"&&IS_MASTER)handleFiles(e.dataTransfer.files);
+  drop.classList.remove("over");
+}));
+async function handleFiles(files){
+  for(const f of files){
+    if(!/\.html?$/i.test(f.name)){toast(f.name+" — HTML 파일만 가능해요");continue;}
+    if(f.size>800*1024){toast(f.name+" — 800KB 이하만 가능해요");continue;}
+    const html=await f.text();
+    await saveDoc(f.name,html);
+  }
+}
+async function saveDoc(name,html){
+  const D=DATA[curScope].docs;
+  const exist=Object.entries(D).find(([id,d])=>d.name===name&&(d.folder||"root")===curFolder&&d.type!=="link");
+  if(exist){
+    const [did]=exist;
+    /* 이전 버전 보관 */
+    const prev=(await db.ref(`hub/${curScope}/contents/${did}`).get()).val();
+    if(prev){
+      const vref=db.ref(`hub/${curScope}/versions/${did}`);
+      const vs=(await vref.get()).val()||{};
+      const keys=Object.keys(vs).sort();
+      while(keys.length>=MAX_VERSIONS){const k=keys.shift(); vs[k]=null;}
+      const up={};
+      Object.keys(vs).forEach(k=>{if(vs[k]===null)up[k]=null;});
+      up[Date.now()]={html:prev,at:Date.now()};
+      await vref.update(up);
+    }
+    const up2={};
+    up2[`hub/${curScope}/contents/${did}`]=html;
+    up2[`hub/${curScope}/docs/${did}/updatedAt`]=Date.now();
+    await db.ref().update(up2);
+    /* 비밀 링크 활성 시 스냅샷 갱신 */
+    const meta=D[did];
+    if(meta.secret)await db.ref(`hub/secret/${meta.secret}`).update({html,name:meta.name,at:Date.now()});
+    toast(`"${name}" 교체됨 (댓글·조회수 유지)`);
+  }else{
+    const ref=db.ref(`hub/${curScope}/docs`).push();
+    await ref.set({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"html"});
+    await db.ref(`hub/${curScope}/contents/${ref.key}`).set(html);
+    toast(`"${name}" 업로드됨`);
+  }
+}
+$("add-link").onclick=()=>{
+  modal(`<h3>링크 추가</h3><label>표시 이름</label><input type="text" id="m-name" placeholder="예: 윰 & 짐 후쿠오카 여행">
+    <label>URL</label><input type="text" id="m-url" placeholder="https:// 또는 fukuoka/ 같은 상대경로">
+    <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>추가</button></div>`,
+  bg=>{
+    bg.querySelector("[data-x]").onclick=()=>bg.remove();
+    bg.querySelector("[data-ok]").onclick=()=>{
+      const name=bg.querySelector("#m-name").value.trim();
+      const url=bg.querySelector("#m-url").value.trim();
+      if(!name||!url)return;
+      db.ref(`hub/${curScope}/docs`).push({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"link",url});
+      bg.remove(); toast("링크 추가됨");
+    };
+  });
+};
+
+/* ================= 문서 메뉴 ================= */
+function docMenu(did,anchor){
+  const scope=curScope, d=DATA[scope].docs[did];
+  showMenu(anchor,[
+    {label:"메타 편집 (설명·태그)",fn:()=>{
+      modal(`<h3>문서 정보</h3>
+        <label>이름</label><input type="text" id="m-name" value="${esc(d.name)}">
+        <label>설명 한 줄</label><input type="text" id="m-desc" value="${esc(d.desc||"")}">
+        <label>태그 (쉼표 구분)</label><input type="text" id="m-tags" value="${esc(d.tags||"")}">
+        <label class="m-check"><input type="checkbox" id="m-pin" ${d.pinned?"checked":""}> 상단 고정 (핀)</label>
+        <div class="m-row"><button class="mbtn" data-x>취소</button><button class="mbtn pri" data-ok>저장</button></div>`,
+      bg=>{
+        bg.querySelector("[data-x]").onclick=()=>bg.remove();
+        bg.querySelector("[data-ok]").onclick=()=>{
+          db.ref(`hub/${scope}/docs/${did}`).update({
+            name:bg.querySelector("#m-name").value.trim()||d.name,
+            desc:bg.querySelector("#m-desc").value.trim(),
+            tags:bg.querySelector("#m-tags").value.trim(),
+            pinned:bg.querySelector("#m-pin").checked
+          }); bg.remove();
+        };
+      });
+    }},
+    {label:scope==="pub"?"비공개로 이동":"공개로 이동",fn:()=>moveDocScope(did,scope)},
+    "—",
+    {label:"삭제",warn:true,fn:async()=>{
+      if(!confirm(`"${d.name}" 삭제? 댓글·조회수도 함께 지워져요.`))return;
+      const up={};
+      up[`hub/${scope}/docs/${did}`]=null;
+      up[`hub/${scope}/contents/${did}`]=null;
+      up[`hub/${scope}/versions/${did}`]=null;
+      up[`hub/comments/${did}`]=null; up[`hub/views/${did}`]=null;
+      if(d.secret)up[`hub/secret/${d.secret}`]=null;
+      await db.ref().update(up); toast("삭제됨");
+    }}
+  ]);
+}
+async function moveDocScope(did,scope){
+  const dst=scope==="pub"?"priv":"pub";
+  const meta=DATA[scope].docs[did];
+  const cont=(await db.ref(`hub/${scope}/contents/${did}`).get()).val();
+  const vers=(await db.ref(`hub/${scope}/versions/${did}`).get()).val();
+  const up={};
+  up[`hub/${dst}/docs/${did}`]={...meta,folder:"root"};
+  if(cont!=null)up[`hub/${dst}/contents/${did}`]=cont;
+  if(vers)up[`hub/${dst}/versions/${did}`]=vers;
+  up[`hub/${scope}/docs/${did}`]=null;
+  up[`hub/${scope}/contents/${did}`]=null;
+  up[`hub/${scope}/versions/${did}`]=null;
+  await db.ref().update(up);
+  toast(dst==="priv"?"비공개로 이동됨 (최상위)":"공개로 이동됨 (최상위)");
+}
+
+/* ================= 뷰어 ================= */
+async function openDoc(did,scope){
+  const d=DATA[scope].docs[did]; if(!d)return;
+  if(d.type==="link"){ window.open(d.url,"_blank"); return; }
+  curDoc=did; curDocScope=scope;
+  $("viewer").classList.remove("hidden");
+  $("v-name").textContent=d.name;
+  document.querySelector(".v-side").style.display="";
+  $("v-frame").srcdoc="<p style='font-family:sans-serif;color:#888;padding:20px'>불러오는 중…</p>";
+  $("v-secret").classList.toggle("hidden",!IS_MASTER);
+  $("v-restore").classList.add("hidden");
+  const html=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
+  $("v-frame").srcdoc=html;
+  /* 조회수 (세션당 1회) + 방문 로그 */
+  if(!viewedThisSession[did]){
+    viewedThisSession[did]=1;
+    db.ref(`hub/views/${did}`).transaction(v=>(v||0)+1);
+    db.ref("hub/visits").push({u:ME.uid,n:ME.displayName||ME.email,d:did,dn:d.name,t:Date.now()});
+    const day=new Date(); const key=day.getFullYear()+String(day.getMonth()+1).padStart(2,"0")+String(day.getDate()).padStart(2,"0");
+    db.ref(`hub/stats/${key}`).transaction(v=>(v||0)+1);
+  }
+  $("v-meta").textContent=`${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${(VIEWS[did]||0)+1}`;
+  /* 이전 버전 */
+  if(IS_MASTER){
+    const vers=(await db.ref(`hub/${scope}/versions/${did}`).get()).val();
+    if(vers&&Object.keys(vers).length){
+      $("v-restore").classList.remove("hidden");
+      $("v-restore").onclick=()=>restoreMenu(did,scope,vers);
+    }
+  }
+  loadComments(did);
+}
+$("v-back").onclick=()=>{ $("viewer").classList.add("hidden"); if(cOff)cOff(); };
+function restoreMenu(did,scope,vers){
+  const keys=Object.keys(vers).sort().reverse();
+  showMenu($("v-restore"),keys.map(k=>({label:fmtTime(vers[k].at)+" 버전으로 복원",fn:async()=>{
+    await saveDoc(DATA[scope].docs[did].name,vers[k].html);
+    $("v-frame").srcdoc=vers[k].html; toast("복원됨 (현재 버전은 이전 버전으로 보관)");
+  }})));
+}
+$("v-secret").onclick=async()=>{
+  const d=DATA[curDocScope].docs[curDoc];
+  let token=d.secret;
+  if(!token){
+    token=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);
+    const html=(await db.ref(`hub/${curDocScope}/contents/${curDoc}`).get()).val()||"";
+    await db.ref(`hub/secret/${token}`).set({html,name:d.name,at:Date.now()});
+    await db.ref(`hub/${curDocScope}/docs/${curDoc}/secret`).set(token);
+  }
+  const url=location.origin+location.pathname+"?s="+token;
+  modal(`<h3>비밀 링크</h3>
+    <p style="font-size:13px;color:var(--sub);line-height:1.7">로그인한 사람 중 이 링크를 아는 사람만 볼 수 있어요.<br>파일을 교체하면 링크 내용도 자동 갱신돼요.</p>
+    <label>링크</label><input type="text" id="m-url" value="${url}" readonly onclick="this.select()">
+    <div class="m-row"><button class="mbtn warn-x" data-del style="color:var(--red)">링크 해제</button><button class="mbtn pri" data-cp>복사</button></div>`,
+  bg=>{
+    bg.querySelector("[data-cp]").onclick=()=>{navigator.clipboard.writeText(url);toast("복사됨");bg.remove();};
+    bg.querySelector("[data-del]").onclick=async()=>{
+      await db.ref(`hub/secret/${token}`).remove();
+      await db.ref(`hub/${curDocScope}/docs/${curDoc}/secret`).remove();
+      toast("비밀 링크 해제됨"); bg.remove();
+    };
+  });
+};
+
+/* ================= 댓글 ================= */
+let cOff=null;
+function loadComments(did){
+  if(cOff)cOff();
+  const r=db.ref(`hub/comments/${did}`);
+  const h=r.on("value",s=>{
+    const v=s.val()||{};
+    $("c-list").innerHTML=Object.entries(v).sort((a,b)=>a[1].at-b[1].at).map(([cid,c])=>`
+      <div class="c-item">
+        ${c.photo?`<img src="${esc(c.photo)}" alt="">`:`<span style="width:26px"></span>`}
+        <div style="flex:1;min-width:0">
+          <div class="cn">${esc(c.name)}</div>
+          <div class="ct">${esc(c.text)}</div>
+          <div class="cd">${fmtTime(c.at)}</div>
+        </div>
+        ${(IS_MASTER||c.uid===ME.uid)?`<button class="c-del" data-c="${cid}">삭제</button>`:""}
+      </div>`).join("")||`<div style="font-size:12.5px;color:var(--sub2);padding:8px 0">첫 댓글을 남겨보세요</div>`;
+    $("c-list").querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{
+      if(confirm("댓글 삭제?"))db.ref(`hub/comments/${did}/${b.dataset.c}`).remove();
+    });
+  });
+  cOff=()=>r.off("value",h);
+}
+$("c-send").onclick=sendComment;
+$("c-input").addEventListener("keydown",e=>{if(e.key==="Enter")sendComment();});
+function sendComment(){
+  const t=$("c-input").value.trim(); if(!t||!curDoc)return;
+  db.ref(`hub/comments/${curDoc}`).push({uid:ME.uid,name:ME.displayName||ME.email,photo:ME.photoURL||"",text:t,at:Date.now()});
+  $("c-input").value="";
+}
+
+/* ================= 통계 ================= */
+$("stats-btn").onclick=async()=>{
+  const stats=(await db.ref("hub/stats").get()).val()||{};
+  const visits=(await db.ref("hub/visits").limitToLast(40).get()).val()||{};
+  const days=[]; const now=new Date();
+  for(let i=13;i>=0;i--){
+    const d=new Date(now); d.setDate(d.getDate()-i);
+    const key=d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+    days.push({label:(d.getMonth()+1)+"/"+d.getDate(),v:stats[key]||0});
+  }
+  const max=Math.max(1,...days.map(d=>d.v));
+  const vlist=Object.values(visits).sort((a,b)=>b.t-a.t);
+  modal(`<h3>방문 통계 <span style="font-size:11px;color:var(--sub2)">최근 14일</span></h3>
+    <div class="chart">${days.map(d=>`<div class="bar" style="height:${d.v/max*100}%"><span>${d.v||""}</span></div>`).join("")}</div>
+    <div class="chart-x">${days.map(d=>`<div>${d.label}</div>`).join("")}</div>
+    <div style="font-size:12px;font-weight:800;color:var(--sub2);letter-spacing:.08em;margin-top:18px">최근 방문</div>
+    <div class="visit-list">${vlist.map(v=>`<div class="vi"><b>${esc(v.n)}</b><span>· ${esc(v.dn||"")}</span><span class="t">${fmtTime(v.t)}</span></div>`).join("")||"<div style='font-size:12px;color:var(--sub2);padding:8px 0'>기록 없음</div>"}</div>
+    <div class="m-row"><button class="mbtn" data-x>닫기</button></div>`,
+  bg=>{bg.querySelector("[data-x]").onclick=()=>bg.remove();});
+};
+
+/* ================= 비밀 링크 진입 ================= */
+(function(){
+  const token=new URLSearchParams(location.search).get("s");
+  if(!token)return;
+  const tryOpen=()=>{
+    if(!ME){setTimeout(tryOpen,400);return;}
+    db.ref(`hub/secret/${token}`).get().then(s=>{
+      const v=s.val();
+      if(!v){toast("유효하지 않은 링크예요");return;}
+      $("viewer").classList.remove("hidden");
+      $("v-name").textContent=v.name+" (비밀 링크)";
+      $("v-meta").textContent=fmtDate(v.at);
+      $("v-secret").classList.add("hidden");
+      $("v-restore").classList.add("hidden");
+      $("v-frame").srcdoc=v.html;
+      document.querySelector(".v-side").style.display="none";
+    });
+  };
+  tryOpen();
+})();
 </script>
 </body>
 </html>
