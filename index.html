@@ -1387,7 +1387,7 @@ async function loadCalendar(){
   const evs=(d.items||[]).filter(e=>e.status!=="cancelled");
   /* 이번 주 위젯 */
   const weekEnd=new Date(now); weekEnd.setDate(weekEnd.getDate()+7);
-  const isWd=e=>{const s=e.summary||"";return /\(\s*\d+(?:\.\d+)?\s*\)/.test(s)||/(\d+(?:\.\d+)?)\s*만/.test(s)||/보험|이자|IRP|청약|본가/i.test(s);};
+  const isWd=e=>["4","6","11"].includes(e.colorId)||(!e.colorId&&/\(\s*\d+(?:\.\d+)?\s*\)/.test(e.summary||""));
   const plain=evs.filter(e=>!isWd(e));
   const week=plain.filter(e=>evDate(e)<weekEnd);
   const next=plain[0];
@@ -1409,13 +1409,13 @@ async function loadCalendar(){
     }).join("");
   }else html+='<div class="w-empty">이번 주 일정 없음</div>';
   $("w-cal").innerHTML=html;
-  /* 다음 출금: "항목(10.0)" 또는 "N만" 패턴 — 만원 단위 */
-  const KNOWN=/보험|이자|카드|IRP|청약|대출|월세|관리비|통신|구독|적금|저축|본가/i;
+  /* 다음 출금: 주황 계열 색상 카드 (colorId 4=플라밍고, 6=귤색, 11=토마토) */
+  const WARM=["4","6","11"];
+  const parseAmt=s=>{const m=(s||"").match(/\(\s*(\d+(?:\.\d+)?)\s*\)/)||(s||"").match(/(\d+(?:\.\d+)?)\s*만/);return m?Math.round(parseFloat(m[1])*10000):null;};
   const wds=evs.map(e=>{
-    const s=e.summary||"";
-    let m=s.match(/\(\s*(\d+(?:\.\d+)?)\s*\)/)||s.match(/(\d+(?:\.\d+)?)\s*만/);
-    if(m)return {e,amt:Math.round(parseFloat(m[1])*10000)};
-    if(KNOWN.test(s))return {e,amt:null};
+    const warm=WARM.includes(e.colorId);
+    const amt=parseAmt(e.summary);
+    if(warm||(amt!=null&&!e.colorId))return {e,amt};
     return null;
   }).filter(Boolean).slice(0,8);
   let wh='<div class="wt">💸 다음 출금 <span class="r">45일 이내</span></div>';
