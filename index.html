@@ -103,7 +103,7 @@
   /* ===== 레이아웃: 사이드바 + 본문 ===== */
   .layout{max-width:1180px; margin:0 auto; display:flex; align-items:flex-start;}
   aside{
-    width:230px; flex-shrink:0; position:sticky; top:57px;
+    width:230px; flex-shrink:0; position:sticky; top:57px; z-index:1;
     height:calc(100vh - 57px); overflow-y:auto; padding:20px 10px 30px 18px;
     border-right:1px solid var(--line);
   }
@@ -127,7 +127,7 @@
   .stor .st-bar{height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,var(--lime),#8be9e0); transition:width .5s;}
   .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
   body.side-off aside{display:none;}
-  main{flex:1; min-width:0; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
+  main{flex:1; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
   @media(max-width:860px){
     aside{
       position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
@@ -382,7 +382,7 @@
     animation:bloom 2.1s cubic-bezier(.16,.7,.3,1) both, breathe 13s ease-in-out 2.3s infinite;}
   @keyframes bloom{from{opacity:0; transform:translate(-50%,-50%) scale(.5)}to{opacity:1; transform:translate(-50%,-50%) scale(1)}}
   @keyframes breathe{0%,100%{opacity:1; transform:translate(-50%,-50%) scale(1)}50%{opacity:.88; transform:translate(-50%,-50%) scale(1.04)}}
-  .layout{position:relative; z-index:1;}
+
 
   .widget{
     transition:border-color .25s, box-shadow .25s, transform .25s;
@@ -548,6 +548,7 @@
     <button class="hbtn" id="v-back">← 목록</button>
     <div class="nm" id="v-name"></div>
     <div class="v-meta" id="v-meta"></div>
+    <button class="hbtn" id="v-link">링크 복사</button>
     <button class="hbtn hidden" id="v-secret">비밀 링크</button>
     <button class="hbtn hidden" id="v-restore">이전 버전</button>
   </div>
@@ -589,6 +590,7 @@ const db=firebase.database();
 
 /* ================= 상태 ================= */
 let ME=null, IS_MASTER=false, curView="docs";
+let PENDING_DOC=new URLSearchParams(location.search).get("d");
 let DATA={pub:{folders:{},docs:{}}, priv:{folders:{},docs:{}}};
 let VIEWS={};
 let curFolder="root";
@@ -687,6 +689,7 @@ function setView(v){
   curView=v;
   $("view-home").classList.toggle("hidden",v!=="home");
   $("view-docs").classList.toggle("hidden",v!=="docs");
+  $("sort").classList.toggle("hidden",v==="home");
   $("s-home").classList.toggle("on",v==="home");
   renderTree();
   if(v==="home"&&IS_MASTER)initDash();
@@ -811,6 +814,11 @@ function render(){
   $("listing").querySelectorAll("[data-fm]").forEach(b=>b.onclick=e=>{e.stopPropagation();folderMenu(b.dataset.fm,b);});
   $("listing").querySelectorAll("[data-dm]").forEach(b=>b.onclick=e=>{e.stopPropagation();docMenu(b.dataset.dm,b);});
   renderTree();
+  if(PENDING_DOC&&dScope(PENDING_DOC)){
+    const id=PENDING_DOC; PENDING_DOC=null;
+    history.replaceState(null,"",location.pathname);
+    openDoc(id);
+  }
 }
 function renderTree(){
   let folders=Object.entries(DATA.pub.folders).map(([id,f])=>({id,...f,scope:"pub"}));
@@ -1078,6 +1086,10 @@ function docMenu(did,anchor){
         };
       });
     }},
+    {label:"🔗 링크 복사",fn:()=>{
+      const url=location.origin+location.pathname+"?d="+did;
+      navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨"),()=>prompt("링크를 복사하세요",url));
+    }},
     {label:scope==="pub"?"🔒 비공개로 전환":"🌐 공개로 전환",fn:()=>moveDocScope(did,scope)},
     "—",
     {label:"삭제",warn:true,fn:async()=>{
@@ -1118,6 +1130,7 @@ async function openDoc(did,scope){
   if(d.type==="link"){ window.open(d.url,"_blank"); return; }
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
+  $("v-link").classList.remove("hidden");
   $("v-side").classList.toggle("closed",matchMedia("(max-width:640px)").matches);
   $("v-name").textContent=d.name;
   document.querySelector(".v-side").style.display="";
@@ -1146,6 +1159,13 @@ async function openDoc(did,scope){
   loadComments(did);
 }
 $("v-back").onclick=()=>{ $("viewer").classList.add("hidden"); if(cOff)cOff(); };
+$("v-link").onclick=()=>{
+  if(!curDoc)return;
+  const url=location.origin+location.pathname+"?d="+curDoc;
+  navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨"),()=>{
+    prompt("링크를 복사하세요", url);
+  });
+};
 function restoreMenu(did,scope,vers){
   const keys=Object.keys(vers).sort().reverse();
   showMenu($("v-restore"),keys.map(k=>({label:fmtTime(vers[k].at)+" 버전으로 복원",fn:async()=>{
@@ -1271,6 +1291,7 @@ $("stats-btn").onclick=async()=>{
       $("v-meta").textContent=fmtDate(v.at);
       $("v-secret").classList.add("hidden");
       $("v-restore").classList.add("hidden");
+      $("v-link").classList.add("hidden");
       $("v-frame").srcdoc=v.html;
       document.querySelector(".v-side").style.display="none";
     });
