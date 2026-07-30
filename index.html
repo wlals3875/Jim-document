@@ -11,6 +11,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JimStorage">
 <meta name="theme-color" content="#0a0b0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
@@ -23,8 +27,8 @@
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
-    font-family:'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
-      "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-family:'Google Sans Flex','Wanted Sans Variable','Wanted Sans','Pretendard Variable',Pretendard,
+      -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     background:
       radial-gradient(ellipse 70% 40% at 50% -5%, rgba(0,210,190,.06), transparent 60%),
       linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
@@ -370,11 +374,15 @@
 
   /* ===== 모션 & 앰비언스 ===== */
   .orbs{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
-  .orbs i{position:absolute; border-radius:50%; filter:blur(110px); opacity:.13;}
-  .orbs i:nth-child(1){width:480px;height:480px;background:#00d2be;top:-160px;left:-120px;animation:drift1 26s ease-in-out infinite alternate;}
-  .orbs i:nth-child(2){width:380px;height:380px;background:#3f7f8f;bottom:-140px;right:-100px;animation:drift2 34s ease-in-out infinite alternate;}
-  @keyframes drift1{from{transform:translate(0,0) scale(1)}to{transform:translate(90px,70px) scale(1.15)}}
-  @keyframes drift2{from{transform:translate(0,0) scale(1.1)}to{transform:translate(-80px,-60px) scale(1)}}
+  .orbs i{position:absolute; left:50%; top:44%; width:min(1100px,120vw); height:min(720px,90vh);
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:radial-gradient(closest-side, rgba(0,210,190,.19), rgba(0,210,190,.06) 55%, transparent 76%);
+    animation:bloom 1.7s cubic-bezier(.16,.7,.3,1) both, breathe 9s ease-in-out 1.7s infinite;}
+  .orbs i:nth-child(2){width:min(700px,90vw); height:min(460px,60vh); top:46%;
+    background:radial-gradient(closest-side, rgba(45,105,170,.15), transparent 72%);
+    animation:bloom 2.1s cubic-bezier(.16,.7,.3,1) both, breathe 13s ease-in-out 2.3s infinite;}
+  @keyframes bloom{from{opacity:0; transform:translate(-50%,-50%) scale(.5)}to{opacity:1; transform:translate(-50%,-50%) scale(1)}}
+  @keyframes breathe{0%,100%{opacity:.8; transform:translate(-50%,-50%) scale(1)}50%{opacity:1; transform:translate(-50%,-50%) scale(1.05)}}
   .layout{position:relative; z-index:1;}
 
   .widget{
