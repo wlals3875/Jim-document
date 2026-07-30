@@ -1279,8 +1279,10 @@ async function loadCalendar(){
   const evs=(d.items||[]).filter(e=>e.status!=="cancelled");
   /* 이번 주 위젯 */
   const weekEnd=new Date(now); weekEnd.setDate(weekEnd.getDate()+7);
-  const week=evs.filter(e=>evDate(e)<weekEnd);
-  const next=evs[0];
+  const isWd=e=>{const s=e.summary||"";return /\(\s*\d+(?:\.\d+)?\s*\)/.test(s)||/(\d+(?:\.\d+)?)\s*만/.test(s)||/보험|이자|IRP|청약|본가/i.test(s);};
+  const plain=evs.filter(e=>!isWd(e));
+  const week=plain.filter(e=>evDate(e)<weekEnd);
+  const next=plain[0];
   let html='<div class="wt">이번 주 <span class="r">기본 캘린더</span></div>';
   if(next){
     const dd=evDate(next);
@@ -1299,18 +1301,23 @@ async function loadCalendar(){
     }).join("");
   }else html+='<div class="w-empty">이번 주 일정 없음</div>';
   $("w-cal").innerHTML=html;
-  /* 다음 출금: "N만" 패턴 이벤트 */
+  /* 다음 출금: "항목(10.0)" 또는 "N만" 패턴 — 만원 단위 */
+  const KNOWN=/보험|이자|카드|IRP|청약|대출|월세|관리비|통신|구독|적금|저축|본가/i;
   const wds=evs.map(e=>{
-    const m=(e.summary||"").match(/(\d+(?:\.\d+)?)\s*만/);
-    return m?{e,amt:Math.round(parseFloat(m[1])*10000)}:null;
-  }).filter(Boolean).slice(0,6);
+    const s=e.summary||"";
+    let m=s.match(/\(\s*(\d+(?:\.\d+)?)\s*\)/)||s.match(/(\d+(?:\.\d+)?)\s*만/);
+    if(m)return {e,amt:Math.round(parseFloat(m[1])*10000)};
+    if(KNOWN.test(s))return {e,amt:null};
+    return null;
+  }).filter(Boolean).slice(0,8);
   let wh='<div class="wt">다음 출금 <span class="r">45일 이내</span></div>';
   if(wds.length){
-    const total=wds.reduce((s,x)=>s+x.amt,0);
+    const total=wds.reduce((s,x)=>s+(x.amt||0),0);
     wh+=wds.map(x=>{
       const dd=evDate(x.e);
+      const nm=esc((x.e.summary||"").replace(/\(\s*\d+(?:\.\d+)?\s*\)/,"").trim());
       return '<div class="wd"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span>'
-        +'<span class="t">'+esc(x.e.summary)+'</span><span class="a">'+x.amt.toLocaleString()+'원</span></div>';
+        +'<span class="t">'+nm+'</span><span class="a">'+(x.amt!=null?x.amt.toLocaleString()+"원":"—")+'</span></div>';
     }).join("");
     wh+='<div style="text-align:right;font-size:11.5px;color:var(--sub2);margin-top:9px">합계 <b style="color:var(--ink)">'+total.toLocaleString()+'원</b></div>';
   }else wh+='<div class="w-empty">예정된 출금 일정 없음 (캘린더에 "항목 N만" 형식)</div>';
@@ -1363,6 +1370,7 @@ async function loadSheet(){
   }
   $("w-money").innerHTML=html;
 }
+
 
 /* ---- 최근 문서 ---- */
 function renderRecentDocs(){
