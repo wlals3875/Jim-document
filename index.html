@@ -375,8 +375,7 @@
   .orbs i:nth-child(2){width:380px;height:380px;background:#3f7f8f;bottom:-140px;right:-100px;animation:drift2 34s ease-in-out infinite alternate;}
   @keyframes drift1{from{transform:translate(0,0) scale(1)}to{transform:translate(90px,70px) scale(1.15)}}
   @keyframes drift2{from{transform:translate(0,0) scale(1.1)}to{transform:translate(-80px,-60px) scale(1)}}
-  header,.layout,#gate,#viewer{position:relative; z-index:1;}
-  header{position:sticky;}
+  .layout{position:relative; z-index:1;}
 
   .widget{
     transition:border-color .25s, box-shadow .25s, transform .25s;
@@ -619,9 +618,16 @@ function googleDirectRedirect(){
   const p=new URLSearchParams(location.hash.slice(1));
   const idt=p.get("id_token"), err=p.get("error"), at=p.get("access_token"), exp=p.get("expires_in");
   if(idt||err||at)history.replaceState(null,"",location.pathname+location.search);
-  if(err){ toast("로그인 취소/실패: "+err); return; }
+  if(err){
+    let silent=false; try{silent=!!sessionStorage.getItem("gsilent");}catch(e){}
+    if(!(silent&&/interaction_required|login_required|consent_required|immediate_failed/.test(err)))toast("로그인 취소/실패: "+err);
+    return;
+  }
   if(at){
-    try{localStorage.setItem("hub-gtoken",JSON.stringify({t:at,exp:Date.now()+(+exp||3600)*1000-60000}));}catch(e){}
+    try{
+      localStorage.setItem("hub-gtoken",JSON.stringify({t:at,exp:Date.now()+(+exp||3600)*1000-60000}));
+      sessionStorage.removeItem("gsilent");
+    }catch(e){}
   }
   if(idt){
     const cred=firebase.auth.GoogleAuthProvider.credential(idt);
@@ -675,6 +681,7 @@ function setView(v){
   $("view-home").classList.toggle("hidden",v!=="home");
   $("view-docs").classList.toggle("hidden",v!=="docs");
   $("s-home").classList.toggle("on",v==="home");
+  renderTree();
   if(v==="home"&&IS_MASTER)initDash();
 }
 $("s-home").onclick=()=>{setView("home");closeAside();};
@@ -809,7 +816,7 @@ function renderTree(){
   const build=(pid,depth)=>{
     const kids=(byParent[pid]||[]).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
     return kids.map(f=>`
-      <button class="s-item${curFolder===f.id?" on":""}" data-go="${f.id}" style="padding-left:${10+depth*15}px">
+      <button class="s-item${curView==="docs"&&curFolder===f.id?" on":""}" data-go="${f.id}" style="padding-left:${10+depth*15}px">
         <span class="ic">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><span class="tx">${esc(f.name)}</span>
       </button>`+build(f.id,depth+1)).join("");
   };
@@ -818,7 +825,7 @@ function renderTree(){
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
     curFolder=b.dataset.go; $("search").value=""; setView("docs"); render(); closeAside();
   });
-  document.querySelectorAll('.s-item[data-go="root"]').forEach(b=>b.classList.toggle("on",curFolder==="root"));
+  document.querySelectorAll('.s-item[data-go="root"]').forEach(b=>b.classList.toggle("on",curView==="docs"&&curFolder==="root"));
 }
 /* 모바일 사이드바 토글 */
 let asideBg=null;
@@ -1323,7 +1330,7 @@ function gtoken(){
   try{const v=JSON.parse(localStorage.getItem("hub-gtoken"));if(v&&v.exp>Date.now())return v.t;}catch(e){}
   return null;
 }
-function connectGoogle(){
+function connectGoogle(silent){
   const redirect="https://wlals3875.github.io/Jim-document/";
   location.href="https://accounts.google.com/o/oauth2/v2/auth"
     +"?client_id="+encodeURIComponent(GOOGLE_CLIENT_ID)
@@ -1331,7 +1338,8 @@ function connectGoogle(){
     +"&response_type=token"
     +"&scope="+encodeURIComponent("openid email profile "+GSCOPES)
     +"&include_granted_scopes=true"
-    +"&login_hint="+encodeURIComponent(MASTER_EMAIL);
+    +"&login_hint="+encodeURIComponent(MASTER_EMAIL)
+    +(silent?"&prompt=none":"");
 }
 async function gfetch(url,opt){
   const t=gtoken(); if(!t)throw new Error("no-token");
@@ -1343,10 +1351,16 @@ async function gfetch(url,opt){
 function needConnect(el){
   el.innerHTML=el.querySelector(".wt").outerHTML+'<div class="w-empty" style="display:flex;gap:12px;align-items:center">구글 데이터 연결이 필요해요 <button class="connect-btn" onclick="connectGoogle()">연결</button></div>';
 }
-let dashLoaded=0;
+var dashLoaded=0;
 function initDash(){
   renderRecentDocs();
   if(!gtoken()){
+    try{
+      if(!sessionStorage.getItem("gsilent")){
+        sessionStorage.setItem("gsilent","1");
+        connectGoogle(true); return;
+      }
+    }catch(e){}
     ["w-cal","w-wd"].forEach(id=>needConnect($(id)));
     $("money-body").innerHTML='<div class="w-empty" style="display:flex;gap:12px;align-items:center">구글 데이터 연결이 필요해요 <button class="connect-btn" onclick="connectGoogle()">연결</button></div>';
     dashLoaded=0; return;
