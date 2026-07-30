@@ -459,7 +459,7 @@ function googleDirectRedirect(){
   /* 웹앱(iOS standalone)에서 Firebase 리다이렉트가 저장소 파티셔닝에 막히므로
      구글과 직접 왕복 후 ID 토큰으로 Firebase에 로그인 */
   const nonce=Math.random().toString(36).slice(2)+Date.now().toString(36);
-  const redirect=location.origin+location.pathname;
+  const redirect="https://wlals3875.github.io/Jim-document/"; /* 콘솔 등록값과 정확히 일치해야 함 */
   location.href="https://accounts.google.com/o/oauth2/v2/auth"
     +"?client_id="+encodeURIComponent(GOOGLE_CLIENT_ID)
     +"&redirect_uri="+encodeURIComponent(redirect)
