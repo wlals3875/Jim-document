@@ -416,6 +416,38 @@
     font-variant-numeric:tabular-nums;
   }
   .fxline b{color:var(--sub); font-weight:800;}
+  .modal.wide{max-width:640px; max-height:84vh; overflow:auto;}
+  .mnav{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:12px; font-size:15px;}
+  .mgrid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+  .mgrid .mh{font-size:10.5px; font-weight:800; color:var(--sub2); text-align:center; padding:4px 0;}
+  .mgrid .md{
+    min-height:58px; background:var(--card2); border:1px solid var(--line); border-radius:8px;
+    padding:4px 5px; font-size:10px; overflow:hidden;
+  }
+  .mgrid .md.off{background:none; border-color:transparent;}
+  .mgrid .md.today{border-color:rgba(0,210,190,.5); box-shadow:var(--glow-soft);}
+  .mgrid .dn2{font-size:10.5px; font-weight:800; color:var(--sub2); display:block; margin-bottom:2px;}
+  .mgrid .md.today .dn2{color:var(--lime);}
+  .mgrid .me{
+    display:block; font-size:9px; color:var(--ink); background:rgba(0,210,190,.13);
+    border-radius:4px; padding:1px 4px; margin-bottom:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .mgrid .me.more{background:none; color:var(--sub2);}
+  .chips{display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{
+    background:var(--card2); border:1px solid var(--line2); border-radius:999px; cursor:pointer;
+    font-size:11px; font-weight:800; color:var(--sub); padding:5px 12px; font-variant-numeric:tabular-nums;
+  }
+  .chip.on{color:#021413; background:var(--lime); border-color:var(--lime);}
+  .drow{display:flex; justify-content:space-between; gap:10px; padding:7px 2px; border-bottom:1px solid var(--line); font-size:13px; font-variant-numeric:tabular-nums;}
+  .drow.p span{font-weight:800; color:var(--ink);}
+  .drow.p b{color:var(--ink);}
+  .drow.s{padding-left:16px; font-size:12.5px;}
+  .drow.s span{color:var(--sub2);}
+  .drow.s b{color:var(--sub); font-weight:700;}
+  .widget{cursor:pointer;}
+  .widget .qadd,.widget .qadd *{cursor:auto;}
   .checker{
     height:10px; width:170px; margin:0 auto;
     background:repeating-conic-gradient(#c9ced4 0% 25%, transparent 0% 50%);
@@ -511,7 +543,15 @@
 <div id="view-home" class="hidden">
   <div class="dash">
     <div class="wgrid">
-      <div class="widget" id="w-cal"><div class="wt">📅 이번 주</div><div class="w-empty">연결 필요</div></div>
+      <div class="widget" id="w-cal">
+        <div class="wt">📅 이번 주 <span class="r">기본 캘린더</span></div>
+        <div class="qadd">
+          <input id="c-in" type="text" placeholder="예: 8/7 종일 집 · 8/8 12~13시 머짤" autocomplete="off">
+          <button class="qbtn" id="c-add" disabled>추가</button>
+        </div>
+        <div class="qprev hidden" id="c-prev"></div>
+        <div id="cal-body"><div class="w-empty">연결 필요</div></div>
+      </div>
       <div class="widget" id="w-money">
         <div class="wt">💰 가계부 <span class="r" id="money-mon"></span></div>
         <div class="qadd">
@@ -1259,7 +1299,7 @@ $("stats-btn").onclick=async()=>{
 
 /* ================= 홈 대시보드 (마스터) ================= */
 const SHEET_ID="1KvYLd8fOOWvj1aapI4zBGgyeIT2T7wQyZLW8ZvEt6X0";
-const GSCOPES="https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/spreadsheets";
+const GSCOPES="https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/spreadsheets";
 const CATS=["교통비","회사 식비","개인 식비","사회생활비","품위유지비","생활비","건강","기타 지출","데이트"];
 /* 시트 세부항목 트리 — 입력은 세부항목 행에, 부모는 수식이 자동 합산 */
 const CATTREE=[
@@ -1347,13 +1387,14 @@ function initDash(){
         connectGoogle(true); return;
       }
     }catch(e){}
-    ["w-cal","w-wd"].forEach(id=>needConnect($(id)));
+    needConnect($("w-wd"));
+    $("cal-body").innerHTML='<div class="w-empty" style="display:flex;gap:12px;align-items:center">구글 데이터 연결이 필요해요 <button class="connect-btn" onclick="connectGoogle()">연결</button></div>';
     $("money-body").innerHTML='<div class="w-empty" style="display:flex;gap:12px;align-items:center">구글 데이터 연결이 필요해요 <button class="connect-btn" onclick="connectGoogle()">연결</button></div>';
     dashLoaded=0; return;
   }
   if(dashLoaded&&Date.now()-dashLoaded<60000)return;
   dashLoaded=Date.now();
-  loadCalendar().catch(e=>{if(e.message!=="expired")$("w-cal").innerHTML='<div class="wt">📅 이번 주</div><div class="w-empty">불러오기 실패</div>';});
+  loadCalendar().catch(e=>{if(e.message!=="expired")$("cal-body").innerHTML='<div class="w-empty">불러오기 실패</div>';});
   loadSheet().catch(e=>{if(e.message!=="expired")$("money-body").innerHTML='<div class="w-empty">불러오기 실패 — Sheets API 활성화 확인</div>';});
 }
 
@@ -1372,7 +1413,7 @@ async function loadCalendar(){
   const plain=evs.filter(e=>!isWd(e));
   const week=plain.filter(e=>evDate(e)<weekEnd);
   const next=plain[0];
-  let html='<div class="wt">📅 이번 주 <span class="r">기본 캘린더</span></div>';
+  let html='';
   if(next){
     const dd=evDate(next);
     html+='<div class="ev-next"><div class="k">NEXT</div>'+esc(next.summary||"(제목 없음)")
@@ -1389,7 +1430,7 @@ async function loadCalendar(){
         +'</div>';
     }).join("");
   }else html+='<div class="w-empty">이번 주 일정 없음</div>';
-  $("w-cal").innerHTML=html;
+  $("cal-body").innerHTML=html;
   /* 다음 출금: 주황 계열 색상 카드 (colorId 4=플라밍고, 6=귤색, 11=토마토) */
   const WARM=["4","6","11"];
   const parseAmt=s=>{const m=(s||"").match(/\(\s*(\d+(?:\.\d+)?)\s*\)/)||(s||"").match(/(\d+(?:\.\d+)?)\s*만/);return m?Math.round(parseFloat(m[1])*10000):null;};
@@ -1489,6 +1530,194 @@ function animateNums(root){
   });
 }
 
+
+
+/* ---- 캘린더 간편 입력 ---- */
+function parseCalInput(s){
+  s=s.trim(); if(!s)return null;
+  const dm=s.match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+  if(!dm)return null;
+  const now=new Date();
+  let y=now.getFullYear(), mo=+dm[1], da=+dm[2];
+  const cand=new Date(y,mo-1,da);
+  if(cand<new Date(now.getFullYear(),now.getMonth(),now.getDate()-30))y++;
+  let rest=(s.slice(0,dm.index)+s.slice(dm.index+dm[0].length)).trim();
+  let allDay=false, sh=null, sm=0, eh=null, em=0;
+  if(/종일/.test(rest)){ allDay=true; rest=rest.replace(/종일/,"").trim(); }
+  else{
+    let tm=rest.match(/(\d{1,2})(?::(\d{2}))?\s*(?:시)?\s*[~\-]\s*(\d{1,2})(?::(\d{2}))?\s*시?/);
+    if(tm){ sh=+tm[1]; sm=+(tm[2]||0); eh=+tm[3]; em=+(tm[4]||0); rest=(rest.slice(0,tm.index)+rest.slice(tm.index+tm[0].length)).trim(); }
+    else{
+      tm=rest.match(/(\d{1,2})(?::(\d{2}))?\s*시(\s*반)?/)||rest.match(/(\d{1,2}):(\d{2})/);
+      if(tm){ sh=+tm[1]; sm=tm[3]?30:+(tm[2]||0); eh=sh+1; em=sm; rest=(rest.slice(0,tm.index)+rest.slice(tm.index+tm[0].length)).trim(); }
+      else allDay=true;
+    }
+  }
+  const title=rest.replace(/\s+/g," ").trim();
+  if(!title)return null;
+  return {y,mo,da,allDay,sh,sm,eh,em,title};
+}
+const p2=n=>String(n).padStart(2,"0");
+function calPrevText(p){
+  const d=p.y+"."+p2(p.mo)+"."+p2(p.da);
+  return p.allDay?d+" · 종일":d+" · "+p2(p.sh)+":"+p2(p.sm)+"–"+p2(p.eh)+":"+p2(p.em);
+}
+$("c-in").addEventListener("input",()=>{
+  const p=parseCalInput($("c-in").value);
+  $("c-add").disabled=!p;
+  const pv=$("c-prev");
+  if(!p){pv.classList.add("hidden");return;}
+  pv.classList.remove("hidden");
+  pv.innerHTML='<span class="amt">'+esc(p.title)+'</span><span>'+calPrevText(p)+'</span>';
+});
+$("c-in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("c-add").disabled)calSave();});
+$("c-add").onclick=calSave;
+async function calSave(){
+  const p=parseCalInput($("c-in").value); if(!p)return;
+  if(!gtoken()){toast("구글 데이터 연결이 필요해요");return;}
+  $("c-add").disabled=true;
+  try{
+    const body=p.allDay
+      ?{summary:p.title,start:{date:p.y+"-"+p2(p.mo)+"-"+p2(p.da)},end:{date:new Date(p.y,p.mo-1,p.da+1).toISOString().slice(0,10)}}
+      :{summary:p.title,
+        start:{dateTime:p.y+"-"+p2(p.mo)+"-"+p2(p.da)+"T"+p2(p.sh)+":"+p2(p.sm)+":00",timeZone:"Asia/Seoul"},
+        end:{dateTime:p.y+"-"+p2(p.mo)+"-"+p2(p.da)+"T"+p2(p.eh)+":"+p2(p.em)+":00",timeZone:"Asia/Seoul"}};
+    await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events",
+      {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    toast('"'+p.title+'" 일정 추가됨');
+    $("c-in").value=""; $("c-prev").classList.add("hidden");
+    dashLoaded=0; loadCalendar().catch(()=>{});
+  }catch(e){ toast("추가 실패: "+e.message); }
+  $("c-add").disabled=false;
+}
+
+/* ---- 상세: 캘린더 월별 ---- */
+let calCache={}, calMonth=new Date();
+async function fetchMonth(y,m){
+  const key=y+"-"+m;
+  if(calCache[key])return calCache[key];
+  const t0=new Date(y,m,1), t1=new Date(y,m+1,1);
+  const d=await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=250"
+    +"&timeMin="+encodeURIComponent(t0.toISOString())+"&timeMax="+encodeURIComponent(t1.toISOString()));
+  return calCache[key]=(d.items||[]).filter(e=>e.status!=="cancelled");
+}
+async function openCalDetail(){
+  if(!gtoken()){connectGoogle();return;}
+  const bg=modal('<h3>📅 캘린더</h3><div id="det"></div><div class="m-row"><button class="mbtn" data-x>닫기</button></div>',
+    b=>{b.querySelector("[data-x]").onclick=()=>b.remove(); b.querySelector(".modal").classList.add("wide");});
+  const det=bg.querySelector("#det");
+  async function draw(){
+    const y=calMonth.getFullYear(), m=calMonth.getMonth();
+    det.innerHTML='<div class="w-empty">불러오는 중…</div>';
+    let evs=[]; try{evs=await fetchMonth(y,m);}catch(e){det.innerHTML='<div class="w-empty">불러오기 실패</div>';return;}
+    const byDay={};
+    evs.forEach(e=>{const d=evDate(e).getDate();(byDay[d]=byDay[d]||[]).push(e);});
+    const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    const today=new Date();
+    let cal='<div class="mnav"><button class="hbtn" id="mprev">‹</button><b>'+y+"."+p2(m+1)+'</b><button class="hbtn" id="mnext">›</button></div>';
+    cal+='<div class="mgrid">'+["일","월","화","수","목","금","토"].map(d=>'<div class="mh">'+d+'</div>').join("");
+    for(let i=0;i<first;i++)cal+='<div class="md off"></div>';
+    for(let d=1;d<=days;d++){
+      const isT=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;
+      const list=(byDay[d]||[]);
+      cal+='<div class="md'+(isT?" today":"")+'"><span class="dn2">'+d+'</span>'
+        +list.slice(0,2).map(e=>'<span class="me">'+esc((e.summary||"").slice(0,7))+'</span>').join("")
+        +(list.length>2?'<span class="me more">+'+(list.length-2)+'</span>':"")+'</div>';
+    }
+    cal+='</div>';
+    /* 다가오는 일정 */
+    const up=evs.filter(e=>evDate(e)>=today).slice(0,8);
+    cal+='<div class="sec-label" style="margin-top:16px">다가오는 일정</div>'
+      +(up.length?up.map(e=>{const dd=evDate(e);
+        return '<div class="ev"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span><span class="t">'+esc(e.summary||"")+'</span>'
+        +(e.start.dateTime?'<span class="tm">'+p2(dd.getHours())+":"+p2(dd.getMinutes())+'</span>':"")+'</div>';}).join("")
+      :'<div class="w-empty">이번 달 남은 일정 없음</div>');
+    det.innerHTML=cal;
+    det.querySelector("#mprev").onclick=()=>{calMonth=new Date(y,m-1,1);draw();};
+    det.querySelector("#mnext").onclick=()=>{calMonth=new Date(y,m+1,1);draw();};
+  }
+  calMonth=new Date(); draw();
+}
+
+/* ---- 상세: 가계부 월별 ---- */
+async function openMoneyDetail(){
+  if(!gtoken()){connectGoogle();return;}
+  if(!SHEET){try{await loadSheet();}catch(e){}}
+  if(!SHEET){toast("시트를 불러오지 못했어요");return;}
+  const bg=modal('<h3>💰 가계부</h3><div id="det"></div><div class="m-row"><button class="mbtn" data-x>닫기</button></div>',
+    b=>{b.querySelector("[data-x]").onclick=()=>b.remove(); b.querySelector(".modal").classList.add("wide");});
+  const det=bg.querySelector("#det");
+  const g=SHEET.g, hdr=g[1]||[];
+  const months=[]; hdr.forEach((v,i)=>{if(/^\d{2}\.\d{2}$/.test(String(v).trim()))months.push({k:String(v).trim(),c:i});});
+  let sel=SHEET.mc;
+  const num=(r,c)=>{const v=r>=0?(g[r]||[])[c]:null;return typeof v==="number"?v:(v&&!isNaN(+v)?+v:null);};
+  const w=v=>v==null?"—":Math.round(v).toLocaleString();
+  function draw(){
+    const c=sel;
+    let m='<div class="chips">'+months.map(x=>'<button class="chip'+(x.c===c?" on":"")+'" data-c="'+x.c+'">'+x.k+'</button>').join("")+'</div>';
+    const R=SHEET.rows;
+    m+='<div class="mon-nums" style="margin-top:13px">'
+      +'<div class="mn"><div class="k">예산</div><div class="v">'+w(num(R.예산,c))+'</div></div>'
+      +'<div class="mn"><div class="k">지출</div><div class="v">'+w(num(R.지출금액,c))+'</div></div>'
+      +'<div class="mn"><div class="k">잔여</div><div class="v">'+w(num(R.잔여,c))+'</div></div></div>';
+    m+='<div class="fxline" style="margin-top:0;border-top:none;padding-top:2px">고정지출 <b>'+w(num(R.고정지출,c))+'</b><span>·</span>보험 <b>'+w(num(R.보험,c))+'</b><span>·</span>저축 <b>'+w(num(R.저축,c))+'</b></div>';
+    m+='<div class="sec-label" style="margin-top:14px">카테고리 상세</div>';
+    for(const ct of CATTREE){
+      const pr=SHEET.catRows[ct.cat]; if(pr===undefined)continue;
+      const pv=num(pr,c); if(!pv)continue;
+      m+='<div class="drow p"><span>'+ct.cat+'</span><b>'+w(pv)+'</b></div>';
+      for(const s of ct.subs){
+        const r=SHEET.targetRows[ct.cat+">"+s.n];
+        const v=r!==undefined?num(r,c):null;
+        if(v)m+='<div class="drow s"><span>'+s.n+'</span><b>'+w(v)+'</b></div>';
+      }
+    }
+    det.innerHTML=m;
+    det.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{sel=+b.dataset.c;draw();});
+  }
+  draw();
+}
+
+/* ---- 상세: 출금 월별 표 ---- */
+async function openWdDetail(){
+  if(!gtoken()){connectGoogle();return;}
+  const bg=modal('<h3>💸 출금 일정</h3><div id="det"><div class="w-empty">불러오는 중…</div></div><div class="m-row"><button class="mbtn" data-x>닫기</button></div>',
+    b=>{b.querySelector("[data-x]").onclick=()=>b.remove(); b.querySelector(".modal").classList.add("wide");});
+  const det=bg.querySelector("#det");
+  try{
+    const now=new Date(), max=new Date(now.getTime()+95*86400000);
+    const d=await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=250"
+      +"&timeMin="+encodeURIComponent(now.toISOString())+"&timeMax="+encodeURIComponent(max.toISOString()));
+    const WARM=["4","6","11"];
+    const parseAmt=s=>{const m=(s||"").match(/\(\s*(\d+(?:\.\d+)?)\s*\)/)||(s||"").match(/(\d+(?:\.\d+)?)\s*만/);return m?Math.round(parseFloat(m[1])*10000):null;};
+    const rows=(d.items||[]).filter(e=>e.status!=="cancelled")
+      .map(e=>{const warm=WARM.includes(e.colorId);const amt=parseAmt(e.summary);
+        return (warm||(amt!=null&&!e.colorId))?{e,amt}:null;}).filter(Boolean);
+    if(!rows.length){det.innerHTML='<div class="w-empty">향후 3개월 출금 일정 없음</div>';return;}
+    const byM={};
+    rows.forEach(x=>{const dd=evDate(x.e);const k=dd.getFullYear()+"."+p2(dd.getMonth()+1);(byM[k]=byM[k]||[]).push(x);});
+    let m="";
+    Object.keys(byM).sort().forEach(k=>{
+      const list=byM[k].sort((a,b)=>evDate(a.e)-evDate(b.e));
+      const tot=list.reduce((s,x)=>s+(x.amt||0),0);
+      m+='<div class="sec-label" style="display:flex;justify-content:space-between;margin-top:14px"><span>'+k+'</span><span style="color:var(--ink)">'+tot.toLocaleString()+'원</span></div>';
+      m+=list.map(x=>{const dd=evDate(x.e);
+        const nm=esc((x.e.summary||"").replace(/\(\s*\d+(?:\.\d+)?\s*\)/,"").trim());
+        return '<div class="wd"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+'</span><span class="t">'+nm+'</span><span class="a">'+(x.amt!=null?x.amt.toLocaleString()+"원":"—")+'</span></div>';}).join("");
+    });
+    det.innerHTML=m;
+  }catch(e){det.innerHTML='<div class="w-empty">불러오기 실패</div>';}
+}
+
+/* ---- 카드 클릭 → 상세 ---- */
+function bindWidgetClicks(){
+  const guard=e=>!!e.target.closest("input,select,button,a,.qadd,.qprev");
+  $("w-cal").onclick=e=>{if(!guard(e))openCalDetail();};
+  $("w-money").onclick=e=>{if(!guard(e))openMoneyDetail();};
+  $("w-wd").onclick=e=>{if(!guard(e))openWdDetail();};
+  $("w-docs").onclick=e=>{if(!guard(e))setView("docs");};
+}
+bindWidgetClicks();
 
 /* ---- 최근 문서 ---- */
 function renderRecentDocs(){
