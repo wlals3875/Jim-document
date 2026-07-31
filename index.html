@@ -98,6 +98,9 @@
   .role{font-size:10px; font-weight:800; letter-spacing:.08em; padding:3px 10px; border-radius:999px; white-space:nowrap;}
   .role.master{color:var(--lime); border:1px solid rgba(0,210,190,.45); background:rgba(0,210,190,.08); box-shadow:var(--glow-soft);}
   .role.guest{color:var(--sub); border:1px solid var(--line2); background:var(--card2);}
+  .cpick{display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;}
+  .cdot{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; padding:0;}
+  .cdot.on{border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.2);}
   .role.vip{color:#ff9ec7; border:1px solid rgba(255,158,199,.5); background:rgba(255,158,199,.08); box-shadow:0 0 0 1px rgba(255,158,199,.2), 0 0 12px rgba(255,158,199,.12);}
   @media(max-width:520px){ .who .un{display:none;} }
 
@@ -454,7 +457,16 @@
   .drow.s{padding-left:16px; font-size:12.5px;}
   .drow.s span{color:var(--sub2);}
   .drow.s b{color:var(--sub); font-weight:700;}
-  .widget{cursor:pointer;}
+  .widget{cursor:pointer; position:relative;}
+  .dash.editing .widget{animation:wiggle .32s ease-in-out infinite; cursor:default;}
+  .dash.editing .widget:nth-child(odd){animation-delay:.08s;}
+  @keyframes wiggle{0%,100%{transform:rotate(-.45deg)}50%{transform:rotate(.45deg)}}
+  .mvbtn{
+    position:absolute; top:-11px; width:26px; height:26px; border-radius:50%; z-index:3; cursor:pointer;
+    background:var(--lime); border:none; color:#021413; font-size:13px; font-weight:900;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,.4);
+  }
+  .mvbtn.prev{left:-9px;} .mvbtn.next{right:-9px;}
   .widget .qadd,.widget .qadd *{cursor:auto;}
   .checker{
     height:10px; width:170px; margin:0 auto;
@@ -551,9 +563,12 @@
 <main>
 <div id="view-home" class="hidden">
   <div class="dash">
-    <div class="wgrid">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:-6px">
+      <button class="hbtn" id="dash-edit">편집</button>
+    </div>
+    <div class="wgrid" id="wgrid">
       <div class="widget" id="w-cal">
-        <div class="wt">📅 이번 주 <span class="r">기본 캘린더</span></div>
+        <div class="wt">📅 이번 주 <span class="r"><a href="#" id="cal-ext" style="color:var(--sub2);text-decoration:none">구글 캘린더 ↗</a></span></div>
         <div class="qadd">
           <input id="c-in" type="text" placeholder="예: 8/7 종일 집 · 8/8 12~13시 머짤" autocomplete="off">
           <button class="qbtn" id="c-add" disabled>추가</button>
@@ -777,14 +792,15 @@ function enterApp(u,memberRec){
     else{
       const label=(memberRec&&memberRec.label)||"멤버";
       $("role").textContent=label;
-      $("role").className="role "+(/[♥❤💜🩷]/.test(label)?"vip":"guest");
+      if(memberRec&&memberRec.color){ $("role").className="role"; $("role").style.cssText=badgeStyle(memberRec.color); }
+      else{ $("role").style.cssText=""; $("role").className="role "+(/[♥❤💜🩷]/.test(label)?"vip":"guest"); }
     }
     $("stats-btn").classList.toggle("hidden",!IS_MASTER);
     $("s-stats").classList.toggle("hidden",!IS_MASTER);
     $("s-members").classList.toggle("hidden",!IS_MASTER);
     $("stor").classList.toggle("hidden",!IS_MASTER);
     $("s-home").classList.toggle("hidden",!IS_MASTER);
-    if(IS_MASTER)computeStorage();
+    if(IS_MASTER){computeStorage();loadOrder();}
     setView(IS_MASTER?"home":"docs");
     $("toolbar").classList.toggle("hidden",!IS_MASTER);
     $("drop").classList.toggle("hidden",!IS_MASTER);
@@ -802,6 +818,7 @@ function setView(v){
   if(v==="home"&&IS_MASTER)initDash();
 }
 $("s-home").onclick=()=>{setView("home");closeAside();};
+$("cal-ext").onclick=e=>{e.preventDefault();e.stopPropagation();openExt("comgooglecalendar://","https://calendar.google.com/");};
 
 /* ================= 데이터 구독 ================= */
 let subs=[];
@@ -1304,37 +1321,72 @@ async function togglePublish(did,scope){
 
 /* ================= 멤버 관리 (마스터) ================= */
 $("s-members").onclick=()=>{closeAside();openMembers();};
+const MCOLORS=["#00d2be","#ff9ec7","#e6c592","#7aa7ff","#a78bfa","#c9ced4"];
+function hexA(c,a){const n=parseInt(c.slice(1),16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
+function badgeStyle(c){return c?("color:"+c+";border:1px solid "+hexA(c,.5)+";background:"+hexA(c,.09)+";box-shadow:0 0 0 1px "+hexA(c,.18)+", 0 0 12px "+hexA(c,.1)):"";}
 function openMembers(){
+  let editKey=null, selColor=null;
   const bg=modal('<h3>👥 멤버</h3><div id="mem-list" style="margin-bottom:14px"></div>'
+    +'<div id="mem-form-title" style="font-size:11.5px;font-weight:800;color:var(--sub2);margin-bottom:2px">새 멤버</div>'
     +'<label>이메일</label><input type="text" id="mem-email" placeholder="example@gmail.com">'
-    +'<label>표시 이름</label><input type="text" id="mem-label" placeholder="예: YUM ♥️ (비우면 멤버)">'
-    +'<div class="m-row"><button class="mbtn pri" data-add>추가</button></div>',
+    +'<label>표시 이름</label><input type="text" id="mem-label" placeholder="비우면 \'멤버\'로 표시">'
+    +'<label>뱃지 색상</label><div class="cpick" id="mem-colors"></div>'
+    +'<p style="font-size:11.5px;color:var(--sub2);margin-top:10px">추가하면 바로 허브에 접근할 수 있어요</p>'
+    +'<div class="m-row"><button class="mbtn" data-cancel style="display:none">취소</button><button class="mbtn pri" data-add>추가</button></div>',
     b=>{
+      const colorsEl=b.querySelector("#mem-colors");
+      function drawColors(){
+        colorsEl.innerHTML=MCOLORS.map(c=>'<button class="cdot'+(selColor===c?" on":"")+'" data-c="'+c+'" style="background:'+c+'"></button>').join("")
+          +'<button class="cdot'+(selColor===null?" on":"")+'" data-c="" style="background:var(--card2);border-color:var(--line2);color:var(--sub2);font-size:10px">기본</button>';
+        colorsEl.querySelectorAll(".cdot").forEach(d=>d.onclick=()=>{selColor=d.dataset.c||null;drawColors();});
+      }
+      drawColors();
+      function resetForm(){
+        editKey=null; selColor=null;
+        b.querySelector("#mem-email").value=""; b.querySelector("#mem-email").disabled=false;
+        b.querySelector("#mem-label").value="";
+        b.querySelector("#mem-form-title").textContent="새 멤버";
+        b.querySelector("[data-add]").textContent="추가";
+        b.querySelector("[data-cancel]").style.display="none";
+        drawColors();
+      }
+      b.querySelector("[data-cancel]").onclick=resetForm;
       b.querySelector("[data-add]").onclick=async()=>{
         const em=b.querySelector("#mem-email").value.trim().toLowerCase();
         const lb=b.querySelector("#mem-label").value.trim();
         if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast("이메일 형식을 확인해주세요");return;}
-        await db.ref("hub/members/"+em.replace(/\./g,",")).set({email:em,label:lb||"멤버",at:Date.now()});
-        b.querySelector("#mem-email").value=""; b.querySelector("#mem-label").value="";
-        toast("멤버 추가됨 — 구글 콘솔 테스트 사용자에도 등록 필요"); drawMembers(b);
+        const rec={email:em,label:lb||"멤버",at:Date.now()};
+        if(selColor)rec.color=selColor;
+        await db.ref("hub/members/"+em.replace(/\./g,",")).set(rec);
+        toast(editKey?"멤버 수정됨":"멤버 추가됨 — 구글 콘솔 테스트 사용자에도 등록해주세요");
+        resetForm(); drawList();
       };
-      drawMembers(b);
+      async function drawList(){
+        const v=(await db.ref("hub/members").get()).val()||{};
+        const el=b.querySelector("#mem-list");
+        const rows=Object.entries(v);
+        el.innerHTML=rows.length?rows.map(([k,m])=>
+          '<div class="wd"><span class="t"><span class="role" style="'+badgeStyle(m.color)+(m.color?"":"color:var(--sub);border:1px solid var(--line2);background:var(--card2)")+'">'+esc(m.label||"멤버")+'</span> <span style="color:var(--sub2);font-size:12px">'+esc(m.email)+'</span></span>'
+          +'<button class="c-del" data-e="'+k+'">수정</button><button class="c-del" data-k="'+k+'">삭제</button></div>').join("")
+          :'<div class="w-empty">등록된 멤버 없음 — 마스터 본인은 항상 접근 가능해요</div>';
+        el.querySelectorAll("[data-k]").forEach(b2=>b2.onclick=async()=>{
+          if(confirm("이 멤버를 제거할까요? 즉시 접근이 차단돼요."))
+            {await db.ref("hub/members/"+b2.dataset.k).remove(); drawList();}
+        });
+        el.querySelectorAll("[data-e]").forEach(b2=>b2.onclick=()=>{
+          const m=v[b2.dataset.e]; if(!m)return;
+          editKey=b2.dataset.e; selColor=m.color||null;
+          b.querySelector("#mem-email").value=m.email; b.querySelector("#mem-email").disabled=true;
+          b.querySelector("#mem-label").value=m.label==="멤버"?"":(m.label||"");
+          b.querySelector("#mem-form-title").textContent="멤버 수정";
+          b.querySelector("[data-add]").textContent="저장";
+          b.querySelector("[data-cancel]").style.display="";
+          drawColors();
+        });
+      }
+      drawList();
     });
 }
-async function drawMembers(bg){
-  const v=(await db.ref("hub/members").get()).val()||{};
-  const el=bg.querySelector("#mem-list");
-  const rows=Object.entries(v);
-  el.innerHTML=rows.length?rows.map(([k,m])=>
-    '<div class="wd"><span class="t"><b>'+esc(m.label||"멤버")+'</b> <span style="color:var(--sub2)">'+esc(m.email)+'</span></span>'
-    +'<button class="c-del" data-k="'+k+'">삭제</button></div>').join("")
-    :'<div class="w-empty">등록된 멤버 없음 — 마스터 본인은 항상 접근 가능해요</div>';
-  el.querySelectorAll("[data-k]").forEach(b2=>b2.onclick=async()=>{
-    if(confirm("이 멤버를 제거할까요? 즉시 접근이 차단돼요."))
-      {await db.ref("hub/members/"+b2.dataset.k).remove(); drawMembers(bg);}
-  });
-}
-
 /* ================= 스토리지 사용량 (마스터) ================= */
 const STORAGE_LIMIT=1024*1024*1024; /* Firebase 무료 플랜 1GB */
 let storTimer=null;
@@ -1818,14 +1870,64 @@ async function openWdDetail(){
   }catch(e){det.innerHTML='<div class="w-empty">불러오기 실패</div>';}
 }
 
+
+/* ================= 위젯 순서 편집 ================= */
+const W_DEFAULT=["w-cal","w-money","w-docs","w-wd","w-mail"];
+let W_ORDER=W_DEFAULT.slice(), editMode=false;
+function applyOrder(){
+  const g=$("wgrid");
+  W_ORDER.forEach(id=>{const el=$(id); if(el)g.appendChild(el);});
+}
+async function loadOrder(){
+  try{
+    const v=(await db.ref("hub/priv/prefs/widgetOrder").get()).val();
+    if(Array.isArray(v)&&v.length){W_ORDER=W_DEFAULT.filter(x=>v.includes(x)).sort((a,b)=>v.indexOf(a)-v.indexOf(b)).concat(W_DEFAULT.filter(x=>!v.includes(x)));applyOrder();}
+  }catch(e){}
+}
+function moveW(id,dir){
+  const i=W_ORDER.indexOf(id), j=i+dir;
+  if(j<0||j>=W_ORDER.length)return;
+  [W_ORDER[i],W_ORDER[j]]=[W_ORDER[j],W_ORDER[i]];
+  applyOrder(); drawHandles();
+}
+function drawHandles(){
+  document.querySelectorAll(".mvbtn").forEach(b=>b.remove());
+  if(!editMode)return;
+  W_ORDER.forEach((id,i)=>{
+    const el=$(id); if(!el)return;
+    if(i>0){const b=document.createElement("button");b.className="mvbtn prev";b.textContent="‹";
+      b.onclick=e=>{e.stopPropagation();moveW(id,-1);};el.appendChild(b);}
+    if(i<W_ORDER.length-1){const b=document.createElement("button");b.className="mvbtn next";b.textContent="›";
+      b.onclick=e=>{e.stopPropagation();moveW(id,1);};el.appendChild(b);}
+  });
+}
+$("dash-edit").onclick=async()=>{
+  editMode=!editMode;
+  document.querySelector(".dash").classList.toggle("editing",editMode);
+  $("dash-edit").textContent=editMode?"완료":"편집";
+  drawHandles();
+  if(!editMode){
+    try{await db.ref("hub/priv/prefs/widgetOrder").set(W_ORDER);toast("배치 저장됨");}catch(e){toast("저장 실패");}
+  }
+};
+
+/* ---- 외부 앱 랜딩 (iOS: 앱 시도 → 웹 폴백) ---- */
+function openExt(appUrl,webUrl){
+  const ios=/iPhone|iPod|iPad/.test(navigator.userAgent);
+  if(!ios){window.open(webUrl,"_blank");return;}
+  const t=Date.now();
+  location.href=appUrl;
+  setTimeout(()=>{ if(Date.now()-t<1400&&!document.hidden)location.href=webUrl; },900);
+}
+
 /* ---- 카드 클릭 → 상세 ---- */
 function bindWidgetClicks(){
-  const guard=e=>!!e.target.closest("input,select,button,a,.qadd,.qprev");
+  const guard=e=>editMode||!!e.target.closest("input,select,button,a,.qadd,.qprev");
   $("w-cal").onclick=e=>{if(!guard(e))openCalDetail();};
   $("w-money").onclick=e=>{if(!guard(e))openMoneyDetail();};
   $("w-wd").onclick=e=>{if(!guard(e))openWdDetail();};
   $("w-docs").onclick=e=>{if(!guard(e))setView("docs");};
-  $("w-mail").onclick=e=>{if(!guard(e))window.open("https://mail.google.com/","_blank");};
+  $("w-mail").onclick=e=>{if(!guard(e))openExt("googlegmail://","https://mail.google.com/");};
 }
 bindWidgetClicks();
 
