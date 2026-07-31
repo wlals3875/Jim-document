@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>JimStorage</title>
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAE1UlEQVR4nO2Yf2hVZRjHP+85996zeafOVhNTJEOnZjbdVLRQNxH7paD0h1FJVAgROX+ESsmCNQ0zSDNMJJV+QFMqdUjhTCQapZNcSytzTrc2AmtOtt3Nee/ue05/COXduebumfEMPN//7vM+z3m+53PPe973PWpAOMPhNpYhbUBaPgBpA9LyAUgbkJYPQNqAtHwA0gak5QOQNiAtH4C0AWn5AKQNSMsHIG1AWrc9gIC0AZfS09DT89CzpmOPvgcnawhORhjVHkFdbsU4V4/5bRVmVTVcjfa5neo33wSVIj5/Lt0vPYuTOejm6ZcuE9q6C/Pryr617RcADIPom2vRs2ekXBrYe5DQlg+8t/ZceQsVe/VlTzcPEF+8gO6nF3nu/b89AeFwmLPn6lzxEXcPS/itp+QSfa806TXMYycxqk+jIp042XcSnzcLZ8Qwd2I0RvrCF1CtbSn7FH8Jxhc9kjQe2riNQHlFQiy4q4zo+jXowgcTk60QumAGgQOHUu4vPgXsB8a7YupKF4GDh5Mk24Q2J5/vds4oT/3FnwBnyGB3LM3CCYdRkQ7XmGpuwVqzHoLBxPjFZk/9xQGorqs4GeHEoGEQ3bQOa/27qD8uumrMyhO3rL84AKP2AjpvoituT5pA197tmD/+jPndDxjVpzHq6sG+te9scQDmV0eTArg2aKKn5KKn5AKgOjoxTtRgVlYROPo9xGJ97i++DGIYRLeWovNvAOEGUm0Rgrv3EPj8S7Btzz7FVwFsm9DaDdf29inIGTyQ2MqlRLeU4IQHeG4vDwBQnVewVpYQemMzRkNTSrV6ai6xDWtAKW+9xadAEtnjx6Bn5GPnT0RPGAtW6KY1VvHbmEdSPxj1SwAJCpjY9+Wgp+cRf2wOztC7kqaZx05irSpJ2afoKuDckel+dLWduKePa4xTZzBOnSG4ew+xV14kvvBh17XscaM9eRAF0LV/J4QSH28V6SB93lPJC+Ka0Ds7iD9a6JoWzqAMTx48AZicl4fq8c/9VFOD1vqf36ZpuupiPdZt9VeL63TnDMzAHjca4zf39AHAdlBa03Peqkhn72/gOnkC8OFHH5OVlZUQK5g1k7q6f02PHDnSVdfUlPiGN2t+IZ7keBt7bRnW6lLUn5dcY93PP4kzIN0VN86e77X/6+UJQENDvQvAsqLlrFq5Aq01gWCQouUrXHUnqo4nNi8/THz+XFeePWYUXZ/tIHCkEnW+ERXpwMnOQhc+hH2vGyyAWfGNl1vxtgo8s2QJG9/a5Io3NjZyvq6OnLFjGT58eMKYbdvMnVNIbW1tQjy2rigphFRk/FpL2tLVns4JngBYlsUX+/YzafLkXte8XlzM7l073QPBINENa9Ezp6VqAwCjvgmrqBh16bKnes/7gMzMTLa9v53ZBQX/mdfe3k5pSQllZZ/eOMlQxJ94nO7nFif9PpBU3d0E9h0itOMT6Lrae+M91OeN0OyCAuYvWMDUqdMYmp2NlZZGc3MzDfX1VFRUUH5gPy0tLb27WCiEzp+InjYJ+/5x1/YJmYNwgkFUWwTV2oZx4XeM49WYx06iWtv7Yh3oL5/FBdUvDkOS8gFIG5CWD0DagLR8ANIGpOUDkDYgLR+AtAFp+QCkDUjLByBtQFo+AGkD0vIBSBuQ1t+eZoG+5amvKwAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -25,7 +25,11 @@
     --glow:0 0 0 1px rgba(0,210,190,.55), 0 0 22px rgba(0,210,190,.18);
     --glow-soft:0 0 0 1px rgba(0,210,190,.28), 0 0 14px rgba(0,210,190,.10);
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
+  *{box-sizing:border-box; margin:0; padding:0; scrollbar-width:thin; scrollbar-color:#323639 transparent;}
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#2b2f33; border-radius:999px; border:2px solid transparent; background-clip:padding-box;}
+  ::-webkit-scrollbar-thumb:hover{background:#3a4147; border:2px solid transparent; background-clip:padding-box;}
   body{
     font-family:'Google Sans Flex','Wanted Sans Variable','Wanted Sans','Pretendard Variable',Pretendard,
       -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
@@ -75,11 +79,12 @@
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap; position:relative; display:flex; align-items:center;}
-  .lmark{width:21px; height:21px; margin-right:8px; flex-shrink:0;}
-  .logo::after{
-    content:""; position:absolute; inset:-16px -34px; z-index:-1; pointer-events:none;
-    background:radial-gradient(closest-side, rgba(0,210,190,.2), transparent 72%);
-    filter:blur(7px); animation:logopulse 9s ease-in-out infinite;
+  .lmark{width:34px; height:20px; margin-right:7px; flex-shrink:0; position:relative; z-index:1;}
+  .logo .lt{position:relative; z-index:1;}
+  .lglow{
+    position:absolute; inset:-16px -34px; z-index:0; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(0,210,190,.22), transparent 72%);
+    filter:blur(8px); animation:logopulse 9s ease-in-out infinite;
   }
   @keyframes logopulse{0%,100%{opacity:1}50%{opacity:.55}}
   .s-mark{color:var(--lime); font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);}
@@ -362,6 +367,7 @@
   .ev .d.today{color:var(--lime);}
   .ev .t{flex:1; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .ev .tm{color:var(--sub2); font-size:11.5px; font-variant-numeric:tabular-nums;}
+  .edot{width:8px; height:8px; border-radius:50%; flex-shrink:0; align-self:center;}
   .ev-next{
     background:rgba(0,210,190,.06); border:1px solid rgba(0,210,190,.3); border-radius:11px;
     padding:11px 14px; margin-bottom:11px; font-size:13px;
@@ -538,7 +544,7 @@
 <header>
   <div class="hbar">
     <button class="hbtn" id="menu-btn">☰</button>
-    <div class="logo" id="logo"><svg class="lmark" viewBox="0 0 26 26" aria-hidden="true"><rect x="3.2" y="2" width="2" height="22" rx="1" fill="#8d959b"/><circle cx="4.2" cy="1.6" r="1.6" fill="#8d959b"/><path d="M5.6 3 C 11 1.4, 15.5 4.4, 22.5 2.6 L 21.7 12 C 15.5 13.8, 11.2 10.9, 5.6 12.4 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width=".7"/><path d="M21.7 12 C 15.5 13.8, 11.2 10.9, 5.6 12.4" fill="none" stroke="#00d2be" stroke-width="1" opacity=".8"/><defs><pattern id="lchk" width="4.4" height="4.4" patternUnits="userSpaceOnUse"><rect width="2.2" height="2.2" fill="#c9ced4"/><rect x="2.2" y="2.2" width="2.2" height="2.2" fill="#c9ced4"/></pattern></defs></svg>Jim<span class="s-mark">S</span>torage</div>
+    <div class="logo" id="logo"><i class="lglow" aria-hidden="true"></i><svg class="lmark" viewBox="0 0 150 86" aria-hidden="true"><defs><pattern id="lchk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#c9ced4"/><rect x="6" y="6" width="6" height="6" fill="#c9ced4"/></pattern></defs><g transform="rotate(18 75 70)"><rect x="72" y="12" width="3.2" height="66" rx="1.6" fill="#8d959b"/><circle cx="73.6" cy="10.5" r="3" fill="#8d959b"/><path d="M76 14 C 96 8, 114 20, 138 12 L 136 40 C 114 48, 96 36, 76 42 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width="1"/><path d="M136 40 C 114 48, 96 36, 76 42" fill="none" stroke="#00d2be" stroke-width="1.6" opacity=".7"/></g><g transform="rotate(-18 75 70) scale(-1,1) translate(-150,0)"><rect x="72" y="12" width="3.2" height="66" rx="1.6" fill="#8d959b"/><circle cx="73.6" cy="10.5" r="3" fill="#8d959b"/><path d="M76 14 C 96 8, 114 20, 138 12 L 136 40 C 114 48, 96 36, 76 42 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width="1"/><path d="M136 40 C 114 48, 96 36, 76 42" fill="none" stroke="#00d2be" stroke-width="1.6" opacity=".7"/></g></svg><span class="lt">Jim<span class="s-mark">S</span>torage</span></div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
     <select class="hsel" id="sort">
       <option value="recent">최신순</option>
@@ -1549,6 +1555,8 @@ function initDash(){
 /* ---- 캘린더 ---- */
 const DAYS=["일","월","화","수","목","금","토"];
 function evDate(e){return new Date(e.start.dateTime||e.start.date+"T00:00:00");}
+const GCOLOR={"1":"#7986cb","2":"#33b679","3":"#8e24aa","4":"#e67c73","5":"#f6bf26","6":"#f4511e","7":"#039be5","8":"#616161","9":"#3f51b5","10":"#0b8043","11":"#d50000"};
+function evColor(e){return GCOLOR[e.colorId]||"#00d2be";}
 function evEnd(e){return e.end?(e.end.dateTime?new Date(e.end.dateTime):new Date(e.end.date+"T00:00:00")):evDate(e);}
 async function loadCalendar(){
   const now=new Date();
@@ -1792,7 +1800,7 @@ async function openCalDetail(){
       const isT=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;
       const list=(byDay[d]||[]);
       cal+='<div class="md'+(isT?" today":"")+'"><span class="dn2">'+d+'</span>'
-        +list.slice(0,2).map(e=>'<span class="me">'+esc((e.summary||"").slice(0,7))+'</span>').join("")
+        +list.slice(0,2).map(e=>{const c=evColor(e);return '<span class="me" style="background:'+hexA(c,.17)+';box-shadow:inset 2px 0 0 '+c+'">'+esc((e.summary||"").slice(0,7))+'</span>';}).join("")
         +(list.length>2?'<span class="me more">+'+(list.length-2)+'</span>':"")+'</div>';
     }
     cal+='</div>';
@@ -1800,7 +1808,7 @@ async function openCalDetail(){
     const up=evs.filter(e=>evDate(e)>=today).slice(0,8);
     cal+='<div class="sec-label" style="margin-top:16px">다가오는 일정</div>'
       +(up.length?up.map(e=>{const dd=evDate(e);
-        return '<div class="ev"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span><span class="t">'+esc(e.summary||"")+'</span>'
+        return '<div class="ev"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span><span class="edot" style="background:'+evColor(e)+'"></span><span class="t">'+esc(e.summary||"")+'</span>'
         +(e.start.dateTime?'<span class="tm">'+p2(dd.getHours())+":"+p2(dd.getMinutes())+'</span>':"")+'</div>';}).join("")
       :'<div class="w-empty">이번 달 남은 일정 없음</div>');
     det.innerHTML=cal;
