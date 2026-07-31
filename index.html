@@ -109,13 +109,12 @@
   .logo .s-mark{text-shadow:0 0 14px rgba(0,210,190,.65);}
   @keyframes logopulse{0%,100%{opacity:1}50%{opacity:.55}}
   .s-mark{
-    background:linear-gradient(115deg,#b8f24b 0%,#00d2be 33%,#00a3d9 66%,#b8f24b 100%);
-    background-size:300% 100%;
+    background:var(--grad);
     -webkit-background-clip:text; background-clip:text; color:transparent;
     font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);
-    animation:sflow 5.2s linear infinite;
+    animation:sflow 3.5s ease-in-out infinite;
   }
-  @keyframes sflow{from{background-position:0% 0}to{background-position:-300% 0}}
+  @keyframes sflow{0%,100%{filter:hue-rotate(-22deg) saturate(1.05)}50%{filter:hue-rotate(24deg)}}
   .hsearch{
     flex:1; min-width:100px; display:flex; align-items:center; gap:8px;
     background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 15px;
@@ -610,7 +609,7 @@
 <div id="view-home" class="hidden">
   <div class="dash">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:-6px">
-      <button class="hbtn" id="dash-refresh" title="새로고침" style="font-size:19px;line-height:1;padding:5px 13px 7px">⟳</button>
+      <button class="hbtn" id="dash-refresh" title="새로고침" style="display:flex;align-items:center;padding:7px 14px"><svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:url(#wgi);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.4h-4.4"/></svg></button>
       <button class="hbtn" id="dash-edit">편집</button>
     </div>
     <div class="wgrid" id="wgrid">
