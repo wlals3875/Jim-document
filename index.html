@@ -123,18 +123,20 @@
   .hsearch .hs-i{color:var(--sub2); font-size:13px;}
   .hsel{
     background:var(--card); border:1px solid var(--line); border-radius:999px;
-    font-size:12px; font-weight:700; color:var(--sub); padding:7px 12px; outline:none; cursor:pointer;
+    font-size:12px; font-weight:700; color:var(--sub); padding:0 12px; height:33px; outline:none; cursor:pointer;
   }
   .hbtn{
     background:var(--card); border:1px solid var(--line); border-radius:999px; cursor:pointer;
-    font-size:12px; font-weight:800; color:var(--sub); padding:7px 14px; white-space:nowrap;
+    font-size:12px; font-weight:800; color:var(--sub); padding:0 14px; white-space:nowrap;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px; height:33px;
     transition:color .15s, border-color .15s;
   }
   .hbtn:hover{color:var(--lime); border-color:rgba(0,210,190,.4);}
   .avatar{width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line2); cursor:pointer; display:block;}
   .who{display:flex; align-items:center; gap:8px;}
   .who .un{font-size:12.5px; font-weight:800; color:var(--sub); max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .role{font-size:10px; font-weight:800; letter-spacing:.08em; padding:3px 10px; border-radius:999px; white-space:nowrap;}
+  .role{font-size:10px; font-weight:800; letter-spacing:.08em; padding:0 10px; height:21px;
+    display:inline-flex; align-items:center; border-radius:999px; white-space:nowrap;}
   .role.master{color:var(--lime); border:1px solid rgba(0,210,190,.45); background:rgba(0,210,190,.08); box-shadow:var(--glow-soft);}
   .role.guest{color:var(--sub); border:1px solid var(--line2); background:var(--card2);}
   #mem-list .wd{align-items:center;}
@@ -197,7 +199,7 @@
   .vis.pub{color:var(--lime); border:1px solid rgba(0,210,190,.4); background:rgba(0,210,190,.07);}
   .vis.priv{color:var(--gold,#c9ced4); border:1px solid rgba(201,206,212,.4); background:rgba(201,206,212,.07); color:#c9ced4;}
 
-  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
   .tbtn{
     background:var(--card); border:1px solid var(--line); border-radius:999px; cursor:pointer;
     font-size:12.5px; font-weight:800; color:var(--sub); padding:9px 18px;
@@ -236,7 +238,8 @@
   .dcard .tag{font-size:10px; font-weight:800; color:var(--mint); border:1px solid rgba(139,233,224,.35); padding:2px 8px; border-radius:999px;}
   .kebab{
     position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:8px;
-    background:none; border:none; color:var(--sub2); font-size:15px; cursor:pointer; line-height:1;
+    background:none; border:none; color:var(--sub2); font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding:0; line-height:1;
   }
   .kebab:hover{color:var(--lime); background:rgba(0,210,190,.08);}
   .empty-msg{
@@ -281,7 +284,7 @@
   .modal textarea{resize:vertical; min-height:64px;}
   .m-row{display:flex; gap:9px; margin-top:18px; justify-content:flex-end;}
   .mbtn{
-    border-radius:999px; cursor:pointer; font-size:13px; font-weight:800; padding:9px 20px;
+    border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:13px; font-weight:800; padding:9px 20px;
     background:var(--card2); border:1px solid var(--line2); color:var(--sub);
   }
   .mbtn.pri{background:var(--grad); border:none; color:#021413; font-weight:900;}
@@ -313,7 +316,8 @@
   .c-item .cn{font-weight:800; font-size:12.5px;}
   .c-item .ct{color:var(--sub); margin-top:1px;}
   .c-item .cd{font-size:10.5px; color:var(--sub2); margin-top:2px;}
-  .c-del{background:none; border:none; color:var(--sub2); cursor:pointer; font-size:11px; margin-left:auto;}
+  .c-del{background:none; border:none; color:var(--sub2); cursor:pointer; font-size:11px; margin-left:auto;
+    display:inline-flex; align-items:center; padding:4px 6px;}
   .c-del:hover{color:var(--red);}
   .c-form{display:flex; gap:8px; margin-top:12px;}
   .c-form input{
@@ -381,7 +385,7 @@
     min-height:120px;
   }
   .widget .wt{
-    display:flex; align-items:baseline; gap:9px; font-size:13px; font-weight:800;
+    display:flex; align-items:center; gap:9px; font-size:13px; font-weight:800;
     letter-spacing:.1em; color:var(--sub2); text-transform:uppercase; margin-bottom:13px;
   }
   .widget .wt .r{margin-left:auto; letter-spacing:0; text-transform:none; font-size:11.5px; font-weight:700;}
@@ -609,7 +613,7 @@
 <div id="view-home" class="hidden">
   <div class="dash">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:-6px">
-      <button class="hbtn" id="dash-refresh" title="새로고침" style="display:flex;align-items:center;padding:7px 14px"><svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:url(#wgi);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.4h-4.4"/></svg></button>
+      <button class="hbtn" id="dash-refresh" title="새로고침"><svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:url(#wgi);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.4h-4.4"/></svg></button>
       <button class="hbtn" id="dash-edit">편집</button>
     </div>
     <div class="wgrid" id="wgrid">
