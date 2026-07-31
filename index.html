@@ -215,7 +215,14 @@
     width:100%; max-width:440px; background:var(--card); border:1px solid var(--line2);
     border-radius:13px; padding:22px;
   }
-  .modal h3{font-size:16px; font-weight:900; margin-bottom:14px;}
+  .modal{position:relative;}
+  .m-x{
+    position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:10px;
+    background:var(--card2); border:1px solid var(--line2); color:var(--sub); cursor:pointer;
+    font-size:13px; display:flex; align-items:center; justify-content:center; z-index:2;
+  }
+  .m-x:hover{color:var(--lime); border-color:rgba(0,210,190,.4);}
+  .modal h3{font-size:16px; font-weight:900; margin-bottom:14px; padding-right:36px;}
   .modal label{display:block; font-size:11.5px; font-weight:800; color:var(--sub2); margin:12px 0 5px; letter-spacing:.04em;}
   .modal input[type=text],.modal textarea{
     width:100%; background:var(--card2); border:1px solid var(--line2); border-radius:11px;
@@ -925,7 +932,8 @@ function showMenu(anchor,items){
 /* ================= 모달 ================= */
 function modal(html,onOpen){
   const bg=document.createElement("div"); bg.className="modal-bg";
-  bg.innerHTML=`<div class="modal">${html}</div>`;
+  bg.innerHTML=`<div class="modal"><button class="m-x" aria-label="닫기">✕</button>${html}</div>`;
+  bg.querySelector(".m-x").onclick=()=>bg.remove();
   bg.onclick=e=>{if(e.target===bg)bg.remove();};
   document.body.appendChild(bg);
   if(onOpen)onOpen(bg);
@@ -1544,7 +1552,8 @@ async function calSave(){
       {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     toast('"'+p.title+'" 일정 추가됨');
     $("c-in").value=""; $("c-prev").classList.add("hidden");
-    dashLoaded=0; loadCalendar().catch(()=>{});
+    calCache={}; dashLoaded=0;
+    setTimeout(()=>loadCalendar().catch(()=>{}),700);
   }catch(e){
     if(String(e.message).includes("api-403")){
       try{localStorage.removeItem("hub-gtoken");sessionStorage.removeItem("gsilent");}catch(_){}
