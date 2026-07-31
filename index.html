@@ -561,8 +561,8 @@
         <div class="qprev hidden" id="q-prev"></div>
         <div id="money-body"><div class="w-empty">연결 필요</div></div>
       </div>
-      <div class="widget" id="w-wd"><div class="wt">💸 다음 출금</div><div class="w-empty">연결 필요</div></div>
       <div class="widget" id="w-docs"><div class="wt">📄 최근 문서</div><div class="w-empty">—</div></div>
+      <div class="widget" id="w-wd"><div class="wt">💸 다음 출금</div><div class="w-empty">연결 필요</div></div>
     </div>
   </div>
 </div>
@@ -1575,7 +1575,18 @@ async function openCalDetail(){
     det.innerHTML='<div class="w-empty">불러오는 중…</div>';
     let evs=[]; try{evs=await fetchMonth(y,m);}catch(e){det.innerHTML='<div class="w-empty">불러오기 실패</div>';return;}
     const byDay={};
-    evs.forEach(e=>{const d=evDate(e).getDate();(byDay[d]=byDay[d]||[]).push(e);});
+    evs.forEach(e=>{
+      const s=e.start.dateTime?new Date(e.start.dateTime):new Date(e.start.date+"T00:00:00");
+      let en=e.end?(e.end.dateTime?new Date(e.end.dateTime):new Date(e.end.date+"T00:00:00")):new Date(s.getTime()+1);
+      const last=new Date(en.getTime()-1); /* 종료 경계 직전 = 마지막 포함일 */
+      let d=new Date(s.getFullYear(),s.getMonth(),s.getDate());
+      const stop=new Date(last.getFullYear(),last.getMonth(),last.getDate());
+      let guard=0;
+      while(d<=stop&&guard++<62){
+        if(d.getFullYear()===y&&d.getMonth()===m)(byDay[d.getDate()]=byDay[d.getDate()]||[]).push(e);
+        d.setDate(d.getDate()+1);
+      }
+    });
     const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
     const today=new Date();
     let cal='<div class="mnav"><button class="hbtn" id="mprev">‹</button><b>'+y+"."+p2(m+1)+'</b><button class="hbtn" id="mnext">›</button></div>';
