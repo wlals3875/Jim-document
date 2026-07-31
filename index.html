@@ -549,7 +549,7 @@
     <div class="nm" id="v-name"></div>
     <div class="v-meta" id="v-meta"></div>
     <button class="hbtn" id="v-link">링크 복사</button>
-    <button class="hbtn hidden" id="v-secret">비밀 링크</button>
+    <button class="hbtn" id="v-link">링크 복사</button>
     <button class="hbtn hidden" id="v-restore">이전 버전</button>
   </div>
   <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
@@ -596,6 +596,7 @@ let VIEWS={};
 let curFolder="root";
 let curDoc=null, curDocScope=null;
 let viewedThisSession={};
+let DEEP=new URLSearchParams(location.search).get("d");
 
 const I_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="#00d2be"/><path d="M3 7q0-2 2-2h5l1.2 1.2H5q-1 0-1 1Z" fill="#00a89a"/></svg>';
 const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.6" fill="#c9ced4"/><path d="M7.8 10V7.4a4.2 4.2 0 0 1 8.4 0V10" fill="none" stroke="#c9ced4" stroke-width="2.5"/><circle cx="12" cy="15.2" r="1.8" fill="#121416"/></svg>';
@@ -786,7 +787,7 @@ function render(){
         <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?"🔗 ":""}${esc(d.name)}</div>
         ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
         ${d.tags?`<div class="tags">${d.tags.split(",").map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
-        <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.secret?" · 🔑 비밀링크":""}</div></div>`;
+        <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}</div></div>`;
     }).join("")+`</div>`;
   }
   if(!folders.length&&!docs.length){
@@ -1036,9 +1037,6 @@ async function saveDoc(name,html){
     up2[`hub/${scope}/contents/${did}`]=html;
     up2[`hub/${scope}/docs/${did}/updatedAt`]=Date.now();
     await db.ref().update(up2);
-    /* 비밀 링크 활성 시 스냅샷 갱신 */
-    const meta=D[did];
-    if(meta.secret)await db.ref(`hub/secret/${meta.secret}`).update({html,name:meta.name,at:Date.now()});
     toast(`"${name}" 교체됨 (댓글·조회수 유지)`); computeStorageSoon();
   }else{
     const ref=db.ref(`hub/${scope}/docs`).push();
@@ -1090,6 +1088,10 @@ function docMenu(did,anchor){
       const url=location.origin+location.pathname+"?d="+did;
       navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨"),()=>prompt("링크를 복사하세요",url));
     }},
+    {label:"🔗 링크 복사",fn:()=>{
+      const url=location.origin+location.pathname+"?d="+did;
+      navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
+    }},
     {label:scope==="pub"?"🔒 비공개로 전환":"🌐 공개로 전환",fn:()=>moveDocScope(did,scope)},
     "—",
     {label:"삭제",warn:true,fn:async()=>{
@@ -1099,7 +1101,6 @@ function docMenu(did,anchor){
       up[`hub/${scope}/contents/${did}`]=null;
       up[`hub/${scope}/versions/${did}`]=null;
       up[`hub/comments/${did}`]=null; up[`hub/views/${did}`]=null;
-      if(d.secret)up[`hub/secret/${d.secret}`]=null;
       await db.ref().update(up); toast("삭제됨"); computeStorageSoon();
     }}
   ]);
@@ -1135,8 +1136,11 @@ async function openDoc(did,scope){
   $("v-name").textContent=d.name;
   document.querySelector(".v-side").style.display="";
   $("v-frame").srcdoc="<p style='font-family:sans-serif;color:#888;padding:20px'>불러오는 중…</p>";
-  $("v-secret").classList.toggle("hidden",!IS_MASTER);
   $("v-restore").classList.add("hidden");
+  $("v-link").onclick=()=>{
+    const url=location.origin+location.pathname+"?d="+did;
+    navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
+  };
   const html=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
   $("v-frame").srcdoc=html;
   /* 조회수 (세션당 1회) + 방문 로그 */
@@ -1173,30 +1177,6 @@ function restoreMenu(did,scope,vers){
     $("v-frame").srcdoc=vers[k].html; toast("복원됨 (현재 버전은 이전 버전으로 보관)");
   }})));
 }
-$("v-secret").onclick=async()=>{
-  const d=DATA[curDocScope].docs[curDoc];
-  let token=d.secret;
-  if(!token){
-    token=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);
-    const html=(await db.ref(`hub/${curDocScope}/contents/${curDoc}`).get()).val()||"";
-    await db.ref(`hub/secret/${token}`).set({html,name:d.name,at:Date.now()});
-    await db.ref(`hub/${curDocScope}/docs/${curDoc}/secret`).set(token);
-  }
-  const url=location.origin+location.pathname+"?s="+token;
-  modal(`<h3>비밀 링크</h3>
-    <p style="font-size:13px;color:var(--sub);line-height:1.7">로그인한 사람 중 이 링크를 아는 사람만 볼 수 있어요.<br>파일을 교체하면 링크 내용도 자동 갱신돼요.</p>
-    <label>링크</label><input type="text" id="m-url" value="${url}" readonly onclick="this.select()">
-    <div class="m-row"><button class="mbtn warn-x" data-del style="color:var(--red)">링크 해제</button><button class="mbtn pri" data-cp>복사</button></div>`,
-  bg=>{
-    bg.querySelector("[data-cp]").onclick=()=>{navigator.clipboard.writeText(url);toast("복사됨");bg.remove();};
-    bg.querySelector("[data-del]").onclick=async()=>{
-      await db.ref(`hub/secret/${token}`).remove();
-      await db.ref(`hub/${curDocScope}/docs/${curDoc}/secret`).remove();
-      toast("비밀 링크 해제됨"); bg.remove();
-    };
-  });
-};
-
 /* ================= 댓글 ================= */
 let cOff=null;
 function loadComments(did){
@@ -1237,7 +1217,7 @@ function computeStorageSoon(){ clearTimeout(storTimer); storTimer=setTimeout(com
 async function computeStorage(){
   if(!IS_MASTER)return;
   try{
-    const paths=["hub/pub/contents","hub/priv/contents","hub/pub/versions","hub/priv/versions","hub/secret","hub/pub/docs","hub/priv/docs","hub/comments","hub/visits","fukuoka"];
+    const paths=["hub/pub/contents","hub/priv/contents","hub/pub/versions","hub/priv/versions","hub/pub/docs","hub/priv/docs","hub/comments","hub/visits","fukuoka"];
     let bytes=0, fails=0;
     for(const p of paths){
       try{
@@ -1276,28 +1256,6 @@ $("stats-btn").onclick=async()=>{
     <div class="m-row"><button class="mbtn" data-x>닫기</button></div>`,
   bg=>{bg.querySelector("[data-x]").onclick=()=>bg.remove();});
 };
-
-/* ================= 비밀 링크 진입 ================= */
-(function(){
-  const token=new URLSearchParams(location.search).get("s");
-  if(!token)return;
-  const tryOpen=()=>{
-    if(!ME){setTimeout(tryOpen,400);return;}
-    db.ref(`hub/secret/${token}`).get().then(s=>{
-      const v=s.val();
-      if(!v){toast("유효하지 않은 링크예요");return;}
-      $("viewer").classList.remove("hidden");
-      $("v-name").textContent=v.name+" (비밀 링크)";
-      $("v-meta").textContent=fmtDate(v.at);
-      $("v-secret").classList.add("hidden");
-      $("v-restore").classList.add("hidden");
-      $("v-link").classList.add("hidden");
-      $("v-frame").srcdoc=v.html;
-      document.querySelector(".v-side").style.display="none";
-    });
-  };
-  tryOpen();
-})();
 
 /* ================= 홈 대시보드 (마스터) ================= */
 const SHEET_ID="1KvYLd8fOOWvj1aapI4zBGgyeIT2T7wQyZLW8ZvEt6X0";
