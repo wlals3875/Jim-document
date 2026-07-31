@@ -617,6 +617,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 /* ================= 설정 ================= */
+if(navigator.standalone===true)document.documentElement.classList.add("ios-app");
 const MASTER_EMAIL="wlals3875@gmail.com";   /* 마스터 계정 (본인 구글 이메일) */
 const SESSION_HOURS=24;
 const MAX_VERSIONS=3;
