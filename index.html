@@ -589,8 +589,6 @@
     <div class="nm" id="v-name"></div>
     <div class="v-meta" id="v-meta"></div>
     <button class="hbtn" id="v-link">링크 복사</button>
-    <button class="hbtn" id="v-link">링크 복사</button>
-    <button class="hbtn hidden" id="v-restore">이전 버전</button>
   </div>
   <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
   <div class="v-side" id="v-side">
@@ -1061,18 +1059,6 @@ async function saveDoc(name,html){
   const exist=Object.entries(D).find(([id,d])=>d.name===name&&(d.folder||"root")===curFolder&&d.type!=="link");
   if(exist){
     const [did]=exist;
-    /* 이전 버전 보관 */
-    const prev=(await db.ref(`hub/${scope}/contents/${did}`).get()).val();
-    if(prev){
-      const vref=db.ref(`hub/${scope}/versions/${did}`);
-      const vs=(await vref.get()).val()||{};
-      const keys=Object.keys(vs).sort();
-      while(keys.length>=MAX_VERSIONS){const k=keys.shift(); vs[k]=null;}
-      const up={};
-      Object.keys(vs).forEach(k=>{if(vs[k]===null)up[k]=null;});
-      up[Date.now()]={html:prev,at:Date.now()};
-      await vref.update(up);
-    }
     const up2={};
     up2[`hub/${scope}/contents/${did}`]=html;
     up2[`hub/${scope}/docs/${did}/updatedAt`]=Date.now();
@@ -1126,10 +1112,6 @@ function docMenu(did,anchor){
     }},
     {label:"🔗 링크 복사",fn:()=>{
       const url=location.origin+location.pathname+"?d="+did;
-      navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨"),()=>prompt("링크를 복사하세요",url));
-    }},
-    {label:"🔗 링크 복사",fn:()=>{
-      const url=location.origin+location.pathname+"?d="+did;
       navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
     }},
     {label:scope==="pub"?"🔒 비공개로 전환":"🌐 공개로 전환",fn:()=>moveDocScope(did,scope)},
@@ -1171,12 +1153,10 @@ async function openDoc(did,scope){
   if(d.type==="link"){ window.open(d.url,"_blank"); return; }
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
-  $("v-link").classList.remove("hidden");
   $("v-side").classList.toggle("closed",matchMedia("(max-width:640px)").matches);
   $("v-name").textContent=d.name;
   document.querySelector(".v-side").style.display="";
   $("v-frame").srcdoc="<p style='font-family:sans-serif;color:#888;padding:20px'>불러오는 중…</p>";
-  $("v-restore").classList.add("hidden");
   $("v-link").onclick=()=>{
     const url=location.origin+location.pathname+"?d="+did;
     navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
@@ -1192,31 +1172,9 @@ async function openDoc(did,scope){
     db.ref(`hub/stats/${key}`).transaction(v=>(v||0)+1);
   }
   $("v-meta").textContent=`${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${(VIEWS[did]||0)+1}`;
-  /* 이전 버전 */
-  if(IS_MASTER){
-    const vers=(await db.ref(`hub/${scope}/versions/${did}`).get()).val();
-    if(vers&&Object.keys(vers).length){
-      $("v-restore").classList.remove("hidden");
-      $("v-restore").onclick=()=>restoreMenu(did,scope,vers);
-    }
-  }
   loadComments(did);
 }
 $("v-back").onclick=()=>{ $("viewer").classList.add("hidden"); if(cOff)cOff(); };
-$("v-link").onclick=()=>{
-  if(!curDoc)return;
-  const url=location.origin+location.pathname+"?d="+curDoc;
-  navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨"),()=>{
-    prompt("링크를 복사하세요", url);
-  });
-};
-function restoreMenu(did,scope,vers){
-  const keys=Object.keys(vers).sort().reverse();
-  showMenu($("v-restore"),keys.map(k=>({label:fmtTime(vers[k].at)+" 버전으로 복원",fn:async()=>{
-    await saveDoc(DATA[scope].docs[did].name,vers[k].html);
-    $("v-frame").srcdoc=vers[k].html; toast("복원됨 (현재 버전은 이전 버전으로 보관)");
-  }})));
-}
 /* ================= 댓글 ================= */
 let cOff=null;
 function loadComments(did){
