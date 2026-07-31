@@ -692,7 +692,7 @@ $("login-btn").onclick=()=>{
     }else toast("로그인 실패: "+e.code);
   });
 };
-$("avatar").onclick=()=>{ if(confirm("로그아웃할까요?")){ localStorage.removeItem("hub-login-at"); auth.signOut(); } };
+$("avatar").onclick=()=>{ if(confirm("로그아웃할까요?")){ localStorage.removeItem("hub-login-at"); try{localStorage.removeItem("hub-gtoken");}catch(e){} auth.signOut(); } };
 
 auth.onAuthStateChanged(u=>{
   if(u){
@@ -1545,7 +1545,13 @@ async function calSave(){
     toast('"'+p.title+'" 일정 추가됨');
     $("c-in").value=""; $("c-prev").classList.add("hidden");
     dashLoaded=0; loadCalendar().catch(()=>{});
-  }catch(e){ toast("추가 실패: "+e.message); }
+  }catch(e){
+    if(String(e.message).includes("api-403")){
+      try{localStorage.removeItem("hub-gtoken");sessionStorage.removeItem("gsilent");}catch(_){}
+      toast("캘린더 권한 갱신 필요 — 연결을 다시 눌러주세요");
+      dashLoaded=0; initDash();
+    }else toast("추가 실패: "+e.message);
+  }
   $("c-add").disabled=false;
 }
 
