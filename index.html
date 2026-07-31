@@ -74,7 +74,12 @@
     max-width:1060px; margin:0 auto; padding:calc(13px + env(safe-area-inset-top, 0px)) 18px 13px;
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
-  .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap;}
+  .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap; position:relative;}
+  .logo::after{
+    content:""; position:absolute; inset:-16px -34px; z-index:-1; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(0,210,190,.16), transparent 72%);
+    filter:blur(7px); animation:breathe 9s ease-in-out infinite;
+  }
   .s-mark{color:var(--lime); font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);}
   .hsearch{
     flex:1; min-width:150px; display:flex; align-items:center; gap:8px;
@@ -98,6 +103,9 @@
   .role{font-size:10px; font-weight:800; letter-spacing:.08em; padding:3px 10px; border-radius:999px; white-space:nowrap;}
   .role.master{color:var(--lime); border:1px solid rgba(0,210,190,.45); background:rgba(0,210,190,.08); box-shadow:var(--glow-soft);}
   .role.guest{color:var(--sub); border:1px solid var(--line2); background:var(--card2);}
+  #mem-list .wd{align-items:center;}
+  #mem-list .t{overflow:visible; display:flex; align-items:center; gap:9px; white-space:normal;}
+  #mem-list .role{flex-shrink:0;}
   .cpick{display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;}
   .cdot{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; padding:0;}
   .cdot.on{border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.2);}
