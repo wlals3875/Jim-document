@@ -67,7 +67,17 @@
   /* ===== 상단 바 ===== */
   header::after{
     content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px;
-    background:linear-gradient(90deg, var(--lime) 0%, rgba(0,210,190,0) 58%);
+    background:
+      linear-gradient(90deg, transparent, rgba(0,210,190,.85) 42%, #8be9e0 50%, rgba(0,210,190,.85) 58%, transparent),
+      linear-gradient(90deg, rgba(0,210,190,.22), rgba(0,210,190,.05));
+    background-size:240px 100%, 100% 100%;
+    background-repeat:no-repeat, no-repeat;
+    box-shadow:0 0 10px rgba(0,210,190,.25);
+    animation:sweep 3.4s linear infinite;
+  }
+  @keyframes sweep{
+    from{background-position:-240px 0, 0 0;}
+    to{background-position:calc(100% + 240px) 0, 0 0;}
   }
   header{
     position:sticky; top:0; z-index:60;
@@ -79,13 +89,10 @@
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap; position:relative; display:flex; align-items:center;}
-  .lmark{width:34px; height:20px; margin-right:7px; flex-shrink:0; position:relative; z-index:1;}
-  .logo .lt{position:relative; z-index:1;}
-  .lglow{
-    position:absolute; inset:-16px -34px; z-index:0; pointer-events:none;
-    background:radial-gradient(closest-side, rgba(0,210,190,.22), transparent 72%);
-    filter:blur(8px); animation:logopulse 9s ease-in-out infinite;
-  }
+  .lmark{width:34px; height:20px; margin-right:7px; flex-shrink:0;
+    filter:drop-shadow(0 0 10px rgba(0,210,190,.5)) drop-shadow(0 0 22px rgba(0,210,190,.25));}
+  .logo .lt{text-shadow:0 0 16px rgba(0,210,190,.35), 0 0 34px rgba(0,210,190,.18);}
+  .logo .s-mark{text-shadow:0 0 14px rgba(0,210,190,.65);}
   @keyframes logopulse{0%,100%{opacity:1}50%{opacity:.55}}
   .s-mark{color:var(--lime); font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);}
   .hsearch{
@@ -368,6 +375,14 @@
   .ev .t{flex:1; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .ev .tm{color:var(--sub2); font-size:11.5px; font-variant-numeric:tabular-nums;}
   .edot{width:8px; height:8px; border-radius:50%; flex-shrink:0; align-self:center;}
+  /* 활성 요소 숨쉬는 글로우 */
+  @keyframes actglow{
+    0%,100%{box-shadow:0 0 0 1px rgba(var(--g,0,210,190),.32), 0 0 9px rgba(var(--g,0,210,190),.1);}
+    50%{box-shadow:0 0 0 1px rgba(var(--g,0,210,190),.62), 0 0 22px rgba(var(--g,0,210,190),.3);}
+  }
+  .role.master{animation:actglow 3.6s ease-in-out infinite;}
+  .role.vip{--g:255,158,199; animation:actglow 3.6s ease-in-out infinite;}
+  .s-item.on{animation:actglow 4.2s ease-in-out infinite;}
   .ev-next{
     background:rgba(0,210,190,.06); border:1px solid rgba(0,210,190,.3); border-radius:11px;
     padding:11px 14px; margin-bottom:11px; font-size:13px;
@@ -433,10 +448,7 @@
   @keyframes shine{60%,100%{transform:translateX(100%)}}
   .cat .cb i{transform-origin:left; animation:growx .7s cubic-bezier(.2,.7,.2,1) both;}
   @keyframes growx{from{transform:scaleX(0)}}
-  header::after{animation:stripe 7s ease-in-out infinite alternate;}
-  @keyframes stripe{from{opacity:.55}to{opacity:1}}
-  .ev-next{animation:glowpulse 4.5s ease-in-out infinite;}
-  @keyframes glowpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,210,190,0)}50%{box-shadow:0 0 18px 0 rgba(0,210,190,.12)}}
+  .ev-next{animation:actglow 4.5s ease-in-out infinite;}
   .fxline{
     margin-top:13px; padding-top:12px; border-top:1px solid var(--line);
     font-size:11.5px; color:var(--sub2); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap;
@@ -544,7 +556,7 @@
 <header>
   <div class="hbar">
     <button class="hbtn" id="menu-btn">☰</button>
-    <div class="logo" id="logo"><i class="lglow" aria-hidden="true"></i><svg class="lmark" viewBox="0 0 150 86" aria-hidden="true"><defs><pattern id="lchk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#c9ced4"/><rect x="6" y="6" width="6" height="6" fill="#c9ced4"/></pattern></defs><g transform="rotate(18 75 70)"><rect x="72" y="12" width="3.2" height="66" rx="1.6" fill="#8d959b"/><circle cx="73.6" cy="10.5" r="3" fill="#8d959b"/><path d="M76 14 C 96 8, 114 20, 138 12 L 136 40 C 114 48, 96 36, 76 42 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width="1"/><path d="M136 40 C 114 48, 96 36, 76 42" fill="none" stroke="#00d2be" stroke-width="1.6" opacity=".7"/></g><g transform="rotate(-18 75 70) scale(-1,1) translate(-150,0)"><rect x="72" y="12" width="3.2" height="66" rx="1.6" fill="#8d959b"/><circle cx="73.6" cy="10.5" r="3" fill="#8d959b"/><path d="M76 14 C 96 8, 114 20, 138 12 L 136 40 C 114 48, 96 36, 76 42 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width="1"/><path d="M136 40 C 114 48, 96 36, 76 42" fill="none" stroke="#00d2be" stroke-width="1.6" opacity=".7"/></g></svg><span class="lt">Jim<span class="s-mark">S</span>torage</span></div>
+    <div class="logo" id="logo"><svg class="lmark" viewBox="0 0 150 86" aria-hidden="true"><defs><pattern id="lchk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#c9ced4"/><rect x="6" y="6" width="6" height="6" fill="#c9ced4"/></pattern></defs><g transform="rotate(18 75 70)"><rect x="72" y="12" width="3.2" height="66" rx="1.6" fill="#8d959b"/><circle cx="73.6" cy="10.5" r="3" fill="#8d959b"/><path d="M76 14 C 96 8, 114 20, 138 12 L 136 40 C 114 48, 96 36, 76 42 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width="1"/><path d="M136 40 C 114 48, 96 36, 76 42" fill="none" stroke="#00d2be" stroke-width="1.6" opacity=".7"/></g><g transform="rotate(-18 75 70) scale(-1,1) translate(-150,0)"><rect x="72" y="12" width="3.2" height="66" rx="1.6" fill="#8d959b"/><circle cx="73.6" cy="10.5" r="3" fill="#8d959b"/><path d="M76 14 C 96 8, 114 20, 138 12 L 136 40 C 114 48, 96 36, 76 42 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width="1"/><path d="M136 40 C 114 48, 96 36, 76 42" fill="none" stroke="#00d2be" stroke-width="1.6" opacity=".7"/></g></svg><span class="lt">Jim<span class="s-mark">S</span>torage</span></div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
     <select class="hsel" id="sort">
       <option value="recent">최신순</option>
