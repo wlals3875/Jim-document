@@ -74,7 +74,8 @@
     max-width:1060px; margin:0 auto; padding:calc(13px + env(safe-area-inset-top, 0px)) 18px 13px;
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
-  .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap; position:relative;}
+  .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap; position:relative; display:flex; align-items:center;}
+  .lmark{width:21px; height:21px; margin-right:8px; flex-shrink:0;}
   .logo::after{
     content:""; position:absolute; inset:-16px -34px; z-index:-1; pointer-events:none;
     background:radial-gradient(closest-side, rgba(0,210,190,.2), transparent 72%);
@@ -537,7 +538,7 @@
 <header>
   <div class="hbar">
     <button class="hbtn" id="menu-btn">☰</button>
-    <div class="logo" id="logo">Jim<span class="s-mark">S</span>torage</div>
+    <div class="logo" id="logo"><svg class="lmark" viewBox="0 0 26 26" aria-hidden="true"><rect x="3.2" y="2" width="2" height="22" rx="1" fill="#8d959b"/><circle cx="4.2" cy="1.6" r="1.6" fill="#8d959b"/><path d="M5.6 3 C 11 1.4, 15.5 4.4, 22.5 2.6 L 21.7 12 C 15.5 13.8, 11.2 10.9, 5.6 12.4 Z" fill="url(#lchk)" stroke="#3a4045" stroke-width=".7"/><path d="M21.7 12 C 15.5 13.8, 11.2 10.9, 5.6 12.4" fill="none" stroke="#00d2be" stroke-width="1" opacity=".8"/><defs><pattern id="lchk" width="4.4" height="4.4" patternUnits="userSpaceOnUse"><rect width="2.2" height="2.2" fill="#c9ced4"/><rect x="2.2" y="2.2" width="2.2" height="2.2" fill="#c9ced4"/></pattern></defs></svg>Jim<span class="s-mark">S</span>torage</div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
     <select class="hsel" id="sort">
       <option value="recent">최신순</option>
