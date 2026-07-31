@@ -77,9 +77,10 @@
   .logo{font-size:17px; font-weight:900; letter-spacing:-.02em; color:var(--ink); cursor:pointer; white-space:nowrap; position:relative;}
   .logo::after{
     content:""; position:absolute; inset:-16px -34px; z-index:-1; pointer-events:none;
-    background:radial-gradient(closest-side, rgba(0,210,190,.16), transparent 72%);
-    filter:blur(7px); animation:breathe 9s ease-in-out infinite;
+    background:radial-gradient(closest-side, rgba(0,210,190,.2), transparent 72%);
+    filter:blur(7px); animation:logopulse 9s ease-in-out infinite;
   }
+  @keyframes logopulse{0%,100%{opacity:1}50%{opacity:.55}}
   .s-mark{color:var(--lime); font-size:1.22em; font-weight:900; line-height:1; display:inline-block; margin:0 .015em; transform:translateY(1px);}
   .hsearch{
     flex:1; min-width:150px; display:flex; align-items:center; gap:8px;
