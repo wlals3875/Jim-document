@@ -207,6 +207,8 @@
     #stats-btn{display:none !important;}
     .who #uname{display:none;}
   }
+  .crumbrow{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .crumbrow .crumb{flex:1; margin-bottom:0;}
   .crumb{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; margin-bottom:16px; min-height:24px;}
   .crumb a{color:var(--sub); text-decoration:none; font-weight:700;}
   .crumb a:hover{color:var(--lime);}
@@ -607,11 +609,6 @@
     <button class="hbtn" id="menu-btn">☰</button>
     <div class="logo" id="logo"><svg class="lmark" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="hmg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="hmgd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".55"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".55"/><stop offset="1" stop-color="#0077b6" stop-opacity=".55"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#hmgd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#hmg)"/></svg><span class="lt">Jim<span class="s-mark">S</span>torage</span></div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
-    <select class="hsel" id="sort">
-      <option value="recent">최신순</option>
-      <option value="name">이름순</option>
-      <option value="views">조회순</option>
-    </select>
     <button class="hbtn hidden" id="stats-btn">방문 통계</button>
     <span class="role" id="role"></span>
     <div class="who">
@@ -670,7 +667,14 @@
   </div>
 </div>
 <div id="view-docs">
-  <div class="crumb" id="crumb"></div>
+  <div class="crumbrow">
+    <div class="crumb" id="crumb"></div>
+    <select class="hsel" id="sort">
+      <option value="recent">최신순</option>
+      <option value="name">이름순</option>
+      <option value="views">조회순</option>
+    </select>
+  </div>
   <div class="toolbar hidden" id="toolbar">
     <button class="tbtn" id="new-folder">＋ 새 폴더</button>
     <button class="tbtn" id="upload-btn">↑ HTML 업로드</button>
