@@ -178,7 +178,7 @@
   .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
   body.side-off aside{display:none;}
   main{flex:1; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
-  main>*{max-width:1000px;}
+  main>*{max-width:1000px; margin-left:max(0px, calc(50vw - 500px - 248px));}
   @media(max-width:860px){
     aside{
       position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
@@ -425,6 +425,13 @@
     stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.16em; flex-shrink:0;}
   .wt .wic{align-self:center; width:1.15em; height:1.15em;}
   .s-item .wic{width:1.1em; height:1.1em;}
+  .wnav{
+    background:none; border:1px solid var(--line2); border-radius:7px; color:var(--sub);
+    width:21px; height:21px; font-size:12px; cursor:pointer; padding:0;
+    display:inline-flex; align-items:center; justify-content:center; vertical-align:-5px;
+  }
+  .wnav:disabled{opacity:.28; cursor:default;}
+  .wd.wpast{opacity:.42;}
   .edot{width:8px; height:8px; border-radius:50%; flex-shrink:0; align-self:center;}
   .hbtn:hover,.mbtn:hover,.qbtn:hover,.connect-btn:hover,.chip:hover,.navbtn:hover,.c-del:hover,.kebab:hover{
     box-shadow:0 0 0 1px rgba(0,210,190,.4), 0 0 13px rgba(0,210,190,.2);
@@ -656,7 +663,7 @@
         <div id="money-body"><div class="w-empty">연결 필요</div></div>
       </div>
       <div class="widget" id="w-docs"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 8h6M9 12h6M9 16h4"/></svg> 최근 문서</div><div class="w-empty">—</div></div>
-      <div class="widget" id="w-wd"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg> 다음 출금</div><div class="w-empty">연결 필요</div></div>
+      <div class="widget" id="w-wd"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg> 이번 달 출금</div><div class="w-empty">연결 필요</div></div>
       <div class="widget" id="w-mail"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.2l8.5 6 8.5-6"/></svg> 메일</div><div class="w-empty">연결 필요</div></div>
     </div>
   </div>
@@ -1682,17 +1689,18 @@ function evColor(e){return GCOLOR[e.colorId]||"#00d2be";}
 function evEnd(e){return e.end?(e.end.dateTime?new Date(e.end.dateTime):new Date(e.end.date+"T00:00:00")):evDate(e);}
 async function loadCalendar(){
   const now=new Date();
-  const day0=new Date(now.getFullYear(),now.getMonth(),now.getDate()); /* 오늘 0시부터: 지난 시간대 일정도 표시 */
-  const max=new Date(now.getTime()+45*86400000);
-  const d=await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=50"
-    +"&timeMin="+encodeURIComponent(day0.toISOString())+"&timeMax="+encodeURIComponent(max.toISOString()));
+  const day0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const mStart=new Date(now.getFullYear(),now.getMonth(),1);      /* 이번 달 1일 */
+  const mEnd=new Date(now.getFullYear(),now.getMonth()+2,1);      /* 다음 달 말일까지 */
+  const d=await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=100"
+    +"&timeMin="+encodeURIComponent(mStart.toISOString())+"&timeMax="+encodeURIComponent(mEnd.toISOString()));
   const evs=(d.items||[]).filter(e=>e.status!=="cancelled");
   /* 이번 주 위젯 */
   const weekEnd=new Date(now); weekEnd.setDate(weekEnd.getDate()+7);
   const isWd=e=>["4","6","11"].includes(e.colorId)||(!e.colorId&&/\(\s*\d+(?:\.\d+)?\s*\)/.test(e.summary||""));
   const plain=evs.filter(e=>!isWd(e));
-  const week=plain.filter(e=>evDate(e)<weekEnd);
-  const next=plain.find(e=>evEnd(e)>=now)||plain[0];
+  const week=plain.filter(e=>evDate(e)<weekEnd&&evEnd(e)>=day0);
+  const next=plain.find(e=>evEnd(e)>=now);
   let html='';
   if(next){
     const dd=evDate(next);
@@ -1711,27 +1719,48 @@ async function loadCalendar(){
     }).join("");
   }else html+='<div class="w-empty">이번 주 일정 없음</div>';
   $("cal-body").innerHTML=html;
-  /* 다음 출금: 주황 계열 색상 카드 (colorId 4=플라밍고, 6=귤색, 11=토마토) */
+  /* 출금: 이번 달 / 다음 달 페이저 (주황 colorId 4·6·11 + 괄호 금액) */
   const WARM=["4","6","11"];
   const parseAmt=s=>{const m=(s||"").match(/\(\s*(\d+(?:\.\d+)?)\s*\)/)||(s||"").match(/(\d+(?:\.\d+)?)\s*만/);return m?Math.round(parseFloat(m[1])*10000):null;};
-  const wds=evs.filter(e=>evEnd(e)>=now).map(e=>{
+  const wdAll=evs.map(e=>{
     const warm=WARM.includes(e.colorId);
     const amt=parseAmt(e.summary);
     if(warm||(amt!=null&&!e.colorId))return {e,amt};
     return null;
-  }).filter(Boolean).slice(0,8);
-  let wh='<div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg> 다음 출금 <span class="r">45일 이내</span></div>';
-  if(wds.length){
-    const total=wds.reduce((s,x)=>s+(x.amt||0),0);
-    wh+=wds.map(x=>{
+  }).filter(Boolean);
+  WD_PAGES=[0,1].map(off=>{
+    const m0=new Date(now.getFullYear(),now.getMonth()+off,1);
+    const m1=new Date(now.getFullYear(),now.getMonth()+off+1,1);
+    const list=wdAll.filter(x=>{const dd=evDate(x.e);return dd>=m0&&dd<m1;});
+    return {title:off?"다음 달 출금":"이번 달 출금", mon:(m0.getMonth()+1)+"월", list};
+  });
+  WD_PI=0; renderWd();
+}
+
+let WD_PAGES=null, WD_PI=0;
+function renderWd(){
+  if(!WD_PAGES)return;
+  const pg=WD_PAGES[WD_PI];
+  const today=new Date(); today.setHours(0,0,0,0);
+  let wh='<div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg> '
+    +pg.title+' <span class="r"><button class="wnav" data-w="-1"'+(WD_PI===0?" disabled":"")+'>‹</button> '+pg.mon+' <button class="wnav" data-w="1"'+(WD_PI===1?" disabled":"")+'>›</button></span></div>';
+  if(pg.list.length){
+    const total=pg.list.reduce((s,x)=>s+(x.amt||0),0);
+    wh+=pg.list.map(x=>{
       const dd=evDate(x.e);
+      const past=dd<today;
       const nm=esc((x.e.summary||"").replace(/\(\s*\d+(?:\.\d+)?\s*\)/,"").trim());
-      return '<div class="wd"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span>'
+      return '<div class="wd'+(past?" wpast":"")+'"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span>'
         +'<span class="t">'+nm+'</span><span class="a">'+(x.amt!=null?x.amt.toLocaleString()+"원":"—")+'</span></div>';
     }).join("");
     wh+='<div style="text-align:right;font-size:11.5px;color:var(--sub2);margin-top:9px">합계 <b style="color:var(--ink)">'+total.toLocaleString()+'원</b></div>';
-  }else wh+='<div class="w-empty">예정된 출금 일정 없음 (캘린더에 "항목 N만" 형식)</div>';
+  }else wh+='<div class="w-empty">'+pg.mon+' 출금 일정 없음 (캘린더에 "항목 N만" 형식)</div>';
   $("w-wd").innerHTML=wh;
+  $("w-wd").querySelectorAll(".wnav").forEach(bn=>bn.onclick=e2=>{
+    e2.stopPropagation();
+    WD_PI=Math.max(0,Math.min(1,WD_PI+(+bn.dataset.w)));
+    renderWd();
+  });
 }
 
 /* ---- 시트 ---- */
