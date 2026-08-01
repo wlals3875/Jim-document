@@ -145,6 +145,10 @@
   #mem-list .role{flex-shrink:0;}
   #mem-list .c-del{margin-left:0; padding:4px 8px; flex-shrink:0;}
   #mem-list .c-del[data-e]{margin-left:auto;}
+  .reqn{
+    display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px;
+    border-radius:999px; background:var(--grad); color:#021413; font-size:10px; font-weight:900; padding:0 5px; margin-left:5px;
+  }
   .cpick{display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;}
   .cdot{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; padding:0;}
   .cdot.on{border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.2);}
@@ -302,8 +306,9 @@
   .modal textarea{resize:vertical; min-height:64px;}
   .m-row{display:flex; gap:9px; margin-top:18px; justify-content:flex-end;}
   .mbtn{
-    border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:13px; font-weight:800; padding:9px 20px;
-    background:var(--card2); border:1px solid var(--line2); color:var(--sub);
+    border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+    gap:6px; font-size:13px; font-weight:800; padding:0 20px; height:38px; line-height:1;
+    background:var(--card2); border:1px solid var(--line2); color:var(--sub); box-sizing:border-box;
   }
   .mbtn.pri{background:var(--grad); border:none; color:#021413; font-weight:900;}
   .mbtn.pri:hover{box-shadow:var(--glow-soft);}
@@ -846,10 +851,21 @@ function showDenied(u){
   let dn=$("denied");
   if(!dn){
     dn=document.createElement("div"); dn.id="denied";
-    dn.style.cssText="margin-top:18px;font-size:13px;color:var(--sub)";
+    dn.style.cssText="margin-top:18px;font-size:13px;color:var(--sub);line-height:2";
     document.querySelector(".gate-box").appendChild(dn);
   }
-  dn.innerHTML='<span style="color:var(--red)">'+esc(u.email||"")+'</span> — 접근 권한이 없어요<br>마스터에게 등록을 요청하세요 <button class="hbtn" style="margin-left:8px" onclick="firebase.auth().signOut()">다른 계정으로</button>';
+  const key=(u.email||"").replace(/\./g,",");
+  dn.innerHTML='<span style="color:var(--red)">'+esc(u.email||"")+'</span> — 접근 권한이 없어요<br>'
+    +'<button class="hbtn" id="req-btn" style="margin-right:8px">🙋 접근 요청 보내기</button>'
+    +'<button class="hbtn" onclick="firebase.auth().signOut()">다른 계정으로</button>';
+  const rb=dn.querySelector("#req-btn");
+  db.ref("hub/requests/"+key).get().then(s=>{ if(s.val()){rb.textContent="요청 보냄 — 승인 대기 중"; rb.disabled=true;} }).catch(()=>{});
+  rb.onclick=async()=>{
+    try{
+      await db.ref("hub/requests/"+key).set({email:u.email,n:u.displayName||"",at:Date.now()});
+      rb.textContent="요청 보냄 — 승인 대기 중"; rb.disabled=true;
+    }catch(e){ toast("요청 실패 — 잠시 후 다시"); }
+  };
 }
 function enterApp(u,memberRec){
     $("gate").classList.add("hidden"); $("app").classList.remove("hidden");
@@ -867,7 +883,7 @@ function enterApp(u,memberRec){
     $("s-members").classList.toggle("hidden",!IS_MASTER);
     $("stor").classList.toggle("hidden",!IS_MASTER);
     $("s-home").classList.toggle("hidden",!IS_MASTER);
-    if(IS_MASTER){computeStorage();loadOrder();}
+    if(IS_MASTER){computeStorage();loadOrder();watchRequests();}
     setView(IS_MASTER?"home":"docs");
     $("toolbar").classList.toggle("hidden",!IS_MASTER);
     $("drop").classList.toggle("hidden",!IS_MASTER);
@@ -1387,6 +1403,29 @@ async function togglePublish(did,scope){
     b=>{b.querySelector("[data-cp]").onclick=()=>{navigator.clipboard.writeText(url).catch(()=>{});toast("복사됨");b.remove();};});
 }
 
+
+/* ================= 접근 요청 (마스터) ================= */
+let REQS={};
+function watchRequests(){
+  db.ref("hub/requests").on("value",s=>{
+    REQS=s.val()||{};
+    const n=Object.keys(REQS).length;
+    const tx=$("s-members").querySelector(".tx");
+    tx.innerHTML="멤버"+(n?' <span class="reqn">'+n+'</span>':"");
+  },()=>{});
+}
+async function approveReq(k){
+  const r=REQS[k]; if(!r)return;
+  await db.ref("hub/members/"+k).set({email:r.email,label:"멤버",at:Date.now()});
+  await db.ref("hub/requests/"+k).remove();
+  modal('<h3>승인됨</h3>'
+    +'<p style="font-size:13px;color:var(--sub);line-height:1.7">'+esc(r.email)+' 님이 이제 허브에 들어올 수 있어요.<br><br>'
+    +'<b style="color:var(--ink)">한 단계 더:</b> 지메일 등 구글 기능까지 쓰게 하려면 콘솔 <b>테스트 사용자</b>에도 등록해주세요.</p>'
+    +'<div class="m-row"><button class="mbtn" data-x>나중에</button>'
+    +'<a class="mbtn pri" style="text-decoration:none" target="_blank" rel="noopener" href="https://console.cloud.google.com/auth/audience?project=jim-s-document">콘솔 열기 ↗</a></div>',
+    b=>{b.querySelector("[data-x]").onclick=()=>b.remove();});
+}
+
 /* ================= 멤버 관리 (마스터) ================= */
 $("s-members").onclick=()=>{closeAside();openMembers();};
 const MCOLORS=["#00d2be","#ff9ec7","#e6c592","#7aa7ff","#a78bfa","#c9ced4"];
@@ -1434,18 +1473,32 @@ function openMembers(){
             +'<p style="font-size:13px;color:var(--sub);line-height:1.7">'+esc(em)+' 님이 이제 허브에 로그인할 수 있어요.<br><br>'
             +'<b style="color:var(--ink)">한 단계 더:</b> 지메일 등 구글 데이터 기능까지 쓰게 하려면 구글 콘솔의 <b>테스트 사용자</b>에도 이 이메일을 등록해야 해요. (구글이 자동 등록을 막아놔서 수동만 가능해요)</p>'
             +'<div class="m-row"><button class="mbtn" data-x>나중에</button>'
-            +'<a class="mbtn pri" style="text-decoration:none" target="_blank" rel="noopener" href="https://console.cloud.google.com/apis/credentials/consent?project=jim-s-document">콘솔 열기 ↗</a></div>',
+            +'<a class="mbtn pri" style="text-decoration:none" target="_blank" rel="noopener" href="https://console.cloud.google.com/auth/audience?project=jim-s-document">콘솔 열기 ↗</a></div>',
             b=>{b.querySelector("[data-x]").onclick=()=>b.remove();});
         }
       };
       async function drawList(){
         const v=(await db.ref("hub/members").get()).val()||{};
         const el=b.querySelector("#mem-list");
+        /* 대기 중 요청 */
+        const rq=Object.entries(REQS);
+        let reqHtml="";
+        if(rq.length){
+          reqHtml='<div class="sec-label" style="margin:0 0 8px">접근 요청</div>'
+            +rq.map(([k,r])=>'<div class="wd" style="align-items:center"><span class="t" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.n||"")+' <span style="color:var(--sub2);font-size:12px">'+esc(r.email)+'</span></span>'
+              +'<button class="c-del" data-ap="'+k+'" style="margin-left:auto;color:var(--lime)">승인</button>'
+              +'<button class="c-del" data-rj="'+k+'">거절</button></div>').join("")
+            +'<div style="height:14px"></div>';
+        }
+        el.dataset.req=reqHtml?"1":"";
+        el.previousHtml=reqHtml;
         const rows=Object.entries(v);
-        el.innerHTML=rows.length?rows.map(([k,m])=>
+        el.innerHTML=(el.previousHtml||"")+(rows.length?rows.map(([k,m])=>
           '<div class="wd"><span class="t"><span class="role" style="'+badgeStyle(m.color)+(m.color?"":"color:var(--sub);border:1px solid var(--line2);background:var(--card2)")+'">'+esc(m.label||"멤버")+'</span> <span style="color:var(--sub2);font-size:12px">'+esc(m.email)+'</span></span>'
           +'<button class="c-del" data-e="'+k+'">수정</button><button class="c-del" data-k="'+k+'">삭제</button></div>').join("")
-          :'<div class="w-empty">등록된 멤버 없음 — 마스터 본인은 항상 접근 가능해요</div>';
+          :'<div class="w-empty">등록된 멤버 없음 — 마스터 본인은 항상 접근 가능해요</div>');
+        el.querySelectorAll("[data-ap]").forEach(b2=>b2.onclick=async()=>{await approveReq(b2.dataset.ap); drawList();});
+        el.querySelectorAll("[data-rj]").forEach(b2=>b2.onclick=async()=>{await db.ref("hub/requests/"+b2.dataset.rj).remove(); drawList();});
         el.querySelectorAll("[data-k]").forEach(b2=>b2.onclick=async()=>{
           if(confirm("이 멤버를 제거할까요? 즉시 접근이 차단돼요."))
             {await db.ref("hub/members/"+b2.dataset.k).remove(); drawList();}
