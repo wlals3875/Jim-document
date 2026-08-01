@@ -151,7 +151,7 @@
   @media(max-width:520px){ .who .un{display:none;} }
 
   /* ===== 레이아웃: 사이드바 + 본문 ===== */
-  .layout{max-width:1180px; margin:0 auto; display:flex; align-items:flex-start;}
+  .layout{display:flex; align-items:flex-start;}
   aside{
     width:230px; flex-shrink:0; position:sticky; top:57px; z-index:1;
     height:calc(100vh - 57px); overflow-y:auto; padding:20px 10px 30px 18px;
@@ -178,6 +178,7 @@
   .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
   body.side-off aside{display:none;}
   main{flex:1; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
+  main>*{max-width:1000px; margin-inline:auto;}
   @media(max-width:860px){
     aside{
       position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
@@ -397,7 +398,7 @@
     color:var(--sub); font-size:11.5px; font-weight:800; padding:4px 12px;
   }
   .qprev .tsel button.on{color:#021413; background:var(--lime); border-color:var(--lime);}
-  .wgrid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .wgrid{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;}
   .widget{
     background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 19px;
     min-height:120px;
@@ -683,7 +684,7 @@
     <div class="v-meta" id="v-meta"></div>
     <button class="hbtn" id="v-link">링크 복사</button>
   </div>
-  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals"></iframe>
   <div class="v-side" id="v-side">
     <button id="c-toggle">💬 댓글 <span id="c-count"></span><span class="arr">▾</span></button>
     <div id="c-wrap">
@@ -745,7 +746,7 @@ let DEEP=new URLSearchParams(location.search).get("d");
   document.getElementById("gate").style.display="none";
   const wrap=document.createElement("div");
   wrap.style.cssText="position:fixed;inset:0;z-index:500;background:#0a0b0c";
-  wrap.innerHTML='<iframe id="pub-frame" style="width:100%;height:100%;border:none;background:#fff" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>';
+  wrap.innerHTML='<iframe id="pub-frame" style="width:100%;height:100%;border:none;background:#fff" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals"></iframe>';
   document.body.appendChild(wrap);
   db.ref("hub/publish/"+pid).get().then(s=>{
     const v=s.val();
