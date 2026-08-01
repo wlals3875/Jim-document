@@ -139,9 +139,12 @@
     display:inline-flex; align-items:center; border-radius:999px; white-space:nowrap;}
   .role.master{color:var(--lime); border:1px solid rgba(0,210,190,.45); background:rgba(0,210,190,.08); box-shadow:var(--glow-soft);}
   .role.guest{color:var(--sub); border:1px solid var(--line2); background:var(--card2);}
-  #mem-list .wd{align-items:center;}
-  #mem-list .t{overflow:visible; display:flex; align-items:center; gap:9px; white-space:normal;}
+  #mem-list .wd{align-items:center; gap:4px;}
+  #mem-list .t{overflow:hidden; display:flex; align-items:center; gap:9px; white-space:normal; min-width:0;}
+  #mem-list .t span:last-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
   #mem-list .role{flex-shrink:0;}
+  #mem-list .c-del{margin-left:0; padding:4px 8px; flex-shrink:0;}
+  #mem-list .c-del[data-e]{margin-left:auto;}
   .cpick{display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;}
   .cdot{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; padding:0;}
   .cdot.on{border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.2);}
@@ -187,6 +190,21 @@
     }
     aside.open{transform:translateX(0);}
     #aside-bg{position:fixed; inset:0; z-index:115; background:rgba(3,4,4,.62);}
+    /* 앱형 헤더: 1행 메뉴·로고·뱃지·아바타 / 2행 검색 */
+    .hbar{
+      display:grid; column-gap:9px; row-gap:10px; align-items:center;
+      grid-template-columns:auto auto 1fr auto auto;
+      grid-template-areas:"m l . r w" "s s s s s";
+      padding-left:12px; padding-right:12px;
+    }
+    #menu-btn{grid-area:m;}
+    .logo{grid-area:l; justify-self:start; font-size:15.5px; padding:6px 11px 6px 9px;}
+    .lmark{width:18px; height:18px; margin-right:6px;}
+    #role{grid-area:r; justify-self:end;}
+    .who{grid-area:w;}
+    .hsearch{grid-area:s; width:100%;}
+    #stats-btn{display:none !important;}
+    .who #uname{display:none;}
   }
   .crumb{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:13px; margin-bottom:16px; min-height:24px;}
   .crumb a{color:var(--sub); text-decoration:none; font-weight:700;}
@@ -585,8 +603,8 @@
       <option value="views">조회순</option>
     </select>
     <button class="hbtn hidden" id="stats-btn">방문 통계</button>
+    <span class="role" id="role"></span>
     <div class="who">
-      <span class="role" id="role"></span>
       <span class="un" id="uname"></span>
       <img class="avatar" id="avatar" title="로그아웃" alt="me">
     </div>
@@ -612,7 +630,7 @@
 <main>
 <div id="view-home" class="hidden">
   <div class="dash">
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:-6px">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin:-8px 0 -2px">
       <button class="hbtn" id="dash-refresh" title="새로고침"><svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:url(#wgi);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.4h-4.4"/></svg></button>
       <button class="hbtn" id="dash-edit">편집</button>
     </div>
@@ -1381,8 +1399,7 @@ function openMembers(){
     +'<label>이메일</label><input type="text" id="mem-email" placeholder="example@gmail.com">'
     +'<label>표시 이름</label><input type="text" id="mem-label" placeholder="비우면 \'멤버\'로 표시">'
     +'<label>뱃지 색상</label><div class="cpick" id="mem-colors"></div>'
-    +'<p style="font-size:11.5px;color:var(--sub2);margin-top:10px">추가하면 바로 허브에 접근할 수 있어요.<br>지메일 등 구글 기능까지 쓰려면 콘솔 테스트 사용자에도 등록 필요 (자동 등록 API가 없어요)</p>'
-    +'<a class="hbtn" style="text-decoration:none;display:inline-block;margin-top:2px" target="_blank" rel="noopener" href="https://console.cloud.google.com/apis/credentials/consent?project=jim-s-document">구글 콘솔 테스트 사용자 열기 ↗</a>'
+    +'<p style="font-size:11.5px;color:var(--sub2);margin-top:10px">추가하면 바로 허브에 접근할 수 있어요</p>'
     +'<div class="m-row"><button class="mbtn" data-cancel style="display:none">취소</button><button class="mbtn pri" data-add>추가</button></div>',
     b=>{
       const colorsEl=b.querySelector("#mem-colors");
@@ -1409,8 +1426,17 @@ function openMembers(){
         const rec={email:em,label:lb||"멤버",at:Date.now()};
         if(selColor)rec.color=selColor;
         await db.ref("hub/members/"+em.replace(/\./g,",")).set(rec);
-        toast(editKey?"멤버 수정됨":"멤버 추가됨 — 구글 콘솔 테스트 사용자에도 등록해주세요");
+        const wasEdit=!!editKey;
         resetForm(); drawList();
+        if(wasEdit){ toast("멤버 수정됨"); }
+        else{
+          modal('<h3>멤버 추가됨</h3>'
+            +'<p style="font-size:13px;color:var(--sub);line-height:1.7">'+esc(em)+' 님이 이제 허브에 로그인할 수 있어요.<br><br>'
+            +'<b style="color:var(--ink)">한 단계 더:</b> 지메일 등 구글 데이터 기능까지 쓰게 하려면 구글 콘솔의 <b>테스트 사용자</b>에도 이 이메일을 등록해야 해요. (구글이 자동 등록을 막아놔서 수동만 가능해요)</p>'
+            +'<div class="m-row"><button class="mbtn" data-x>나중에</button>'
+            +'<a class="mbtn pri" style="text-decoration:none" target="_blank" rel="noopener" href="https://console.cloud.google.com/apis/credentials/consent?project=jim-s-document">콘솔 열기 ↗</a></div>',
+            b=>{b.querySelector("[data-x]").onclick=()=>b.remove();});
+        }
       };
       async function drawList(){
         const v=(await db.ref("hub/members").get()).val()||{};
