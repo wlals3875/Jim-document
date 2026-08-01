@@ -683,7 +683,7 @@
     <div class="v-meta" id="v-meta"></div>
     <button class="hbtn" id="v-link">링크 복사</button>
   </div>
-  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
   <div class="v-side" id="v-side">
     <button id="c-toggle">💬 댓글 <span id="c-count"></span><span class="arr">▾</span></button>
     <div id="c-wrap">
@@ -745,7 +745,7 @@ let DEEP=new URLSearchParams(location.search).get("d");
   document.getElementById("gate").style.display="none";
   const wrap=document.createElement("div");
   wrap.style.cssText="position:fixed;inset:0;z-index:500;background:#0a0b0c";
-  wrap.innerHTML='<iframe id="pub-frame" style="width:100%;height:100%;border:none;background:#fff" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>';
+  wrap.innerHTML='<iframe id="pub-frame" style="width:100%;height:100%;border:none;background:#fff" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>';
   document.body.appendChild(wrap);
   db.ref("hub/publish/"+pid).get().then(s=>{
     const v=s.val();
