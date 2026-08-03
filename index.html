@@ -1346,7 +1346,7 @@ async function openDoc(did,scope){
   const html=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
   $("v-frame").srcdoc=html;
   /* 조회수 (세션당 1회) + 방문 로그 */
-  if(!viewedThisSession[did]){
+  if(!viewedThisSession[did]&&!IS_MASTER){
     viewedThisSession[did]=1;
     db.ref(`hub/views/${did}`).transaction(v=>(v||0)+1);
     db.ref("hub/visits").push({u:ME.uid,n:ME.displayName||ME.email,d:did,dn:d.name,t:Date.now()});
@@ -1783,7 +1783,7 @@ async function loadSheet(){
   const norm=s=>String(s||"").replace(/\s+/g,"");
   const find=lbl=>{const L=norm(lbl);for(let r=0;r<g.length;r++){if(norm((g[r]||[])[1])===L)return r;}return -1;};
   const rows={예산:find("예산"),잔여:find("잔여"),소진율:find("소진율"),지출금액:find("지출 금액"),지출가능:find("지출 가능"),
-              보험:find("보험"),고정지출:find("고정 지출"),저축:find("저축")};
+              저축금액:find("저축 금액"),보험:find("보험"),고정지출:find("고정 지출"),저축:find("저축")};
   /* 지출 카테고리·세부항목 행 매핑 */
   const catRows={}, targetRows={};
   for(let r=38;r<g.length;r++){
@@ -1801,14 +1801,14 @@ async function loadSheet(){
   }
   SHEET={g,mc,rows,catRows,targetRows};
   const num=r=>{const v=r>=0?(g[r]||[])[mc]:null;return typeof v==="number"?v:(v&&!isNaN(+v)?+v:null);};
-  const budget=num(rows.예산), spent=num(rows.지출금액), remain=num(rows.잔여), cap=num(rows.지출가능);
+  const budget=num(rows.예산), spent=num(rows.지출금액), remain=num(rows.잔여), cap=num(rows.지출가능), saving=num(rows.저축금액);
   const rate=cap&&spent!=null?spent/cap:null;
   const w=v=>v==null?"—":Math.round(v).toLocaleString();
   $("money-mon").textContent=mk;
   let html='<div class="mon-nums">'
-    +'<div class="mn"><div class="k">예산</div><div class="v" data-n="'+(budget!=null?Math.round(budget):"")+'">'+w(budget)+'</div></div>'
-    +'<div class="mn"><div class="k">지출</div><div class="v" data-n="'+(spent!=null?Math.round(spent):"")+'">'+w(spent)+'</div></div>'
-    +'<div class="mn"><div class="k">잔여</div><div class="v '+(remain!=null&&remain<0?"red":"lime")+'" data-n="'+(remain!=null?Math.round(remain):"")+'">'+w(remain)+'</div></div>'
+    +'<div class="mn"><div class="k">지출 가능</div><div class="v" data-n="'+(cap!=null?Math.round(cap):"")+'">'+w(cap)+'</div></div>'
+    +'<div class="mn"><div class="k">지출 금액</div><div class="v" data-n="'+(spent!=null?Math.round(spent):"")+'">'+w(spent)+'</div></div>'
+    +'<div class="mn"><div class="k">저축</div><div class="v lime" data-n="'+(saving!=null?Math.round(saving):"")+'">'+w(saving)+'</div></div>'
     +'</div>';
   if(rate!=null){
     const pct=Math.min(100,rate*100);
@@ -1992,9 +1992,9 @@ async function openMoneyDetail(){
     let m='<div class="chips">'+months.map(x=>'<button class="chip'+(x.c===c?" on":"")+'" data-c="'+x.c+'">'+x.k+'</button>').join("")+'</div>';
     const R=SHEET.rows;
     m+='<div class="mon-nums" style="margin-top:13px">'
-      +'<div class="mn"><div class="k">예산</div><div class="v">'+w(num(R.예산,c))+'</div></div>'
-      +'<div class="mn"><div class="k">지출</div><div class="v">'+w(num(R.지출금액,c))+'</div></div>'
-      +'<div class="mn"><div class="k">잔여</div><div class="v">'+w(num(R.잔여,c))+'</div></div></div>';
+      +'<div class="mn"><div class="k">지출 가능</div><div class="v">'+w(num(R.지출가능,c))+'</div></div>'
+      +'<div class="mn"><div class="k">지출 금액</div><div class="v">'+w(num(R.지출금액,c))+'</div></div>'
+      +'<div class="mn"><div class="k">저축</div><div class="v">'+w(num(R.저축금액,c))+'</div></div></div>';
     m+='<div class="fxline" style="margin-top:0;border-top:none;padding-top:2px">고정지출 <b>'+w(num(R.고정지출,c))+'</b><span>·</span>보험 <b>'+w(num(R.보험,c))+'</b><span>·</span>저축 <b>'+w(num(R.저축,c))+'</b></div>';
     m+='<div class="sec-label" style="margin-top:14px">카테고리 상세</div>';
     for(const ct of CATTREE){
