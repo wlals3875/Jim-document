@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="booting">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -52,6 +52,8 @@
   #gate{
     position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
   }
+  .gate-box{transition:opacity .28s ease;}
+  html.booting .gate-box{opacity:0;}
   .gate-box{text-align:center; padding:20px;}
   .gmark{display:flex; justify-content:center; margin:16px 0 9px;}
   .gmark svg{width:56px; height:56px; filter:drop-shadow(0 0 14px rgba(0,210,190,.45)) drop-shadow(0 0 30px rgba(0,210,190,.2));}
@@ -576,6 +578,33 @@
     .v-meta{display:none;}
     #c-wrap{max-height:30vh;}
   }
+
+  /* ===== 데스크톱 배율 (넓은 화면에서 UI 확대) ===== */
+  @media(min-width:1100px){
+    main>*{max-width:1120px;}
+    aside{width:252px; margin-left:max(0px, calc(50vw - 560px - 270px));}
+    .layout{gap:0;}
+    body{font-size:15px;}
+    .logo{font-size:22px;} .lmark{width:26px; height:26px;}
+    .hbtn{height:36px; font-size:13px; padding:0 16px;}
+    .hsel{height:36px; font-size:13px;}
+    .hsearch{height:38px;} .hsearch input{font-size:14px;} .hsearch .hs-i{font-size:14px;}
+    .role{height:23px; font-size:11px;}
+    .s-item{font-size:14.5px;}
+    .crumb{font-size:14px;}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:14px;}
+    .doc .nm{font-size:14.5px;} .doc .meta{font-size:12px;}
+    .widget{padding:22px;}
+    .widget .wt{font-size:14px;} .widget .wt .r{font-size:12.5px;}
+    .mn .k{font-size:12px;} .mn .v{font-size:17px;}
+    .ev .t,.wd .t{font-size:14.5px;}
+    .ev .d,.wd .d{font-size:12.5px;}
+    .wd .a{font-size:14.5px;}
+    .cat .cn{font-size:13px;} .cat .cv{font-size:13px;}
+    .qadd input,.qadd .qbtn{font-size:14px;}
+    .w-empty{font-size:13.5px;}
+    .stor .st-k{font-size:12.5px;} .stor .st-v{font-size:13.5px;}
+  }
 </style>
 </head>
 <body>
@@ -750,6 +779,14 @@ let DATA={pub:{folders:{},docs:{}}, priv:{folders:{},docs:{}}};
 let VIEWS={};
 let curFolder="root";
 let curDoc=null, curDocScope=null;
+/* 폰트 준비 후 게이트 공개 (FOUC 방지) */
+(function(){
+  const done=()=>document.documentElement.classList.remove("booting");
+  const t=setTimeout(done,900);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{clearTimeout(t);done();});
+  else done();
+})();
+
 let viewedThisSession={};
 let DEEP=new URLSearchParams(location.search).get("d");
 /* 공개 게시 페이지: 로그인·허브 UI 없이 문서만 */
