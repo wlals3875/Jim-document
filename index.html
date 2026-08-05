@@ -1838,14 +1838,20 @@ async function loadSheet(){
   }
   SHEET={g,mc,rows,catRows,targetRows};
   const num=r=>{const v=r>=0?(g[r]||[])[mc]:null;return typeof v==="number"?v:(v&&!isNaN(+v)?+v:null);};
-  const budget=num(rows.예산), spent=num(rows.지출금액), remain=num(rows.잔여), cap=num(rows.지출가능), saving=num(rows.저축금액);
-  const rate=cap&&spent!=null?spent/cap:null;
+  const budget=num(rows.예산), spent=num(rows.지출금액), cap0=num(rows.지출가능),
+        savePlan=num(rows.저축), remainRow=num(rows.잔여);
+  /* 쓸 수 있는 돈 = 지출가능(36행) − 저축(6행). 36행엔 저축이 차감돼 있지 않음 */
+  const cap=(cap0!=null)?(cap0-(savePlan||0))
+           :((budget!=null)?budget-(num(rows.고정지출)||0)-(num(rows.보험)||0)-(savePlan||0):null);
+  /* 남은 돈 = 시트 잔여(10행) 우선, 없으면 계산 */
+  const left=(remainRow!=null)?remainRow:((cap!=null&&spent!=null)?cap-spent:null);
+  const rate=(cap&&spent!=null)?spent/cap:null;
   const w=v=>v==null?"—":Math.round(v).toLocaleString();
   $("money-mon").textContent=mk;
   let html='<div class="mon-nums">'
-    +'<div class="mn"><div class="k">지출 가능</div><div class="v" data-n="'+(cap!=null?Math.round(cap):"")+'">'+w(cap)+'</div></div>'
-    +'<div class="mn"><div class="k">지출 금액</div><div class="v" data-n="'+(spent!=null?Math.round(spent):"")+'">'+w(spent)+'</div></div>'
-    +'<div class="mn"><div class="k">저축</div><div class="v lime" data-n="'+(saving!=null?Math.round(saving):"")+'">'+w(saving)+'</div></div>'
+    +'<div class="mn"><div class="k">쓸 수 있는 돈</div><div class="v" data-n="'+(cap!=null?Math.round(cap):"")+'">'+w(cap)+'</div></div>'
+    +'<div class="mn"><div class="k">쓴 돈</div><div class="v" data-n="'+(spent!=null?Math.round(spent):"")+'">'+w(spent)+'</div></div>'
+    +'<div class="mn"><div class="k">남은 돈</div><div class="v '+(left!=null&&left<0?"red":"lime")+'" data-n="'+(left!=null?Math.round(left):"")+'">'+w(left)+'</div></div>'
     +'</div>';
   if(rate!=null){
     const pct=Math.min(100,rate*100);
@@ -2026,12 +2032,23 @@ async function openMoneyDetail(){
   const w=v=>v==null?"—":Math.round(v).toLocaleString();
   function draw(){
     const c=sel;
-    let m='<div class="chips">'+months.map(x=>'<button class="chip'+(x.c===c?" on":"")+'" data-c="'+x.c+'">'+x.k+'</button>').join("")+'</div>';
+    const selYear=months.find(x=>x.c===c).k.split(".")[0];
+    const years=[...new Set(months.map(x=>x.k.split(".")[0]))];
+    let m='<div class="chips" style="margin-bottom:7px">'
+      +years.map(y=>'<button class="chip'+(y===selYear?" on":"")+'" data-y="'+y+'">20'+y+'</button>').join("")+'</div>';
+    m+='<div class="chips">'
+      +months.filter(x=>x.k.split(".")[0]===selYear)
+             .map(x=>'<button class="chip'+(x.c===c?" on":"")+'" data-c="'+x.c+'">'+parseInt(x.k.split(".")[1])+'월</button>').join("")+'</div>';
     const R=SHEET.rows;
     m+='<div class="mon-nums" style="margin-top:13px">'
-      +'<div class="mn"><div class="k">지출 가능</div><div class="v">'+w(num(R.지출가능,c))+'</div></div>'
-      +'<div class="mn"><div class="k">지출 금액</div><div class="v">'+w(num(R.지출금액,c))+'</div></div>'
-      +'<div class="mn"><div class="k">저축</div><div class="v">'+w(num(R.저축금액,c))+'</div></div></div>';
+      +(function(){
+        const c0=num(R.지출가능,c), sp=num(R.지출금액,c), sv=num(R.저축,c), rm=num(R.잔여,c);
+        const cp=(c0!=null)?c0-(sv||0):null;
+        const lf=(rm!=null)?rm:((cp!=null&&sp!=null)?cp-sp:null);
+        return '<div class="mn"><div class="k">쓸 수 있는 돈</div><div class="v">'+w(cp)+'</div></div>'
+          +'<div class="mn"><div class="k">쓴 돈</div><div class="v">'+w(sp)+'</div></div>'
+          +'<div class="mn"><div class="k">남은 돈</div><div class="v">'+w(lf)+'</div></div>';
+      })()+'</div>';
     m+='<div class="fxline" style="margin-top:0;border-top:none;padding-top:2px">고정지출 <b>'+w(num(R.고정지출,c))+'</b><span>·</span>보험 <b>'+w(num(R.보험,c))+'</b><span>·</span>저축 <b>'+w(num(R.저축,c))+'</b></div>';
     m+='<div class="sec-label" style="margin-top:14px">카테고리 상세</div>';
     for(const ct of CATTREE){
@@ -2045,7 +2062,11 @@ async function openMoneyDetail(){
       }
     }
     det.innerHTML=m;
-    det.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{sel=+b.dataset.c;draw();});
+    det.querySelectorAll(".chip[data-c]").forEach(b=>b.onclick=()=>{sel=+b.dataset.c;draw();});
+    det.querySelectorAll(".chip[data-y]").forEach(b=>b.onclick=()=>{
+      const first=months.find(x=>x.k.split(".")[0]===b.dataset.y);
+      if(first){sel=first.c;draw();}
+    });
   }
   draw();
 }
@@ -2199,7 +2220,7 @@ function qParse(s){
   s=s.trim(); if(!s)return null;
   let type=/수입/.test(s)?"수입":"지출";
   s=s.replace(/수입|지출/g,"").trim();
-  const ms=[...s.matchAll(/(\d[\d,]*(?:\.\d+)?)\s*(만)?\s*원?/g)];
+  const ms=[...s.matchAll(/(-?\d[\d,]*(?:\.\d+)?)\s*(만)?\s*원?/g)];
   if(!ms.length)return null;
   const m=ms[ms.length-1];
   let amt=parseFloat(m[1].replace(/,/g,""));
@@ -2254,7 +2275,7 @@ async function qSave(){
         const cur=await gfetch("https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/"+encodeURIComponent(a1)+"?valueRenderOption=FORMULA");
         const raw=cur.values&&cur.values[0]?cur.values[0][0]:"";
         let nv;
-        if(typeof raw==="string"&&raw.trim().startsWith("="))nv=raw+"+"+p.amt;
+        if(typeof raw==="string"&&raw.trim().startsWith("="))nv=raw+(p.amt<0?"":"+")+p.amt;
         else if(typeof raw==="number")nv=raw+p.amt;
         else if(raw!==""&&!isNaN(+raw))nv=(+raw)+p.amt;
         else nv=p.amt;
