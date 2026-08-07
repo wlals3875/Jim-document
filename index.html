@@ -133,7 +133,7 @@
   .who{display:flex; align-items:center; gap:8px;}
   .who .un{font-size:12.5px; font-weight:800; color:var(--sub); max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .role{font-size:10px; font-weight:800; letter-spacing:.08em; padding:0 10px; height:21px;
-    display:inline-flex; align-items:center; border-radius:999px; white-space:nowrap;}
+    display:inline-flex; align-items:center; border-radius:999px; white-space:nowrap; line-height:1;}
   .role.master{color:var(--lime); border:1px solid rgba(0,210,190,.45); background:rgba(0,210,190,.08); box-shadow:var(--glow-soft);}
   .role.guest{color:var(--sub); border:1px solid var(--line2); background:var(--card2);}
   #mem-list .wd{align-items:center; gap:4px;}
@@ -389,9 +389,13 @@
   }
   .qadd .qbtn:disabled{opacity:.45; cursor:default;}
   .qprev{
-    display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:2px 4px 0;
+    display:flex; flex-direction:column; gap:8px; padding:2px 4px 0;
     font-size:12.5px; color:var(--sub);
   }
+  .qprev .qp1{display:flex; align-items:baseline; gap:8px; min-width:0;}
+  .qprev .qd{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .qprev .qp2{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .qprev .amt{white-space:nowrap;}
   .qprev .amt{font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums;}
   .qprev select{
     background:var(--card2); border:1px solid var(--line2); border-radius:999px;
@@ -413,7 +417,7 @@
     display:flex; align-items:center; gap:9px; font-size:13px; font-weight:800;
     letter-spacing:.1em; color:var(--sub2); text-transform:uppercase; margin-bottom:13px;
   }
-  .widget .wt .r{margin-left:auto; letter-spacing:0; text-transform:none; font-size:11.5px; font-weight:700;}
+  .widget .wt .r{margin-left:auto; letter-spacing:0; text-transform:none; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:6px;}
   .w-empty{font-size:12.5px; color:var(--sub2); padding:8px 0;}
   .connect-btn{
     background:var(--grad); border:none; color:#021413; font-weight:800; font-size:12.5px;
@@ -433,7 +437,7 @@
   .wnav{
     background:none; border:1px solid var(--line2); border-radius:7px; color:var(--sub);
     width:21px; height:21px; font-size:12px; cursor:pointer; padding:0;
-    display:inline-flex; align-items:center; justify-content:center; vertical-align:-5px;
+    display:inline-flex; align-items:center; justify-content:center;
   }
   .wnav:disabled{opacity:.28; cursor:default;}
   .wd.wpast{opacity:.42;}
@@ -579,6 +583,7 @@
     #c-wrap{max-height:30vh;}
   }
 
+  @media(min-width:861px){ .hbar{flex-wrap:nowrap;} }
   /* ===== 데스크톱 배율 (넓은 화면에서 UI 확대) ===== */
   @media(min-width:1100px){
     main>*{max-width:1120px;}
@@ -2236,15 +2241,16 @@ $("q-in").addEventListener("input",()=>{
   const pv=$("q-prev");
   if(!p){pv.classList.add("hidden");return;}
   pv.classList.remove("hidden");
-  pv.innerHTML='<span class="amt">'+p.amt.toLocaleString()+'원</span><span>'+esc(p.desc)+'</span>'
-    +'<span class="tsel"><button data-t="지출" class="'+(p.type==="지출"?"on":"")+'">지출</button><button data-t="수입" class="'+(p.type==="수입"?"on":"")+'">수입</button></span>'
-    +(p.type==="지출"?'<select id="q-cat">'+(p.cat?"":'<option selected value="">항목 선택</option>')+catOptions(p.cat)+'</select>':"");
+  pv.innerHTML='<div class="qp1"><span class="amt">'+p.amt.toLocaleString()+'원</span><span class="qd">'+esc(p.desc)+'</span></div>'
+    +'<div class="qp2"><span class="tsel"><button data-t="지출" class="'+(p.type==="지출"?"on":"")+'">지출</button><button data-t="수입" class="'+(p.type==="수입"?"on":"")+'">수입</button></span>'
+    +(p.type==="지출"?'<select id="q-cat">'+(p.cat?"":'<option selected value="">항목 선택</option>')+catOptions(p.cat)+'</select>':"")+'</div>';
   pv.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{Q.type=b.dataset.t;$("q-in").dispatchEvent(new Event("input"));const v=$("q-in").value;});
 });
 $("q-in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("q-save").disabled)qSave();});
 $("q-save").onclick=qSave;
 async function qSave(){
   const p=qParse($("q-in").value); if(!p)return;
+  if(Math.abs(p.amt)>=10000000&&!confirm(p.amt.toLocaleString()+"원 — 금액이 맞나요?"))return;
   if(Q.type)p.type=Q.type;
   const sel=$("q-cat"); if(sel&&sel.value)p.cat=sel.value;
   if(p.type==="지출"&&!p.cat){toast("항목을 골라주세요");return;}
