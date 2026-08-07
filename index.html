@@ -974,7 +974,7 @@ async function renderGuestbook(el, u, canModerate){
   try{
     const s=await db.ref("hub/guestbook").limitToLast(40).get();
     const all=Object.entries(s.val()||{}).sort((a,b)=>b[1].at-a[1].at);
-    if(!all.length){el.innerHTML='<div class="w-empty">첫 방명록을 남겨보세요!</div>';return;}
+    if(!all.length){el.innerHTML='<div class="w-empty" style="text-align:center">첫 방명록을 남겨보세요!</div>';return;}
     const rows=await Promise.all(all.map(async([gid,g])=>{
       let body;
       const mine=u&&g.uid===u.uid;
