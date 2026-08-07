@@ -62,7 +62,7 @@
   .gate-box h1 .hl{background:linear-gradient(92deg,#dfe5e8 8%,var(--lime) 92%); -webkit-background-clip:text; background-clip:text; color:transparent;}
   .gate-box p{font-size:13.5px; color:var(--sub); margin-bottom:26px;}
   .gbtn{
-    display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;
     background:var(--card2); border:1px solid var(--line2); border-radius:14px;
     color:var(--ink); font-size:14.5px; font-weight:800; padding:13px 26px;
     transition:border-color .2s, box-shadow .2s;
@@ -223,6 +223,7 @@
   .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
   .tbtn{
     background:var(--card); border:1px solid var(--line); border-radius:999px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
     font-size:12.5px; font-weight:800; color:var(--sub); padding:9px 18px;
     transition:color .15s, border-color .15s, box-shadow .15s;
   }
@@ -383,6 +384,7 @@
   .qadd input{flex:1; background:none; border:none; outline:none; font-size:14px; min-width:0; padding:6px 4px;}
   .qadd .qbtn{
     background:var(--grad); border:none; color:#021413; font-weight:800; font-size:13px;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
     padding:9px 18px; border-radius:999px; cursor:pointer; white-space:nowrap;
   }
   .qadd .qbtn:disabled{opacity:.45; cursor:default;}
@@ -419,6 +421,7 @@
   .w-empty{font-size:12.5px; color:var(--sub2); padding:8px 0;}
   .connect-btn{
     background:var(--grad); border:none; color:#021413; font-weight:800; font-size:12.5px;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
     padding:8px 16px; border-radius:999px; cursor:pointer;
   }
   /* 캘린더 */
@@ -544,6 +547,7 @@
   .chips{display:flex; gap:6px; flex-wrap:wrap;}
   .chip{
     background:var(--card2); border:1px solid var(--line2); border-radius:999px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:5px;
     font-size:11px; font-weight:800; color:var(--sub); padding:5px 12px; font-variant-numeric:tabular-nums;
   }
   .chip.on{color:#021413; background:var(--grad); border-color:transparent;}
@@ -736,9 +740,9 @@
   </div>
   <div class="toolbar hidden" id="toolbar">
     <button class="tbtn" id="new-folder">＋ 새 폴더</button>
-    <button class="tbtn" id="upload-btn">↑ HTML 업로드</button>
-    <button class="tbtn" id="add-link"><svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> 링크 추가</button>
-    <input type="file" id="file-input" accept=".html,.htm,text/html" multiple class="hidden">
+    <button class="tbtn" id="upload-btn">↑ 파일 업로드</button>
+    <button class="tbtn" id="add-link"><svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg>링크 추가</button>
+    <input type="file" id="file-input" multiple class="hidden">
   </div>
   <div class="drop hidden" id="drop">여기로 파일을 드래그하세요</div>
 
@@ -757,6 +761,7 @@
     <button class="hbtn" id="v-back">← 목록</button>
     <div class="nm" id="v-name"></div>
     <div class="v-meta" id="v-meta"></div>
+    <button class="hbtn hidden" id="v-dl"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px"><path d="M12 4v11M8 11l4 4 4-4M5 19h14"/></svg> 다운로드</button>
     <button class="hbtn" id="v-link">링크 복사</button>
   </div>
   <iframe class="v-frame" id="v-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals"></iframe>
@@ -843,6 +848,7 @@ let DEEP=new URLSearchParams(location.search).get("d");
 
 const I_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="url(#wgf)"/><path d="M3 7q0-2 2-2h5l1.2 1.2H5q-1 0-1 1Z" fill="rgba(255,255,255,.22)"/></svg>';
 const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.6" fill="#c9ced4"/><path d="M7.8 10V7.4a4.2 4.2 0 0 1 8.4 0V10" fill="none" stroke="#c9ced4" stroke-width="2.5"/><circle cx="12" cy="15.2" r="1.8" fill="#121416"/></svg>';
+const I_FILE='<svg class="wic" viewBox="0 0 24 24" style="vertical-align:-2px"><path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/></svg>';
 const I_LOCK='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style="vertical-align:-1.5px"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="#c9ced4"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="#c9ced4" stroke-width="2.4"/><circle cx="12" cy="15" r="1.7" fill="#121416"/></svg>';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1139,7 +1145,7 @@ function render(){
       const link=d.type==="link";
       return `<div class="dcard${d.locked?" locked":""}" data-d="${d.id}"${d.locked?' data-locked="1"':""}>
         ${IS_MASTER?`<button class="kebab" data-dm="${d.id}">⋯</button>`:""}
-        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?'<svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> ':""}${esc(d.name)}</div>
+        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?'<svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> ':(d.type==="file"||d.type==="text")?I_FILE+" ":""}${esc(d.name)}</div>
         ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
         ${d.tags?`<div class="tags">${d.tags.split(",").map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
         <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.published?' · <svg class="wic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.7 2.4 2.7 14.6 0 17-2.7-2.4-2.7-14.6 0-17"/></svg> 게시됨':""}</div></div>`;
@@ -1219,10 +1225,10 @@ async function buildCIDX(){
   try{
     const idx={};
     const pub=(await db.ref("hub/pub/contents").get()).val()||{};
-    Object.entries(pub).forEach(([id,html])=>{ idx[id]=String(html).replace(/<[^>]+>/g," ").toLowerCase(); });
+    Object.entries(pub).forEach(([id,html])=>{ const s=String(html); idx[id]=s.slice(0,5)==="data:"?"":s.replace(/<[^>]+>/g," ").toLowerCase(); });
     if(IS_MASTER){
       const pv=(await db.ref("hub/priv/contents").get()).val()||{};
-      Object.entries(pv).forEach(([id,html])=>{ idx[id]=String(html).replace(/<[^>]+>/g," ").toLowerCase(); });
+      Object.entries(pv).forEach(([id,html])=>{ const s=String(html); idx[id]=s.slice(0,5)==="data:"?"":s.replace(/<[^>]+>/g," ").toLowerCase(); });
     }
     CIDX=idx; render();
   }catch(e){}finally{CIDX_BUSY=false;}
@@ -1380,30 +1386,71 @@ const drop=$("drop");
   e.preventDefault(); if(ev==="drop"&&IS_MASTER)handleFiles(e.dataTransfer.files);
   drop.classList.remove("over");
 }));
+function readDataURL(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(f);});}
+function classifyFile(name,mime){
+  const ext=(name.split(".").pop()||"").toLowerCase();
+  if(/^html?$/.test(ext))return {type:"html",ext};
+  const textExt=["txt","md","markdown","csv","tsv","log","json","xml","yml","yaml","js","mjs","ts","jsx","tsx","css","py","java","c","cc","cpp","h","hpp","sh","bash","zsh","sql","rb","go","rs","php","ini","conf","toml","env","kt","swift","dart","r","lua","pl"];
+  if(textExt.includes(ext)||(mime||"").startsWith("text/"))return {type:"text",ext};
+  if(/^(png|jpe?g|gif|webp|bmp|avif|ico|svg)$/.test(ext)||(mime||"").startsWith("image/"))
+    return {type:"file",ext,mime:mime||("image/"+(ext==="jpg"?"jpeg":ext==="svg"?"svg+xml":ext))};
+  if(ext==="pdf"||mime==="application/pdf")return {type:"file",ext:"pdf",mime:"application/pdf"};
+  return {type:"file",ext,mime:mime||"application/octet-stream"};
+}
 async function handleFiles(files){
   for(const f of files){
-    if(!/\.html?$/i.test(f.name)){toast(f.name+" — HTML 파일만 가능해요");continue;}
-    if(f.size>800*1024){toast(f.name+" — 800KB 이하만 가능해요");continue;}
-    const html=await f.text();
-    await saveDoc(f.name,html);
+    const cl=classifyFile(f.name,f.type);
+    try{
+      if(cl.type==="file"){
+        const dataUri=await readDataURL(f);
+        await saveDoc(f.name,dataUri,{type:"file",mime:cl.mime||f.type||"application/octet-stream",ext:cl.ext});
+      }else{
+        const text=await f.text();
+        await saveDoc(f.name,text,{type:cl.type,ext:cl.ext});
+      }
+    }catch(e){ toast(f.name+" — 업로드 실패"); }
   }
 }
-async function saveDoc(name,html){
+/* 파일↔문서 매칭용 정규화 키 (확장자·태그·기호·공백 제거) */
+function docKey(s){ return String(s||"").toLowerCase().replace(/<[^>]*>/g,"").replace(/\.html?$/,"").replace(/[^a-z0-9가-힣]+/g,""); }
+/* 업로드 HTML에서 제목 후보(h1·title) 추출 */
+function htmlTitles(html){
+  const out=[]; let m;
+  m=html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i); if(m)out.push(m[1]);
+  m=html.match(/<title[^>]*>([\s\S]*?)<\/title>/i); if(m)out.push(m[1]);
+  return out.map(x=>x.replace(/<[^>]*>/g,"").trim()).filter(Boolean);
+}
+async function saveDoc(name,content,meta){
+  meta=meta||{type:"html"};
   const scope=curFolderScope();
   const D=DATA[scope].docs;
-  const exist=Object.entries(D).find(([id,d])=>d.name===name&&(d.folder||"root")===curFolder&&d.type!=="link");
+  const here=Object.entries(D).filter(([id,d])=>(d.folder||"root")===curFolder&&d.type!=="link"&&!d.trashed);
+  /* 1순위: 파일명이 srcName 또는 문서명과 정확히 일치 */
+  let exist=here.find(([id,d])=>d.srcName===name||d.name===name);
+  /* 2순위: 정규화 매칭 — 파일명(+HTML이면 h1·title)을 기존 문서명·srcName과 대조, 유일할 때만 */
+  if(!exist){
+    const cands=[name,...(meta.type==="html"?htmlTitles(content):[])].map(docKey).filter(Boolean);
+    const hits=here.filter(([id,d])=>cands.includes(docKey(d.name))||(d.srcName&&cands.includes(docKey(d.srcName))));
+    if(hits.length===1)exist=hits[0];
+  }
   if(exist){
-    const [did]=exist;
+    const [did,d]=exist;
     const up2={};
-    up2[`hub/${scope}/contents/${did}`]=html;
+    up2[`hub/${scope}/contents/${did}`]=content;
     up2[`hub/${scope}/docs/${did}/updatedAt`]=Date.now();
+    up2[`hub/${scope}/docs/${did}/srcName`]=name;   /* 다음 덮어쓰기부터 파일명으로 바로 매칭 */
+    up2[`hub/${scope}/docs/${did}/type`]=meta.type;
+    up2[`hub/${scope}/docs/${did}/mime`]=meta.mime||null;
+    up2[`hub/${scope}/docs/${did}/ext`]=meta.ext||null;
     await db.ref().update(up2);
-    if(D[did]&&D[did].published)db.ref("hub/publish/"+did).update({html,name,at:Date.now()}).catch(()=>{});
-    toast(`"${name}" 교체됨 (댓글·조회수 유지)`); computeStorageSoon();
+    if(d&&d.published&&meta.type==="html")db.ref("hub/publish/"+did).update({html:content,name:d.name,at:Date.now()}).catch(()=>{});
+    toast(`"${d.name}" 교체됨 · 최신순 맨 앞으로 (조회수·댓글 유지)`); computeStorageSoon();
   }else{
     const ref=db.ref(`hub/${scope}/docs`).push();
-    await ref.set({name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:"html"});
-    await db.ref(`hub/${scope}/contents/${ref.key}`).set(html);
+    const rec={name,srcName:name,folder:curFolder,createdAt:Date.now(),updatedAt:Date.now(),type:meta.type};
+    if(meta.mime)rec.mime=meta.mime; if(meta.ext)rec.ext=meta.ext;
+    await ref.set(rec);
+    await db.ref(`hub/${scope}/contents/${ref.key}`).set(content);
     toast(scope==="priv"?`🔒 "${name}" 업로드됨 (비공개)`:`"${name}" 업로드됨`); computeStorageSoon();
   }
 }
@@ -1483,6 +1530,41 @@ async function moveDocScope(did,scope){
 }
 
 /* ================= 뷰어 ================= */
+function dataURItoBlob(uri){
+  const c=String(uri).split(","); const meta=c[0]||"";
+  const mime=(meta.match(/data:([^;]+)/)||[])[1]||"application/octet-stream";
+  const bin=atob(c[1]||""); const arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime});
+}
+function fileCard(d){
+  return `<body style="margin:0;height:100vh;display:flex;flex-direction:column;gap:13px;align-items:center;justify-content:center;background:#0e0f10;color:#c9ced4;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:24px">
+    <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#6d757b" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/></svg>
+    <div style="font-size:15px;font-weight:700;color:#f2f4f5;max-width:82%;word-break:break-all">${esc(d.name)}</div>
+    <div style="font-size:12.5px;color:#9aa3a9">${esc((d.ext||"파일").toUpperCase())} · 미리보기를 지원하지 않는 형식이에요</div>
+    <div style="font-size:12.5px;color:#6d757b">상단 <b style="color:#00d2be">다운로드</b> 버튼으로 받아서 열어보세요</div>
+  </body>`;
+}
+function renderDoc(d,content){
+  const fr=$("v-frame"), dl=$("v-dl");
+  const isFile=d.type==="file";
+  dl.classList.toggle("hidden",!isFile);
+  if(isFile)dl.onclick=()=>{ const a=document.createElement("a"); a.href=content; a.download=d.name||("file."+(d.ext||"bin")); document.body.appendChild(a); a.click(); a.remove(); };
+  if(fr._blob){ URL.revokeObjectURL(fr._blob); fr._blob=null; }
+  fr.removeAttribute("src");
+  const mime=d.mime||(String(content).match(/^data:([^;]+)/)||[])[1]||"";
+  if(d.type==="text"){
+    fr.srcdoc=`<body style="margin:0;background:#0e0f10;color:#e6e8ea"><pre style="white-space:pre-wrap;word-break:break-word;font:13.5px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:22px;margin:0">${esc(content)}</pre></body>`;
+  }else if(isFile&&mime.indexOf("image/")===0){
+    fr.srcdoc=`<body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0f10"><img src="${esc(content)}" style="max-width:100%;max-height:100%;object-fit:contain"></body>`;
+  }else if(isFile&&mime==="application/pdf"){
+    const url=URL.createObjectURL(dataURItoBlob(content)); fr._blob=url; fr.removeAttribute("srcdoc"); fr.src=url;
+  }else if(isFile){
+    fr.srcdoc=fileCard(d);
+  }else{
+    fr.srcdoc=content;
+  }
+}
 async function openDoc(did,scope){
   scope=scope||dScope(did);
   const d=scope?DATA[scope].docs[did]:null; if(!d)return;
@@ -1498,8 +1580,8 @@ async function openDoc(did,scope){
     const url=location.origin+location.pathname+"?d="+did;
     navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
   };
-  const html=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
-  $("v-frame").srcdoc=html;
+  const content=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
+  renderDoc(d,content);
   /* 조회수 (세션당 1회) + 방문 로그 */
   if(!viewedThisSession[did]&&!IS_MASTER){
     viewedThisSession[did]=1;
@@ -1550,6 +1632,7 @@ function sendComment(){
 /* ================= 웹에 게시 ================= */
 async function togglePublish(did,scope){
   const d=DATA[scope].docs[did];
+  if(!d.published&&d.type&&d.type!=="html"){ toast("이미지·PDF·파일은 웹 게시를 지원하지 않아요 (딥링크/다운로드 사용)"); return; }
   if(d.published){
     if(!confirm('"'+d.name+'" 게시를 내릴까요? 공개 링크가 즉시 끊겨요.'))return;
     await db.ref().update({["hub/publish/"+did]:null,["hub/"+scope+"/docs/"+did+"/published"]:null});
