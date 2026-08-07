@@ -153,12 +153,10 @@
   @media(max-width:520px){ .who .un{display:none;} }
 
   /* ===== 레이아웃: 사이드바 + 본문 ===== */
-  .layout{display:flex; align-items:flex-start;}
+  .layout{display:flex; justify-content:center; gap:22px; align-items:flex-start;}
   aside{
     width:230px; flex-shrink:0; position:sticky; top:57px; z-index:1;
-    margin-left:max(0px, calc(50vw - 500px - 248px));
-    height:calc(100vh - 57px); overflow-y:auto; padding:20px 10px 30px 18px;
-    border-right:1px solid var(--line);
+    height:calc(100vh - 57px); overflow-y:auto; padding:20px 10px 30px 10px;
   }
   .s-label{font-size:10.5px; font-weight:800; letter-spacing:.14em; color:var(--sub2); margin:16px 8px 8px;}
   .s-item{
@@ -180,7 +178,7 @@
   .stor .st-bar{height:100%; width:0; border-radius:999px; background:var(--grad-bar); transition:width .5s;}
   .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
   body.side-off aside{display:none;}
-  main{flex:1; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
+  main{flex:0 1 1000px; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
   main>*{max-width:1000px;}
   @media(max-width:860px){
     aside{
@@ -585,8 +583,7 @@
 
   @media(min-width:861px){ .hbar{flex-wrap:nowrap;} }
   .rside{width:252px; flex-shrink:0; position:sticky; top:57px; display:none;
-    padding:20px 18px 30px 10px; height:calc(100vh - 57px); overflow-y:auto;
-    border-left:1px solid var(--line);}
+    padding:20px 10px 30px 10px; height:calc(100vh - 57px); overflow-y:auto;}
   @media(min-width:1560px){ .rside{display:block;} }
   .rw .ln{display:flex; justify-content:space-between; gap:8px; font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line);}
   .rw .ln:last-child{border-bottom:none;}
@@ -608,8 +605,9 @@
   /* ===== 데스크톱 배율 (넓은 화면에서 UI 확대) ===== */
   @media(min-width:1100px){
     main>*{max-width:1120px;}
-    aside{width:252px; margin-left:max(0px, calc(50vw - 560px - 270px));}
-    .layout{gap:0;}
+    aside{width:252px;}
+    .layout{gap:26px;}
+    main{flex:0 1 1120px;}
     body{font-size:15px;}
     .logo{font-size:22px;} .lmark{width:26px; height:26px;}
     .hbtn{height:36px; font-size:13px; padding:0 16px;}
@@ -631,6 +629,11 @@
     .w-empty{font-size:13.5px;}
     .stor .st-k{font-size:12.5px;} .stor .st-v{font-size:13.5px;}
   }
+  /* ===== 비공개 잠금(멤버 뷰) ===== */
+  .fcard.locked,.dcard.locked{opacity:.6; cursor:not-allowed;}
+  .fcard.locked:hover,.dcard.locked:hover{border-color:var(--line); box-shadow:none; transform:none;}
+  .s-item.locked{opacity:.55; cursor:not-allowed;}
+  .s-item.locked:hover{background:none; color:var(--sub);}
 </style>
 </head>
 <body>
@@ -1052,10 +1055,8 @@ function subscribe(){
   watch("hub/pub/folders",v=>DATA.pub.folders=v);
   watch("hub/pub/docs",v=>DATA.pub.docs=v);
   watch("hub/views",v=>VIEWS=v);
-  if(IS_MASTER){
-    watch("hub/priv/folders",v=>DATA.priv.folders=v);
-    watch("hub/priv/docs",v=>DATA.priv.docs=v);
-  }
+  watch("hub/priv/folders",v=>DATA.priv.folders=v);
+  watch("hub/priv/docs",v=>DATA.priv.docs=v);
 }
 
 /* ================= 렌더 ================= */
@@ -1089,10 +1090,8 @@ function render(){
   let folders=Object.entries(DATA.pub.folders).map(([id,f])=>({id,...f,scope:"pub"}));
   let docs=Object.entries(DATA.pub.docs).map(([id,d])=>({id,...d,scope:"pub",views:(VIEWS[id]||0)}));
   /* 휴지통 항목 제외 */
-  if(IS_MASTER){
-    folders=folders.concat(Object.entries(DATA.priv.folders).map(([id,f])=>({id,...f,scope:"priv"})));
-    docs=docs.concat(Object.entries(DATA.priv.docs).map(([id,d])=>({id,...d,scope:"priv",views:(VIEWS[id]||0)})));
-  }
+  folders=folders.concat(Object.entries(DATA.priv.folders).map(([id,f])=>({id,...f,scope:"priv",locked:!IS_MASTER})));
+  docs=docs.concat(Object.entries(DATA.priv.docs).map(([id,d])=>({id,...d,scope:"priv",views:(VIEWS[id]||0),locked:!IS_MASTER})));
   docs=docs.filter(d=>!d.trashed);
   const inCur=x=>{
     const p=x.parent!==undefined?x.parent:x.folder;
@@ -1110,7 +1109,7 @@ function render(){
     folders=folders.filter(inCur);
     docs=docs.filter(inCur);
   }
-  const cmp={recent:(a,b)=>(b.updatedAt||0)-(a.updatedAt||0),
+  const cmp={recent:(a,b)=>((b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0)),
              name:(a,b)=>a.name.localeCompare(b.name,"ko"),
              views:(a,b)=>(b.views||0)-(a.views||0)}[sort];
   folders.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
@@ -1129,16 +1128,16 @@ function render(){
       })(f.id);
       const cnt=Object.values(DATA.pub.docs).filter(d=>subIds.includes(d.folder)).length
         +(IS_MASTER?Object.values(DATA.priv.docs).filter(d=>subIds.includes(d.folder)).length:0);
-      return `<div class="fcard" data-f="${f.id}">
+      return `<div class="fcard${f.locked?" locked":""}" data-f="${f.id}"${f.locked?' data-locked="1"':""}>
         ${IS_MASTER?`<button class="kebab" data-fm="${f.id}">⋯</button>`:""}
         <span class="fi">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><div class="nm">${esc(f.name)}</div>
-        <div class="meta">문서 ${cnt}개${f.scope==="priv"?" · 나만 보기":""}</div></div>`;
+        <div class="meta">${f.locked?"비공개 · 잠김":"문서 "+cnt+"개"+(f.scope==="priv"?" · 나만 보기":"")}</div></div>`;
     }).join("")+`</div>`;
   }
   if(docs.length){
     html+=`<div class="sec-label">문서</div><div class="grid">`+docs.map(d=>{
       const link=d.type==="link";
-      return `<div class="dcard" data-d="${d.id}">
+      return `<div class="dcard${d.locked?" locked":""}" data-d="${d.id}"${d.locked?' data-locked="1"':""}>
         ${IS_MASTER?`<button class="kebab" data-dm="${d.id}">⋯</button>`:""}
         <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?'<svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> ':""}${esc(d.name)}</div>
         ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
@@ -1162,10 +1161,12 @@ function render(){
 
   $("listing").querySelectorAll(".fcard").forEach(el=>el.onclick=e=>{
     if(e.target.closest(".kebab"))return;
+    if(el.dataset.locked){ toast("🔒 비공개 폴더예요 — 진입 불가"); return; }
     curFolder=el.dataset.f; $("search").value=""; render();
   });
   $("listing").querySelectorAll(".dcard").forEach(el=>el.onclick=e=>{
     if(e.target.closest(".kebab"))return;
+    if(el.dataset.locked){ toast("🔒 비공개 문서예요 — 열람 불가"); return; }
     openDoc(el.dataset.d);
   });
   $("listing").querySelectorAll("[data-fm]").forEach(b=>b.onclick=e=>{e.stopPropagation();folderMenu(b.dataset.fm,b);});
@@ -1174,7 +1175,7 @@ function render(){
 }
 function renderTree(){
   let folders=Object.entries(DATA.pub.folders).map(([id,f])=>({id,...f,scope:"pub"}));
-  if(IS_MASTER)folders=folders.concat(Object.entries(DATA.priv.folders).map(([id,f])=>({id,...f,scope:"priv"})));
+  folders=folders.concat(Object.entries(DATA.priv.folders).map(([id,f])=>({id,...f,scope:"priv",locked:!IS_MASTER})));
   const byParent={};
   folders.forEach(f=>{
     let p=f.parent||"root"; if(p!=="root"&&!getFolder(p))p="root";
@@ -1183,13 +1184,14 @@ function renderTree(){
   const build=(pid,depth)=>{
     const kids=(byParent[pid]||[]).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
     return kids.map(f=>`
-      <button class="s-item${curView==="docs"&&curFolder===f.id?" on":""}" data-go="${f.id}" style="padding-left:${10+depth*15}px">
+      <button class="s-item${curView==="docs"&&curFolder===f.id?" on":""}${f.locked?" locked":""}" data-go="${f.id}"${f.locked?' data-locked="1"':""} style="padding-left:${10+depth*15}px">
         <span class="ic">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><span class="tx">${esc(f.name)}</span>
-      </button>`+build(f.id,depth+1)).join("");
+      </button>`+(f.locked?"":build(f.id,depth+1))).join("");
   };
   const html=build("root",0);
   $("tree").innerHTML=html||`<div class="s-empty">폴더가 없어요</div>`;
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+    if(b.dataset.locked){ toast("🔒 비공개 폴더예요 — 진입 불가"); return; }
     curFolder=b.dataset.go; $("search").value=""; setView("docs"); render(); closeAside();
   });
   document.querySelectorAll('.s-item[data-go="root"]').forEach(b=>b.classList.toggle("on",curView==="docs"&&curFolder==="root"));
@@ -1484,6 +1486,7 @@ async function moveDocScope(did,scope){
 async function openDoc(did,scope){
   scope=scope||dScope(did);
   const d=scope?DATA[scope].docs[did]:null; if(!d)return;
+  if(scope==="priv"&&!IS_MASTER){ toast("🔒 비공개 문서예요 — 열람 불가"); return; }
   if(d.type==="link"){ window.open(d.url,"_blank"); return; }
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
@@ -2183,8 +2186,8 @@ async function ensureHoli(y,m){
 }
 function dayCls(dd,hset){
   const iso=dd.getFullYear()+"-"+p2(dd.getMonth()+1)+"-"+p2(dd.getDate());
-  if(dd.getDay()===0||(hset&&hset.has(iso)))return "dsun";
   if(dd.getDay()===6)return "dsat";
+  if(dd.getDay()===0||(hset&&hset.has(iso)))return "dsun";
   return "";
 }
 
@@ -2266,11 +2269,11 @@ async function openMoneyDetail(){
     const R=SHEET.rows;
     const pts=months.map(x=>{
       const c0=num(R.지출가능,x.c), sv=num(R.저축,x.c), sp=num(R.지출금액,x.c);
-      return {k:x.k, c:x.c, cap:(c0!=null)?c0-(sv||0):null, sp};
+      return {k:x.k, c:x.c, cap:(c0!=null)?c0-(sv||0):null, sp, sav:sv};
     }).filter(p=>p.cap!=null||p.sp!=null);
     if(!pts.length){det.innerHTML+='<div class="w-empty">데이터 없음</div>';return "";}
     const W=620,H=230,PL=52,PR=12,PT=14,PB=30;
-    const vals=pts.flatMap(p=>[p.cap,p.sp]).filter(v=>v!=null);
+    const vals=pts.flatMap(p=>[p.cap,p.sp,p.sav]).filter(v=>v!=null);
     const max=Math.max(...vals)*1.08, min=0;
     const X=i=>PL+(W-PL-PR)*(pts.length===1?0.5:i/(pts.length-1));
     const Y=v=>PT+(H-PT-PB)*(1-(v-min)/(max-min));
@@ -2302,10 +2305,11 @@ async function openMoneyDetail(){
       if(pts.length>8&&i%2!==0)return;
       sv+='<text x="'+X(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" font-size="9.5" fill="#6d757b"'+(p.c===SHEET.mc?' font-weight="bold" fill="#00d2be"':"")+'>'+parseInt(p.k.split(".")[1])+'월</text>';
     });
-    sv+=line(p=>p.cap,"#00d2be")+line(p=>p.sp,"#e8474b")+'</svg>';
-    sv+='<div style="display:flex;gap:16px;justify-content:center;font-size:11.5px;color:var(--sub);margin-top:4px">'
+    sv+=line(p=>p.cap,"#00d2be")+line(p=>p.sp,"#e8474b")+line(p=>p.sav,"#e6c592")+'</svg>';
+    sv+='<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:11.5px;color:var(--sub);margin-top:4px">'
       +'<span><span style="display:inline-block;width:10px;height:3px;background:#00d2be;border-radius:2px;vertical-align:middle;margin-right:5px"></span>쓸 수 있는 돈</span>'
       +'<span><span style="display:inline-block;width:10px;height:3px;background:#e8474b;border-radius:2px;vertical-align:middle;margin-right:5px"></span>쓴 돈</span>'
+      +'<span><span style="display:inline-block;width:10px;height:3px;background:#e6c592;border-radius:2px;vertical-align:middle;margin-right:5px"></span>저축</span>'
       +'<span style="color:var(--sub2)">점선 = 미래(계획)</span></div>';
     return sv;
   }
