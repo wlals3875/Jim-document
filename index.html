@@ -1541,7 +1541,7 @@ function dataURItoBlob(uri){
   return new Blob([arr],{type:mime});
 }
 function fileCard(d){
-  return `<body style="margin:0;height:100vh;display:flex;flex-direction:column;gap:13px;align-items:center;justify-content:center;background:#0e0f10;color:#c9ced4;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:24px">
+  return V_SCROLL+`<body style="margin:0;height:100vh;display:flex;flex-direction:column;gap:13px;align-items:center;justify-content:center;background:#0e0f10;color:#c9ced4;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:24px">
     <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#6d757b" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/></svg>
     <div style="font-size:15px;font-weight:700;color:#f2f4f5;max-width:82%;word-break:break-all">${esc(d.name)}</div>
     <div style="font-size:12.5px;color:#9aa3a9">${esc((d.ext||"파일").toUpperCase())} · 미리보기를 지원하지 않는 형식이에요</div>
@@ -1549,6 +1549,7 @@ function fileCard(d){
   </body>`;
 }
 const V_SANDBOX="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals";
+const V_SCROLL='<style>html{color-scheme:dark}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0e0f10}::-webkit-scrollbar-thumb{background:#2b2f33;border-radius:999px;border:2px solid #0e0f10;background-clip:padding-box}::-webkit-scrollbar-thumb:hover{background:#3a4147;background-clip:padding-box}</style>';
 function renderDoc(d,content){
   const fr=$("v-frame"), dl=$("v-dl");
   const isFile=d.type==="file";
@@ -1565,9 +1566,9 @@ function renderDoc(d,content){
   /* PDF 외에는 항상 샌드박스 복구 후 srcdoc 렌더 (HTML 보안 유지) */
   fr.setAttribute("sandbox",V_SANDBOX); fr.removeAttribute("src");
   if(d.type==="text"){
-    fr.srcdoc=`<body style="margin:0;background:#0e0f10;color:#e6e8ea"><pre style="white-space:pre-wrap;word-break:break-word;font:13.5px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:22px;margin:0">${esc(content)}</pre></body>`;
+    fr.srcdoc=V_SCROLL+`<body style="margin:0;background:#0e0f10;color:#e6e8ea"><pre style="white-space:pre-wrap;word-break:break-word;font:13.5px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:22px;margin:0">${esc(content)}</pre></body>`;
   }else if(isFile&&mime.indexOf("image/")===0){
-    fr.srcdoc=`<body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0f10"><img src="${esc(content)}" style="max-width:100%;max-height:100%;object-fit:contain"></body>`;
+    fr.srcdoc=V_SCROLL+`<body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0f10"><img src="${esc(content)}" style="max-width:100%;max-height:100%;object-fit:contain"></body>`;
   }else if(isFile){
     fr.srcdoc=fileCard(d);
   }else{
