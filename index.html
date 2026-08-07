@@ -585,7 +585,8 @@
 
   @media(min-width:861px){ .hbar{flex-wrap:nowrap;} }
   .rside{width:252px; flex-shrink:0; position:sticky; top:57px; display:none;
-    padding:22px 18px calc(90px + env(safe-area-inset-bottom,0px)) 0; max-height:calc(100vh - 57px); overflow-y:auto;}
+    padding:20px 18px 30px 10px; height:calc(100vh - 57px); overflow-y:auto;
+    border-left:1px solid var(--line);}
   @media(min-width:1560px){ .rside{display:block;} }
   .rw .ln{display:flex; justify-content:space-between; gap:8px; font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line);}
   .rw .ln:last-child{border-bottom:none;}
