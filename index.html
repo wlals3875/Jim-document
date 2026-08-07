@@ -251,7 +251,7 @@
   }
   .fcard:hover,.dcard:hover{border-color:rgba(0,210,190,.42); box-shadow:var(--glow-soft); transform:translateY(-2px);}
   .fcard .fi{margin-bottom:7px; display:block; height:20px;}
-  .fcard .nm,.dcard .nm{font-size:14.5px; font-weight:800; line-height:1.45; padding-right:26px;}
+  .fcard .nm,.dcard .nm{font-size:14.5px; font-weight:800; line-height:1.45; padding-right:26px; word-break:break-word; overflow-wrap:anywhere; min-width:0;}
   .dcard .nm .pin{color:var(--lime); font-size:12px; margin-right:4px;}
   .fcard .meta,.dcard .meta{font-size:11.5px; color:var(--sub2); margin-top:5px;}
   .dcard .desc{font-size:12px; color:var(--sub); margin-top:6px; line-height:1.55;
@@ -2356,11 +2356,13 @@ async function openMoneyDetail(){
   const g=SHEET.g, hdr=g[1]||[];
   const months=[]; hdr.forEach((v,i)=>{if(/^\d{2}\.\d{2}$/.test(String(v).trim()))months.push({k:String(v).trim(),c:i});});
   let sel=SHEET.mc, mode="month";
+  let trendYear=matchMedia("(max-width:640px)").matches?(months.find(x=>x.c===SHEET.mc)||months[0]||{k:"all"}).k.split(".")[0]:"all";
   const num=(r,c)=>{const v=r>=0?(g[r]||[])[c]:null;return typeof v==="number"?v:(v&&!isNaN(+v)?+v:null);};
   const w=v=>v==null?"—":Math.round(v).toLocaleString();
   function drawTrend(){
     const R=SHEET.rows;
-    const pts=months.map(x=>{
+    const src=trendYear==="all"?months:months.filter(x=>x.k.split(".")[0]===trendYear);
+    const pts=src.map(x=>{
       const c0=num(R.지출가능,x.c), sv=num(R.저축,x.c), sp=num(R.지출금액,x.c);
       return {k:x.k, c:x.c, cap:(c0!=null)?c0-(sv||0):null, sp, sav:sv};
     }).filter(p=>p.cap!=null||p.sp!=null);
@@ -2395,7 +2397,7 @@ async function openMoneyDetail(){
         +'<text x="'+(PL-7)+'" y="'+(+y+3.5)+'" text-anchor="end" font-size="9.5" fill="#6d757b">'+(Math.round(v/10000))+'만</text>';
     }
     pts.forEach((p,i)=>{
-      if(pts.length>8&&i%2!==0)return;
+      if(trendYear==="all"&&pts.length>8&&i%2!==0)return;
       sv+='<text x="'+X(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" font-size="9.5" fill="#6d757b"'+(p.c===SHEET.mc?' font-weight="bold" fill="#00d2be"':"")+'>'+parseInt(p.k.split(".")[1])+'월</text>';
     });
     sv+=line(p=>p.cap,"#00d2be")+line(p=>p.sp,"#e8474b")+line(p=>p.sav,"#e6c592")+'</svg>';
@@ -2412,8 +2414,13 @@ async function openMoneyDetail(){
       +'<button class="chip'+(mode==="month"?" on":"")+'" data-md="month">월별</button>'
       +'<button class="chip'+(mode==="trend"?" on":"")+'" data-md="trend">추세</button></div>';
     if(mode==="trend"){
-      det.innerHTML=tabs+drawTrend();
+      const tyears=[...new Set(months.map(x=>x.k.split(".")[0]))];
+      const ychips='<div class="chips" style="margin-bottom:9px">'
+        +'<button class="chip'+(trendYear==="all"?" on":"")+'" data-ty="all">전체</button>'
+        +tyears.map(y=>'<button class="chip'+(y===trendYear?" on":"")+'" data-ty="'+y+'">20'+y+'</button>').join("")+'</div>';
+      det.innerHTML=tabs+ychips+drawTrend();
       det.querySelectorAll(".chip[data-md]").forEach(b=>b.onclick=()=>{mode=b.dataset.md;draw();});
+      det.querySelectorAll(".chip[data-ty]").forEach(b=>b.onclick=()=>{trendYear=b.dataset.ty;draw();});
       return;
     }
     const selYear=months.find(x=>x.c===c).k.split(".")[0];
