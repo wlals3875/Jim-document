@@ -946,12 +946,12 @@ function showDenied(u){
   };
 }
 function guestbookWriteBox(container, u, listEl){
-  container.innerHTML='<div style="display:flex;flex-direction:column;gap:7px;margin-top:10px">'
-    +'<input id="gb-text" maxlength="300" placeholder="한마디 남기기" style="background:var(--card2);border:1px solid var(--line2);border-radius:11px;padding:10px 12px;color:var(--ink);font-family:inherit;font-size:13px;outline:none">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between">'
-    +'<label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--sub2);cursor:pointer">'
-    +'<input type="checkbox" id="gb-secret" style="accent-color:var(--lime)"> 🔒 비밀글 (짐과 나만)</label>'
-    +'<button class="hbtn" id="gb-send">남기기</button></div></div>';
+  container.innerHTML='<div style="display:flex;align-items:center;gap:9px;width:100%;'
+      +'background:var(--card2);border:1px solid var(--line2);border-radius:999px;padding:7px 7px 7px 18px">'
+    +'<input id="gb-text" maxlength="300" placeholder="한 마디 남기기" style="flex:1;min-width:0;background:none;border:none;color:var(--ink);font-family:inherit;font-size:13.5px;outline:none">'
+    +'<label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub2);cursor:pointer;white-space:nowrap">'
+    +'<input type="checkbox" id="gb-secret" style="accent-color:var(--lime)"> 🔒 비밀글</label>'
+    +'<button class="hbtn" id="gb-send" style="height:32px;border-radius:999px;background:var(--grad);color:#021413;border:none;font-weight:900">남기기</button></div>';
   container.querySelector("#gb-send").onclick=async()=>{
     const inp=container.querySelector("#gb-text");
     const t=inp.value.trim(); if(!t)return;
@@ -1892,12 +1892,12 @@ function renderMiniHome(){
     +"min-height:calc(100vh - 230px);max-width:640px;margin:0 auto;text-align:center";
   const n=(ME&&(ME.displayName||ME.email.split("@")[0]))||"";
   mh.innerHTML=
-    '<div style="font-size:clamp(26px,4.5vw,38px);font-weight:900;letter-spacing:-.02em;line-height:1.35;'
+    '<div style="font-family:\'Google Sans Flex\',inherit;font-size:clamp(26px,4.5vw,38px);font-weight:500;letter-spacing:-.01em;line-height:1.35;'
       +'background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px">'
-      +esc(n)+'님, 안녕하세요.</div>'
-    +'<div style="font-size:14px;color:var(--sub2);margin-bottom:34px">무엇을 도와드릴까요? 방명록 한 줄도 좋아요 👋</div>'
-    +'<div class="widget" style="width:100%;text-align:left;margin-bottom:14px"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10a4.3 4.3 0 0 1 7.5-2.9 4.3 4.3 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/></svg> 방명록</div>'
-    +'<div id="mh-gb" style="max-height:32vh;overflow-y:auto"><div class="w-empty">불러오는 중…</div></div><div id="mh-gbw"></div></div>'
+      +'<b style="font-weight:900">'+esc(n)+'</b>님, 안녕하세요.</div>'
+    +'<div style="font-size:14px;color:var(--sub2);margin-bottom:30px">JimStorage에 오신 것을 환영합니다.</div>'
+    +'<div id="mh-gbw" style="width:100%;margin-bottom:16px"></div>'
+    +'<div id="mh-gb" style="width:100%;text-align:left;max-height:34vh;overflow-y:auto;margin-bottom:16px"><div class="w-empty">불러오는 중…</div></div>'
     +'<button class="hbtn" id="mh-docs" style="width:100%;justify-content:center;height:40px">📁 문서 보러가기</button>';
   renderGuestbook($("mh-gb"), ME, IS_MASTER);
   guestbookWriteBox($("mh-gbw"), ME, $("mh-gb"));
