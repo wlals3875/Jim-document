@@ -640,6 +640,12 @@
   .fcard.locked:hover,.dcard.locked:hover{border-color:var(--line); box-shadow:none; transform:none;}
   .s-item.locked{opacity:.55; cursor:not-allowed;}
   .s-item.locked:hover{background:none; color:var(--sub);}
+  /* ===== 뷰어 의사-전체화면 (iOS 등 Fullscreen API 미지원 폴백) ===== */
+  #viewer.vfull .v-bar>*:not(#v-full){display:none !important;}
+  #viewer.vfull .v-bar{padding:6px 10px; justify-content:flex-end; position:absolute; top:0; right:0; z-index:2; background:transparent; border:none;}
+  #viewer.vfull .v-bar #v-full{background:rgba(10,11,12,.72); backdrop-filter:blur(4px);}
+  #viewer.vfull .v-side{display:none !important;}
+  #viewer.vfull .v-frame{position:absolute; inset:0; height:100%;}
 </style>
 </head>
 <body>
@@ -1131,12 +1137,13 @@ function render(){
     html+=`<div class="sec-label">폴더</div><div class="grid">`+folders.map(f=>{
       const subIds=(function collect(id){
         let ids=[id];
-        [...Object.entries(DATA.pub.folders),...(IS_MASTER?Object.entries(DATA.priv.folders):[])]
+        [...Object.entries(DATA.pub.folders),...Object.entries(DATA.priv.folders)]
           .forEach(([fid,ff])=>{if(ff.parent===id)ids=ids.concat(collect(fid));});
         return ids;
       })(f.id);
-      const cnt=Object.values(DATA.pub.docs).filter(d=>subIds.includes(d.folder)).length
-        +(IS_MASTER?Object.values(DATA.priv.docs).filter(d=>subIds.includes(d.folder)).length:0);
+      const inSub=d=>subIds.includes(d.folder||"root")&&!d.trashed;
+      const cnt=Object.values(DATA.pub.docs).filter(inSub).length
+        +Object.values(DATA.priv.docs).filter(inSub).length;
       return `<div class="fcard${f.locked?" locked":""}" data-f="${f.id}"${f.locked?' data-locked="1"':""}>
         ${IS_MASTER?`<button class="kebab" data-fm="${f.id}">⋯</button>`:""}
         <span class="fi">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><div class="nm">${esc(f.name)}</div>
@@ -1603,8 +1610,19 @@ async function openDoc(did,scope){
   $("v-meta").textContent=`${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${(VIEWS[did]||0)+1}`;
   loadComments(did);
 }
-$("v-back").onclick=()=>{ $("viewer").classList.add("hidden"); if(cOff)cOff(); };
-$("v-full").onclick=()=>{ const el=$("v-frame"); const rf=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen; if(rf)try{rf.call(el);}catch(e){} };
+$("v-back").onclick=()=>{ const vw=$("viewer"); vw.classList.add("hidden"); vw.classList.remove("vfull"); if(cOff)cOff(); };
+$("v-full").onclick=()=>{
+  const vw=$("viewer"), el=$("v-frame");
+  const rf=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
+  if(rf){
+    if(document.fullscreenElement||document.webkitFullscreenElement){
+      (document.exitFullscreen||document.webkitExitFullscreen).call(document);
+    }else{ try{rf.call(el);}catch(e){ vw.classList.toggle("vfull"); } }
+  }else{
+    vw.classList.toggle("vfull");   /* iOS 폴백: 의사-전체화면 토글 */
+  }
+  $("v-full").blur();
+};
 /* ================= 댓글 ================= */
 let cOff=null;
 function loadComments(did){
