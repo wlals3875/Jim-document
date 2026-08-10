@@ -590,7 +590,7 @@
     padding:20px 10px 30px 10px; height:calc(100vh - 57px); overflow-y:auto;}
   @media(max-width:860px){ .rside{display:none;} }
   .rside>#rw-week{display:none;}
-  @media(min-width:1560px){ body.is-master .rside>#rw-week{display:block;} }
+  @media(min-width:861px){ body.is-master .rside>#rw-week{display:block;} }
   /* 우측 글랜스 패널 — 메인 위젯(card)과 구분되는 무배경 레일 디자인 */
   .rp{background:none; border:none; padding:2px 4px;}
   .rp-sec{padding:13px 0 15px;}
@@ -662,9 +662,8 @@
   #viewer.vfull .v-side{display:none !important;}
   #viewer.vfull .v-frame{position:absolute; inset:0; height:100%;}
   /* ===== 우측 지출 드로어 ===== */
-  #rw-btn{display:none;}
-  body.is-master #rw-btn{display:inline-flex;}
-  @media(min-width:1560px){ body.is-master #rw-btn{display:none;} }
+  #rw-btn{display:none; width:38px; padding:0; flex-shrink:0;}
+  @media(max-width:860px){ body.is-master #rw-btn{display:inline-flex;} }
   .rside.open{display:block; position:fixed; top:0; right:0; z-index:130;
     height:100dvh; width:min(340px,90vw); background:var(--bg2);
     border-left:1px solid var(--line2); box-shadow:-18px 0 50px rgba(0,0,0,.5);
@@ -713,12 +712,12 @@
     <div class="logo" id="logo"><svg class="lmark" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="hmg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="hmgd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".55"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".55"/><stop offset="1" stop-color="#0077b6" stop-opacity=".55"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#hmgd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#hmg)"/></svg><span class="lt">Jim<span class="s-mark">S</span>torage</span></div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
     <button class="hbtn hidden" id="stats-btn">방문 통계</button>
-    <button class="hbtn" id="rw-btn" title="지출 한눈에"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 9.5 10 15l2-4.6L14 15l1.5-5.5M8 12.6h8"/></svg> 지출</button>
     <span class="role" id="role"></span>
     <div class="who">
       <span class="un" id="uname"></span>
       <img class="avatar" id="avatar" title="로그아웃" alt="me">
     </div>
+    <button class="hbtn" id="rw-btn" title="지출 패널 열기" aria-label="지출 패널"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px"><path d="M4 12h11M11 7l4.5 5-4.5 5M20 4v16"/></svg></button>
   </div>
 </header>
 
@@ -1092,7 +1091,7 @@ function enterApp(u,memberRec){
         document.body.appendChild(rwBg);
       };
       document.addEventListener("keydown",e=>{ if(e.key==="Escape")rwClose(); });
-      window.addEventListener("resize",()=>{ if(matchMedia("(min-width:1560px)").matches)rwClose(); });
+      window.addEventListener("resize",()=>{ if(matchMedia("(min-width:861px)").matches)rwClose(); });
     }
     $("stor").classList.toggle("hidden",!IS_MASTER);
     $("s-home").classList.remove("hidden");
