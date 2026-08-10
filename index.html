@@ -654,12 +654,31 @@
   .fcard.locked:hover,.dcard.locked:hover{border-color:var(--line); box-shadow:none; transform:none;}
   .s-item.locked{opacity:.55; cursor:not-allowed;}
   .s-item.locked:hover{background:none; color:var(--sub);}
+  .femoji{width:1.15em; height:1.15em; vertical-align:-2px; display:inline-block;}
   /* ===== 뷰어 의사-전체화면 (iOS 등 Fullscreen API 미지원 폴백) ===== */
   #viewer.vfull .v-bar>*:not(#v-full){display:none !important;}
   #viewer.vfull .v-bar{padding:6px 10px; justify-content:flex-end; position:absolute; top:0; right:0; z-index:2; background:transparent; border:none;}
   #viewer.vfull .v-bar #v-full{background:rgba(10,11,12,.72); backdrop-filter:blur(4px);}
   #viewer.vfull .v-side{display:none !important;}
   #viewer.vfull .v-frame{position:absolute; inset:0; height:100%;}
+  /* ===== 우측 지출 드로어 ===== */
+  #rw-btn{display:none;}
+  body.is-master #rw-btn{display:inline-flex;}
+  @media(min-width:1560px){ body.is-master #rw-btn{display:none;} }
+  .rside.open{display:block; position:fixed; top:0; right:0; z-index:130;
+    height:100dvh; width:min(340px,90vw); background:var(--bg2);
+    border-left:1px solid var(--line2); box-shadow:-18px 0 50px rgba(0,0,0,.5);
+    padding:20px 16px calc(30px + env(safe-area-inset-bottom,0px)); overflow-y:auto;
+    animation:rwslide .22s ease;}
+  @keyframes rwslide{from{transform:translateX(40px);opacity:.4}to{transform:none;opacity:1}}
+  body.is-master .rside.open>#rw-week{display:block;}
+  #rside-bg{position:fixed; inset:0; z-index:125; background:rgba(3,4,4,.62);}
+  @media(prefers-reduced-motion:reduce){.rside.open{animation:none;}}
+  /* 더보기 토글 */
+  .rp-more.hidden{display:none;}
+  .rp-toggle{width:100%; margin-top:7px; background:none; border:1px dashed var(--line2); border-radius:10px;
+    color:var(--sub2); font:inherit; font-size:11.5px; font-weight:800; padding:8px 0; cursor:pointer;}
+  .rp-toggle:hover{color:var(--mint,#00d2be); border-color:rgba(0,210,190,.4);}
 </style>
 </head>
 <body>
@@ -694,6 +713,7 @@
     <div class="logo" id="logo"><svg class="lmark" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="hmg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="hmgd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".55"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".55"/><stop offset="1" stop-color="#0077b6" stop-opacity=".55"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#hmgd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#hmg)"/></svg><span class="lt">Jim<span class="s-mark">S</span>torage</span></div>
     <div class="hsearch"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색"></div>
     <button class="hbtn hidden" id="stats-btn">방문 통계</button>
+    <button class="hbtn" id="rw-btn" title="지출 한눈에"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 9.5 10 15l2-4.6L14 15l1.5-5.5M8 12.6h8"/></svg> 지출</button>
     <span class="role" id="role"></span>
     <div class="who">
       <span class="un" id="uname"></span>
@@ -875,6 +895,11 @@ const I_FILE='<svg class="wic" viewBox="0 0 24 24" style="vertical-align:-2px"><
 const I_LOCK='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style="vertical-align:-1.5px"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="#c9ced4"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="#c9ced4" stroke-width="2.4"/><circle cx="12" cy="15" r="1.7" fill="#121416"/></svg>';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* 윈도우는 국기 이모지 글리프가 없어 문자로 깨짐 → 국기만 Twemoji 이미지로 치환 (esc 처리된 문자열에 사용) */
+const flagify=s=>String(s??"").replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu,m=>{
+  const cp=[...m].map(c=>c.codePointAt(0).toString(16)).join("-");
+  return '<img class="femoji" src="https://cdn.jsdelivr.net/gh/twemoji/twemoji@14.0.2/assets/svg/'+cp+'.svg" alt="'+m+'" loading="lazy">';
+});
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2400);}
 const fmtDate=ts=>{const d=new Date(ts);return d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");};
 const fmtTime=ts=>{const d=new Date(ts);return fmtDate(ts)+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
@@ -1054,6 +1079,21 @@ function enterApp(u,memberRec){
     $("s-trash").classList.toggle("hidden",!IS_MASTER);
     $("s-guest").classList.toggle("hidden",!IS_MASTER);
     document.body.classList.toggle("is-master",IS_MASTER);
+    if(!window.__rwBound){
+      window.__rwBound=true;
+      let rwBg=null;
+      const rwClose=()=>{ $("rside").classList.remove("open"); if(rwBg){rwBg.remove();rwBg=null;} };
+      $("rw-btn").onclick=()=>{
+        const rs=$("rside");
+        if(rs.classList.contains("open")){ rwClose(); return; }
+        rs.classList.add("open");
+        try{ loadWeekly(); }catch(e){}
+        rwBg=document.createElement("div"); rwBg.id="rside-bg"; rwBg.onclick=rwClose;
+        document.body.appendChild(rwBg);
+      };
+      document.addEventListener("keydown",e=>{ if(e.key==="Escape")rwClose(); });
+      window.addEventListener("resize",()=>{ if(matchMedia("(min-width:1560px)").matches)rwClose(); });
+    }
     $("stor").classList.toggle("hidden",!IS_MASTER);
     $("s-home").classList.remove("hidden");
     if(IS_MASTER){computeStorage();loadOrder();watchRequests();}
@@ -1160,7 +1200,7 @@ function render(){
         +Object.values(DATA.priv.docs).filter(inSub).length;
       return `<div class="fcard${f.locked?" locked":""}" data-f="${f.id}"${f.locked?' data-locked="1"':""}>
         ${IS_MASTER?`<button class="kebab" data-fm="${f.id}">⋯</button>`:""}
-        <span class="fi">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><div class="nm">${esc(f.name)}</div>
+        <span class="fi">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><div class="nm">${flagify(esc(f.name))}</div>
         <div class="meta">${f.locked?"비공개 · 잠김":"문서 "+cnt+"개"+(f.scope==="priv"?" · 나만 보기":"")}</div></div>`;
     }).join("")+`</div>`;
   }
@@ -1169,7 +1209,7 @@ function render(){
       const link=d.type==="link";
       return `<div class="dcard${d.locked?" locked":""}" data-d="${d.id}"${d.locked?' data-locked="1"':""}>
         ${IS_MASTER?`<button class="kebab" data-dm="${d.id}">⋯</button>`:""}
-        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?'<svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> ':(d.type==="file"||d.type==="text")?I_FILE+" ":""}${esc(d.name)}</div>
+        <div class="nm">${d.pinned?'<span class="pin">📌</span>':""}${d.scope==="priv"?I_LOCK+" ":""}${link?'<svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> ':(d.type==="file"||d.type==="text")?I_FILE+" ":""}${flagify(esc(d.name))}</div>
         ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
         ${d.tags?`<div class="tags">${d.tags.split(",").map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
         <div class="meta">${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${d.views||0}${d.published?' · <svg class="wic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.7 2.4 2.7 14.6 0 17-2.7-2.4-2.7-14.6 0-17"/></svg> 게시됨':""}</div></div>`;
@@ -1215,7 +1255,7 @@ function renderTree(){
     const kids=(byParent[pid]||[]).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
     return kids.map(f=>`
       <button class="s-item${curView==="docs"&&curFolder===f.id?" on":""}${f.locked?" locked":""}" data-go="${f.id}"${f.locked?' data-locked="1"':""} style="padding-left:${10+depth*15}px">
-        <span class="ic">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><span class="tx">${esc(f.name)}</span>
+        <span class="ic">${f.scope==="priv"?I_FOLDER_LOCK:I_FOLDER}</span><span class="tx">${flagify(esc(f.name))}</span>
       </button>`+(f.locked?"":build(f.id,depth+1))).join("");
   };
   const html=build("root",0);
@@ -1564,7 +1604,7 @@ function dataURItoBlob(uri){
 function fileCard(d){
   return V_SCROLL+`<body style="margin:0;height:100vh;display:flex;flex-direction:column;gap:13px;align-items:center;justify-content:center;background:#0e0f10;color:#c9ced4;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:24px">
     <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#6d757b" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/></svg>
-    <div style="font-size:15px;font-weight:700;color:#f2f4f5;max-width:82%;word-break:break-all">${esc(d.name)}</div>
+    <div style="font-size:15px;font-weight:700;color:#f2f4f5;max-width:82%;word-break:break-all">${flagify(esc(d.name))}<style>.femoji{width:1.1em;height:1.1em;vertical-align:-2px}</style></div>
     <div style="font-size:12.5px;color:#9aa3a9">${esc((d.ext||"파일").toUpperCase())} · 미리보기를 지원하지 않는 형식이에요</div>
     <div style="font-size:12.5px;color:#6d757b">상단 <b style="color:#00d2be">다운로드</b> 버튼으로 받아서 열어보세요</div>
   </body>`;
@@ -1604,7 +1644,7 @@ async function openDoc(did,scope){
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
   $("v-side").classList.toggle("closed",matchMedia("(max-width:640px)").matches);
-  $("v-name").textContent=d.name;
+  $("v-name").innerHTML=flagify(esc(d.name));
   document.querySelector(".v-side").style.display="";
   $("v-frame").srcdoc="<p style='font-family:sans-serif;color:#888;padding:20px'>불러오는 중…</p>";
   $("v-link").onclick=()=>{
@@ -1741,7 +1781,7 @@ function openTrash(){
   const rows=list.length?list.map(d=>{
     const dd=new Date(d.trashedAt||0);
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)">'
-      +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px">'+esc(d.name)
+      +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px">'+flagify(esc(d.name))
       +' <span style="font-size:11px;color:var(--sub2)">'+(d.scope==="priv"?"비공개":"공개")+' · '+(dd.getMonth()+1)+'/'+dd.getDate()+'</span></span>'
       +'<button class="hbtn" data-restore="'+d.id+'" data-sc="'+d.scope+'" style="height:28px;font-size:11.5px">복구</button>'
       +'<button class="hbtn" data-purge="'+d.id+'" data-sc="'+d.scope+'" style="height:28px;font-size:11.5px;color:var(--red);border-color:rgba(232,71,75,.4)">영구 삭제</button></div>';
@@ -2599,11 +2639,16 @@ async function loadWeekly(){
   const md=t=>{const d=new Date(t);return (d.getMonth()+1)+"/"+d.getDate();};
   const sec=(label,range,items,maxLines)=>{
     const total=items.reduce((s,x)=>s+x.amt,0);
+    const row=x=>'<div class="ln"><span class="n">'+md(x.t)+' '+esc(x.n)+'</span><span class="a">'+x.amt.toLocaleString()+'</span></div>';
     let s='<div class="rp-sec"><div class="rp-label">'+label+'<span class="r">'+range+'</span></div>';
     if(items.length){
       s+='<div class="rp-big">'+total.toLocaleString()+'<span class="won">원</span></div>';
       s+='<div class="rp-sub">'+items.length+'건</div>';
-      s+=items.slice(0,maxLines).map(x=>'<div class="ln"><span class="n">'+md(x.t)+' '+esc(x.n)+'</span><span class="a">'+x.amt.toLocaleString()+'</span></div>').join("");
+      s+=items.slice(0,maxLines).map(row).join("");
+      if(items.length>maxLines){
+        s+='<div class="rp-more hidden">'+items.slice(maxLines).map(row).join("")+'</div>';
+        s+='<button class="rp-toggle" data-more="'+(items.length-maxLines)+'">나머지 '+(items.length-maxLines)+'건 보기</button>';
+      }
     }else{
       s+='<div class="rp-big" style="color:var(--sub2)">0<span class="won">원</span></div><div class="rp-sub">기록 없음</div>';
     }
@@ -2625,7 +2670,12 @@ async function loadWeekly(){
     const lastMon=new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
     const wItems=all.filter(x=>x.t>=lastMon.getTime()&&x.t<thisMon.getTime());
     const rng=md(lastMon)+"~"+md(thisMon.getTime()-86400000);
-    box.innerHTML=sec("어제 지출",md(yst),yItems,4)+sec("지난주 지출",rng+" 월~일",wItems,5);
+    box.innerHTML=sec("어제 지출",md(yst),yItems,99)+sec("지난주 지출",rng+" 월~일",wItems,6);
+    box.querySelectorAll(".rp-toggle").forEach(b=>b.onclick=()=>{
+      const more=b.previousElementSibling;
+      const open=more.classList.toggle("hidden");
+      b.textContent=open?("나머지 "+b.dataset.more+"건 보기"):"접기";
+    });
   }catch(e){ box.innerHTML='<div class="rp-sec"><div class="rp-label">지출 한눈에</div><div class="rp-sub">기록 없음</div></div>'; }
 }
 
