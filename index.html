@@ -113,7 +113,7 @@
   }
   @keyframes sflow{0%,100%{filter:hue-rotate(-22deg) saturate(1.05)}50%{filter:hue-rotate(24deg)}}
   .hsearch{
-    flex:1; min-width:100px; display:flex; align-items:center; gap:8px;
+    flex:1; min-width:100px; max-width:520px; margin-right:auto; display:flex; align-items:center; gap:8px;
     background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 15px;
   }
   .hsearch input{flex:1; background:none; border:none; outline:none; font-size:13px; min-width:0;}
@@ -178,6 +178,7 @@
   .stor .st-bar{height:100%; width:0; border-radius:999px; background:var(--grad-bar); transition:width .5s;}
   .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
   body.side-off aside{display:none;}
+  @media(min-width:861px){ body.side-off .rside{display:none;} }
   main{flex:0 1 1000px; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
   main>*{max-width:1000px;}
   @media(max-width:860px){
@@ -203,7 +204,7 @@
     .lmark{width:21px; height:21px; margin-right:5px;}
     #role{grid-area:r; justify-self:end;}
     .who{grid-area:w;}
-    .hsearch{grid-area:s; width:100%;}
+    .hsearch{grid-area:s; width:100%; max-width:none; margin-right:0;}
     #stats-btn{display:none !important;}
     .who #uname{display:none;}
   }
@@ -655,6 +656,8 @@
   .s-item.locked{opacity:.55; cursor:not-allowed;}
   .s-item.locked:hover{background:none; color:var(--sub);}
   .femoji{width:1.15em; height:1.15em; vertical-align:-2px; display:inline-block;}
+  .fchip{display:inline-block; font-size:.6em; font-weight:900; letter-spacing:.08em; color:var(--sub);
+    border:1px solid var(--line2); border-radius:5px; padding:1px 5px; vertical-align:2px;}
   /* ===== 뷰어 의사-전체화면 (iOS 등 Fullscreen API 미지원 폴백) ===== */
   #viewer.vfull .v-bar>*:not(#v-full){display:none !important;}
   #viewer.vfull .v-bar{padding:6px 10px; justify-content:flex-end; position:absolute; top:0; right:0; z-index:2; background:transparent; border:none;}
@@ -715,9 +718,9 @@
     <span class="role" id="role"></span>
     <div class="who">
       <span class="un" id="uname"></span>
+      <button class="hbtn" id="rw-btn" title="지출 패널 열기" aria-label="지출 패널"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px"><path d="M4 12h11M11 7l4.5 5-4.5 5M20 4v16"/></svg></button>
       <img class="avatar" id="avatar" title="로그아웃" alt="me">
     </div>
-    <button class="hbtn" id="rw-btn" title="지출 패널 열기" aria-label="지출 패널"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px"><path d="M4 12h11M11 7l4.5 5-4.5 5M20 4v16"/></svg></button>
   </div>
 </header>
 
@@ -896,8 +899,10 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 /* 윈도우는 국기 이모지 글리프가 없어 문자로 깨짐 → 국기만 Twemoji 이미지로 치환 (esc 처리된 문자열에 사용) */
 const flagify=s=>String(s??"").replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu,m=>{
-  const cp=[...m].map(c=>c.codePointAt(0).toString(16)).join("-");
-  return '<img class="femoji" src="https://cdn.jsdelivr.net/gh/twemoji/twemoji@14.0.2/assets/svg/'+cp+'.svg" alt="'+m+'" loading="lazy">';
+  const pts=[...m].map(c=>c.codePointAt(0));
+  const cp=pts.map(x=>x.toString(16)).join("-");
+  const cc=pts.map(x=>String.fromCharCode(x-0x1F1E6+65)).join("");   /* 🇯🇵 → JP */
+  return '<img class="femoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/svg/'+cp+'.svg" alt="'+m+'" loading="lazy" onerror="this.outerHTML=&#39;<span class=\&quot;fchip\&quot;>'+cc+'</span>&#39;">';
 });
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2400);}
 const fmtDate=ts=>{const d=new Date(ts);return d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");};
