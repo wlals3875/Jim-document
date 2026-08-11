@@ -182,7 +182,7 @@
   main>*{max-width:1000px;}
   /* ≤1279: 사이드바 → 서랍 모드 (메인 2열이 뭉개지기 전에 양쪽 접힘) */
   @media(max-width:1279px){
-    aside{
+    aside:not(.rside){
       position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
       background:var(--bg2); border-right:1px solid var(--line2);
       transform:translateX(-105%); transition:transform .22s ease;
@@ -190,7 +190,7 @@
       padding-bottom:env(safe-area-inset-bottom, 0px);
       box-shadow:20px 0 60px rgba(0,0,0,.45); width:250px;
     }
-    aside.open{transform:translateX(0);}
+    aside:not(.rside).open{transform:translateX(0);}
     #aside-bg{position:fixed; inset:0; z-index:115; background:rgba(3,4,4,.62);}
   }
   @media(max-width:860px){
@@ -669,7 +669,7 @@
   /* ===== 우측 지출 드로어 ===== */
   #rw-btn{display:none; width:38px; padding:0; flex-shrink:0;}
   @media(max-width:1279px){ body.is-master #rw-btn{display:inline-flex;} }
-  .rside.open{display:block; position:fixed; top:0; right:0; z-index:130;
+  .rside.open{display:block; position:fixed; top:0; right:0; left:auto; transform:none; z-index:130;
     height:100dvh; width:min(340px,90vw); background:var(--bg2);
     border-left:1px solid var(--line2); box-shadow:-18px 0 50px rgba(0,0,0,.5);
     padding:20px 16px calc(30px + env(safe-area-inset-bottom,0px)); overflow-y:auto;
@@ -721,7 +721,7 @@
     <div class="who">
       <span class="un" id="uname"></span>
       <img class="avatar" id="avatar" title="로그아웃" alt="me">
-      <button class="hbtn" id="rw-btn" title="지출 패널 열기" aria-label="지출 패널"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px"><path d="M4 12h11M11 7l4.5 5-4.5 5M20 4v16"/></svg></button>
+      <button class="hbtn" id="rw-btn" title="지출 패널" aria-label="지출 패널"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px"><path id="rw-ico" d="M20 4v16M15 12H4M8.5 7 4 12l4.5 5"/></svg></button>
     </div>
   </div>
 </header>
@@ -1088,11 +1088,12 @@ function enterApp(u,memberRec){
     if(!window.__rwBound){
       window.__rwBound=true;
       let rwBg=null;
-      const rwClose=()=>{ $("rside").classList.remove("open"); if(rwBg){rwBg.remove();rwBg=null;} };
+      const rwIco=o=>{ const p=document.getElementById("rw-ico"); if(p)p.setAttribute("d", o?"M4 12h11M11 7l4.5 5-4.5 5M20 4v16":"M20 4v16M15 12H4M8.5 7 4 12l4.5 5"); };
+      const rwClose=()=>{ $("rside").classList.remove("open"); rwIco(false); if(rwBg){rwBg.remove();rwBg=null;} };
       $("rw-btn").onclick=()=>{
         const rs=$("rside");
         if(rs.classList.contains("open")){ rwClose(); return; }
-        rs.classList.add("open");
+        rs.classList.add("open"); rwIco(true);
         try{ loadWeekly(); }catch(e){}
         rwBg=document.createElement("div"); rwBg.id="rside-bg"; rwBg.onclick=rwClose;
         document.body.appendChild(rwBg);
