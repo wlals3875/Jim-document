@@ -684,6 +684,13 @@
   .rp-toggle{width:100%; margin-top:7px; background:none; border:1px dashed var(--line2); border-radius:10px;
     color:var(--sub2); font:inherit; font-size:11.5px; font-weight:800; padding:8px 0; cursor:pointer;}
   .rp-toggle:hover{color:var(--mint,#00d2be); border-color:rgba(0,210,190,.4);}
+  /* 오늘↔어제 로테이터 */
+  .rp-dots{display:inline-flex; gap:5px; margin-left:9px; align-items:center;}
+  .rp-dot{width:6px; height:6px; border-radius:50%; background:var(--line2); border:none; padding:0; cursor:pointer; transition:background .25s, transform .25s;}
+  .rp-dot.on{background:var(--grad); transform:scale(1.25);}
+  .rp-view{animation:rpin .38s ease;}
+  @keyframes rpin{from{opacity:0; transform:translateY(7px);}to{opacity:1; transform:none;}}
+  @media(prefers-reduced-motion:reduce){ .rp-view{animation:none;} .rp-dot{transition:none;} }
 </style>
 </head>
 <body>
@@ -2640,10 +2647,10 @@ bindWidgetClicks();
 async function loadWeekly(){
   const box=$("rw-week"); if(!box)return;
   const md=t=>{const d=new Date(t);return (d.getMonth()+1)+"/"+d.getDate();};
-  const sec=(label,range,items,maxLines)=>{
+  const secBody=(items,maxLines)=>{
     const total=items.reduce((s,x)=>s+x.amt,0);
     const row=x=>'<div class="ln"><span class="n">'+md(x.t)+' '+esc(x.n)+'</span><span class="a">'+x.amt.toLocaleString()+'</span></div>';
-    let s='<div class="rp-sec"><div class="rp-label">'+label+'<span class="r">'+range+'</span></div>';
+    let s='';
     if(items.length){
       s+='<div class="rp-big">'+total.toLocaleString()+'<span class="won">원</span></div>';
       s+='<div class="rp-sub">'+items.length+'건</div>';
@@ -2655,8 +2662,9 @@ async function loadWeekly(){
     }else{
       s+='<div class="rp-big" style="color:var(--sub2)">0<span class="won">원</span></div><div class="rp-sub">기록 없음</div>';
     }
-    return s+'</div>';
+    return s;
   };
+  const sec=(label,range,items,maxLines)=>'<div class="rp-sec"><div class="rp-label">'+label+'<span class="r">'+range+'</span></div>'+secBody(items,maxLines)+'</div>';
   try{
     const d=await gfetch("https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/"+encodeURIComponent("입력로그!A:E"));
     const rows=(d.values||[]).slice(1);
@@ -2664,21 +2672,49 @@ async function loadWeekly(){
       const t=new Date(r[0]).getTime();
       return {t, n:r[1]||"", amt:parseFloat(String(r[2]||"").replace(/[^\d.-]/g,""))||0, type:r[4]||"지출"};
     }).filter(x=>x.type==="지출").sort((a,b)=>b.t-a.t);
-    /* 어제 00:00 ~ 오늘 00:00 */
+    /* 오늘 00:00~ / 어제 00:00~오늘 00:00 */
     const t0=new Date(); t0.setHours(0,0,0,0);
     const yst=new Date(t0); yst.setDate(t0.getDate()-1);
+    const tItems=all.filter(x=>x.t>=t0.getTime());
     const yItems=all.filter(x=>x.t>=yst.getTime()&&x.t<t0.getTime());
     /* 지난주 월요일 00:00 ~ 이번 주 월요일 00:00 */
     const thisMon=new Date(t0); thisMon.setDate(t0.getDate()-((t0.getDay()+6)%7));
     const lastMon=new Date(thisMon); lastMon.setDate(thisMon.getDate()-7);
     const wItems=all.filter(x=>x.t>=lastMon.getTime()&&x.t<thisMon.getTime());
     const rng=md(lastMon)+"~"+md(thisMon.getTime()-86400000);
-    box.innerHTML=sec("어제 지출",md(yst),yItems,99)+sec("지난주 지출",rng+" 월~일",wItems,6);
-    box.querySelectorAll(".rp-toggle").forEach(b=>b.onclick=()=>{
+    /* 오늘↔어제 로테이터 + 지난주 */
+    const views=[
+      {t:"오늘 지출", r:md(t0),  body:secBody(tItems,99)},
+      {t:"어제 지출", r:md(yst), body:secBody(yItems,99)}
+    ];
+    box.innerHTML=
+      '<div class="rp-sec"><div class="rp-label"><span id="rp-rot-t"></span>'
+      +'<span class="rp-dots">'+views.map((_,i)=>'<button class="rp-dot" data-v="'+i+'" aria-label="보기 전환"></button>').join("")+'</span>'
+      +'<span class="r" id="rp-rot-r"></span></div><div id="rp-rot-body"></div></div>'
+      +sec("지난주 지출",rng+" 월~일",wItems,6);
+    const bindToggles=scope=>scope.querySelectorAll(".rp-toggle").forEach(b=>b.onclick=()=>{
       const more=b.previousElementSibling;
       const open=more.classList.toggle("hidden");
       b.textContent=open?("나머지 "+b.dataset.more+"건 보기"):"접기";
     });
+    let cur=0;
+    const show=i=>{
+      cur=i;
+      box.querySelector("#rp-rot-t").textContent=views[i].t;
+      box.querySelector("#rp-rot-r").textContent=views[i].r;
+      const bd=box.querySelector("#rp-rot-body");
+      bd.classList.remove("rp-view"); void bd.offsetWidth;   /* 애니메이션 재시동 */
+      bd.innerHTML=views[i].body; bd.classList.add("rp-view");
+      bindToggles(bd);
+      box.querySelectorAll(".rp-dot").forEach((d,j)=>d.classList.toggle("on",j===i));
+    };
+    const arm=()=>{
+      if(window.__rwRotTimer)clearInterval(window.__rwRotTimer);
+      window.__rwRotTimer=setInterval(()=>{ if(document.hidden)return; show((cur+1)%views.length); },5000);
+    };
+    box.querySelectorAll(".rp-dot").forEach(d=>d.onclick=()=>{ show(+d.dataset.v); arm(); });
+    show(0); arm();
+    bindToggles(box.querySelectorAll(".rp-sec")[1]);
   }catch(e){ box.innerHTML='<div class="rp-sec"><div class="rp-label">지출 한눈에</div><div class="rp-sub">기록 없음</div></div>'; }
 }
 
