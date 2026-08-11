@@ -177,11 +177,12 @@
   .stor .st-track{height:5px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden;}
   .stor .st-bar{height:100%; width:0; border-radius:999px; background:var(--grad-bar); transition:width .5s;}
   .stor .st-s{font-size:10.5px; color:var(--sub2); margin-top:7px; text-align:right; font-variant-numeric:tabular-nums;}
-  @media(min-width:1280px){ body.side-off aside{display:none;} body.side-off .rside{display:none;} }
   main{flex:0 1 1000px; min-width:0; position:relative; z-index:1; padding:22px 18px calc(90px + env(safe-area-inset-bottom, 0px));}
   main>*{max-width:1000px;}
   /* ≤1279: 사이드바 → 서랍 모드 (메인 2열이 뭉개지기 전에 양쪽 접힘) */
+  #menu-btn{display:none;}
   @media(max-width:1279px){
+    #menu-btn{display:inline-flex;}
     aside:not(.rside){
       position:fixed; left:0; top:0; bottom:0; z-index:120; height:100vh;
       background:var(--bg2); border-right:1px solid var(--line2);
@@ -1277,18 +1278,13 @@ function renderTree(){
 let asideBg=null;
 function closeAside(){ $("aside").classList.remove("open"); if(asideBg){asideBg.remove();asideBg=null;} }
 $("menu-btn").onclick=()=>{
-  if(matchMedia("(max-width:1279px)").matches){
-    const a=$("aside");
-    if(a.classList.contains("open")){closeAside();return;}
-    a.classList.add("open");
-    asideBg=document.createElement("div"); asideBg.id="aside-bg";
-    asideBg.onclick=closeAside; document.body.appendChild(asideBg);
-  }else{
-    document.body.classList.toggle("side-off");
-    try{localStorage.setItem("hub-side-off",document.body.classList.contains("side-off")?"1":"");}catch(e){}
-  }
+  const a=$("aside");
+  if(a.classList.contains("open")){closeAside();return;}
+  a.classList.add("open");
+  asideBg=document.createElement("div"); asideBg.id="aside-bg";
+  asideBg.onclick=closeAside; document.body.appendChild(asideBg);
 };
-try{ if(localStorage.getItem("hub-side-off")==="1")document.body.classList.add("side-off"); }catch(e){}
+try{ localStorage.removeItem("hub-side-off"); }catch(e){}
 $("s-stats").onclick=()=>{closeAside();$("stats-btn").click();};
 let CIDX=null, CIDX_BUSY=false;
 async function buildCIDX(){
