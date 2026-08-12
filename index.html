@@ -1670,10 +1670,10 @@ async function openDoc(did,scope){
   /* 조회수 (세션당 1회) + 방문 로그 */
   if(!viewedThisSession[did]&&!IS_MASTER){
     viewedThisSession[did]=1;
-    db.ref(`hub/views/${did}`).transaction(v=>(v||0)+1);
+    db.ref(`hub/views/${did}`).set(firebase.database.ServerValue.increment(1)).catch(()=>{});
     db.ref("hub/visits").push({u:ME.uid,n:ME.displayName||ME.email,d:did,dn:d.name,t:Date.now()});
     const day=new Date(); const key=day.getFullYear()+String(day.getMonth()+1).padStart(2,"0")+String(day.getDate()).padStart(2,"0");
-    db.ref(`hub/stats/${key}`).transaction(v=>(v||0)+1);
+    db.ref(`hub/stats/${key}`).set(firebase.database.ServerValue.increment(1)).catch(()=>{});   /* 읽기권한 불필요 — 멤버 집계 복구 */
   }
   $("v-meta").textContent=`${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${(VIEWS[did]||0)+1}`;
   loadComments(did);
