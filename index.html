@@ -675,7 +675,7 @@
   .rside.open{display:block; position:fixed; top:0; right:0; left:auto; transform:none; z-index:130;
     height:100dvh; width:min(340px,90vw); background:var(--bg2);
     border-left:1px solid var(--line2); box-shadow:-18px 0 50px rgba(0,0,0,.5);
-    padding:20px 16px calc(30px + env(safe-area-inset-bottom,0px)); overflow-y:auto;
+    padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px)); overflow-y:auto;
     animation:rwslide .22s ease;}
   @keyframes rwslide{from{transform:translateX(40px);opacity:.4}to{transform:none;opacity:1}}
   body.is-master .rside.open>#rw-week{display:block;}
