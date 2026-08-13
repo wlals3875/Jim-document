@@ -1966,8 +1966,31 @@ $("stats-btn").onclick=async()=>{
     <div class="checker sm" style="margin-top:12px"></div>
     <div style="font-size:12px;font-weight:800;color:var(--sub2);letter-spacing:.08em;margin-top:18px">최근 방문</div>
     <div class="visit-list">${vlist.map(v=>`<div class="vi"><b>${esc(v.n)}</b><span>· ${esc(v.dn||"")}</span><span class="t">${fmtTime(v.t)}</span></div>`).join("")||"<div style='font-size:12px;color:var(--sub2);padding:8px 0'>기록 없음</div>"}</div>
-    <div class="m-row"><button class="mbtn" data-x>닫기</button></div>`,
-  bg=>{bg.querySelector("[data-x]").onclick=()=>bg.remove();});
+    <div class="m-row">${IS_MASTER?'<button class="mbtn" data-rebuild style="margin-right:auto">🔁 차트 복구 (로그 재집계)</button>':""}<button class="mbtn" data-x>닫기</button></div>`,
+  bg=>{
+    bg.querySelector("[data-x]").onclick=()=>bg.remove();
+    const rb=bg.querySelector("[data-rebuild]");
+    if(rb)rb.onclick=async()=>{
+      rb.disabled=true; rb.textContent="재집계 중…";
+      try{
+        /* 방문 로그 전체 → 일별 카운트 → 기존값과 max 병합 (단조증가 validate 준수) */
+        const all=(await db.ref("hub/visits").get()).val()||{};
+        const cnt={};
+        Object.values(all).forEach(v=>{
+          if(!v||!v.t)return;
+          const d=new Date(v.t);
+          const k=d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+          cnt[k]=(cnt[k]||0)+1;
+        });
+        const cur=(await db.ref("hub/stats").get()).val()||{};
+        const upd={};
+        Object.entries(cnt).forEach(([k,n])=>{ if(n>(cur[k]||0))upd[k]=n; });
+        if(Object.keys(upd).length)await db.ref("hub/stats").update(upd);
+        toast("재집계 완료 — "+Object.keys(upd).length+"일 갱신");
+        bg.remove(); $("stats-btn").click();
+      }catch(e){ toast("재집계 실패: "+(e.code||e.message)); rb.disabled=false; rb.textContent="🔁 차트 복구 (로그 재집계)"; }
+    };
+  });
 };
 
 /* ================= 홈 대시보드 (마스터) ================= */
