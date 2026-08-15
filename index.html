@@ -1139,7 +1139,7 @@ $("cal-ext").onclick=e=>{e.preventDefault();e.stopPropagation();openExt("comgoog
 let subs=[];
 function subscribe(){
   subs.forEach(fn=>fn()); subs=[];
-  const watch=(path,cb)=>{const r=db.ref(path);const h=r.on("value",s=>{cb(s.val()||{});render();});subs.push(()=>r.off("value",h));};
+  const watch=(path,cb)=>{const r=db.ref(path);const h=r.on("value",s=>{cb(s.val()||{});render();tryDeep();});subs.push(()=>r.off("value",h));};
   watch("hub/pub/folders",v=>DATA.pub.folders=v);
   watch("hub/pub/docs",v=>DATA.pub.docs=v);
   watch("hub/views",v=>VIEWS=v);
@@ -1147,6 +1147,18 @@ function subscribe(){
   watch("hub/priv/docs",v=>DATA.priv.docs=v);
 }
 
+/* 딥링크(?d=) 소비: 데이터 도착 후 1회 문서 열기 */
+function tryDeep(){
+  if(!DEEP)return;
+  const did=DEEP;
+  const doc=(DATA.pub.docs&&DATA.pub.docs[did])||(DATA.priv.docs&&DATA.priv.docs[did]);
+  if(!doc)return;                      /* 아직 해당 스코프 미로딩 — 다음 도착 때 재시도 */
+  DEEP=null;
+  if(doc.trashed){ toast("휴지통에 있는 문서예요"); return; }
+  setView("docs");
+  openDoc(did);
+  history.replaceState(null,"",location.pathname);   /* 새로고침 시 재딥링크 방지 */
+}
 /* ================= 렌더 ================= */
 function fScope(fid){ if(DATA.priv.folders[fid])return"priv"; if(DATA.pub.folders[fid])return"pub"; return null; }
 function dScope(did){ if(DATA.priv.docs[did])return"priv"; if(DATA.pub.docs[did])return"pub"; return null; }
@@ -1661,9 +1673,16 @@ async function openDoc(did,scope){
   $("v-name").innerHTML=flagify(esc(d.name));
   document.querySelector(".v-side").style.display="";
   $("v-frame").srcdoc="<p style='font-family:sans-serif;color:#888;padding:20px'>불러오는 중…</p>";
+  window.__pubOk=false;
+  db.ref("hub/publish/"+did).get().then(s=>{window.__pubOk=!!s.val();}).catch(()=>{});
   $("v-link").onclick=()=>{
-    const url=location.origin+location.pathname+"?d="+did;
-    navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
+    if(window.__pubOk){
+      const url=location.origin+location.pathname+"?p="+did;
+      navigator.clipboard.writeText(url).then(()=>toast("공개 링크 복사됨 — 누구나 볼 수 있어")).catch(()=>prompt("복사:",url));
+    }else{
+      const url=location.origin+location.pathname+"?d="+did;
+      navigator.clipboard.writeText(url).then(()=>toast("멤버용 링크 복사됨 · 친구에게 주려면 ⋯ 메뉴에서 \"게시\" 먼저!")).catch(()=>prompt("복사:",url));
+    }
   };
   const content=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
   renderDoc(d,content);
