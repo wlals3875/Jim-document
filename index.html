@@ -2171,13 +2171,20 @@ async function loadCalendar(){
   const weekEnd=new Date(now); weekEnd.setDate(weekEnd.getDate()+7);
   const isWd=e=>["4","6","11"].includes(e.colorId)||(!e.colorId&&/\(\s*\d+(?:\.\d+)?\s*\)/.test(e.summary||""));
   const plain=evs.filter(e=>!isWd(e));
-  const week=plain.filter(e=>evDate(e)<weekEnd&&evEnd(e)>=day0);
+  /* 종일 이벤트 end.date는 exclusive — 끝난 다음날까지 살아남지 않게 경계 보정 */
+  const evLive=e=>(e.end&&e.end.date)?evEnd(e)>day0:evEnd(e)>=day0;
+  const realEnd=e=>{const x=evEnd(e); return (e.end&&e.end.date)?new Date(x.getTime()-86400000):x;};
+  const spanLbl=(e,dd)=>{const re=realEnd(e);
+    if(re.getFullYear()===dd.getFullYear()&&re.getMonth()===dd.getMonth()&&re.getDate()===dd.getDate())return null;
+    return (dd.getMonth()+1)+"/"+dd.getDate()+"~"+(re.getMonth()===dd.getMonth()?"":(re.getMonth()+1)+"/")+re.getDate();};
+  const week=plain.filter(e=>evDate(e)<weekEnd&&evLive(e));
   const next=plain.find(e=>evEnd(e)>=now);
   let html='';
   if(next){
     const dd=evDate(next);
+    const sp=spanLbl(next,dd);
     html+='<div class="ev-next"><div class="k">NEXT</div>'+esc(next.summary||"(제목 없음)")
-      +' <span style="color:var(--sub2)">· '+(dd.getMonth()+1)+"/"+dd.getDate()+" ("+DAYS[dd.getDay()]+") "
+      +' <span style="color:var(--sub2)">· '+(sp?sp+" ("+DAYS[dd.getDay()]+"~)":(dd.getMonth()+1)+"/"+dd.getDate()+" ("+DAYS[dd.getDay()]+")")+" "
       +(next.start.dateTime?String(dd.getHours()).padStart(2,"0")+":"+String(dd.getMinutes()).padStart(2,"0"):"종일")+'</span></div>';
   }
   let hsetW=new Set();
@@ -2189,8 +2196,10 @@ async function loadCalendar(){
   if(week.length){
     const today=new Date(); today.setHours(0,0,0,0);
     html+=week.slice(0,7).map(e=>{
-      const dd=evDate(e); const isToday=dd>=today&&dd<new Date(today.getTime()+86400000);
-      return '<div class="ev"><span class="d'+(isToday?" today":" "+dayCls(dd,hsetW))+'">'+(isToday?"오늘":(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()])+'</span>'
+      const dd=evDate(e); const re=realEnd(e); const sp=spanLbl(e,dd);
+      const isToday=dd<new Date(today.getTime()+86400000)&&re>=today;   /* 진행 중 포함 */
+      const lbl=sp?(isToday?"오늘 · "+sp:sp):(isToday?"오늘":(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]);
+      return '<div class="ev"><span class="d'+(isToday?" today":" "+dayCls(dd,hsetW))+'">'+lbl+'</span>'
         +'<span class="t">'+esc(e.summary||"(제목 없음)")+'</span>'
         +(e.start.dateTime?'<span class="tm">'+String(dd.getHours()).padStart(2,"0")+":"+String(dd.getMinutes()).padStart(2,"0")+'</span>':"")
         +'</div>';
