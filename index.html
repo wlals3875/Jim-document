@@ -443,41 +443,20 @@
   }
   #cal-body,#money-body{flex:1; min-height:0; overflow-y:auto; scrollbar-width:none;}
   #cal-body::-webkit-scrollbar,#money-body::-webkit-scrollbar{display:none;}
-  /* 플립 클락 */
-  .fclock{display:flex; gap:7px; align-items:center; margin:auto 0 0; perspective:600px;}
-  .fd{
-    flex:0 0 auto; width:56px; height:74px; border-radius:12px; position:relative;
-    background:linear-gradient(180deg,#1b1e21 0%, #17191c 49%, #101214 51%, #131518 100%);
-    border:1px solid var(--line2); box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 6px 16px rgba(0,0,0,.35);
-    display:flex; align-items:center; justify-content:center;
-    font-size:46px; font-weight:900; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
-    background-clip:padding-box;
-  }
-  .fd::before{content:attr(data-d); background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .fd::after{content:""; position:absolute; left:5px; right:5px; top:50%; height:2px;
-    background:rgba(0,0,0,.55); box-shadow:0 1px 0 rgba(255,255,255,.04);}
-  .fd.flip{animation:fflip .45s cubic-bezier(.35,.9,.3,1);}
-  @keyframes fflip{0%{transform:rotateX(-88deg); filter:brightness(1.5);}100%{transform:rotateX(0);}}
-  .fsep{font-size:34px; font-weight:900; color:var(--sub2); padding:0 1px;
-    animation:fblink 2s steps(1) infinite;}
-  @keyframes fblink{0%,100%{opacity:.85;}50%{opacity:.3;}}
-  @media(prefers-reduced-motion:reduce){.fd.flip{animation:none;}.fsep{animation:none;}}
-  @media(max-width:1129px){ .fd{width:15vw; max-width:64px; height:20vw; max-height:84px; font-size:min(9.5vw,52px);} }
-  .wg-dt{font-size:13px; color:var(--sub); font-weight:700; margin-top:11px;}
   .wg-dt .sat{color:#7aa7ff;} .wg-dt .sun{color:var(--red);}
   /* 미니 달력 (이번주 위젯 하단) */
   #wg-mcal-wrap{margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
   .mcal-t{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;}
   .mcal-t #wg-mon{font-size:11.5px; font-weight:800; letter-spacing:.1em; color:var(--sub);}
   .wg-cal td{position:relative;}
-  .wg-cal td .edot2{position:absolute; left:50%; transform:translateX(-50%); bottom:0;
+  .wg-cal td .edot2{position:absolute; left:50%; transform:translateX(-50%); bottom:2px;
     width:4.5px; height:4.5px; border-radius:50%; background:var(--lime);}
   .wg-cal table{width:100%; border-collapse:collapse; font-size:12.5px; text-align:center;}
   .wg-cal th{color:var(--sub2); font-weight:800; padding-bottom:7px; font-size:11px;}
   .wg-cal th.sa,.wg-cal td.sa{color:#7aa7ff;} .wg-cal th.su,.wg-cal td.su{color:var(--red);}
-  .wg-cal td{padding:5.5px 0; color:var(--sub); font-weight:700;}
+  .wg-cal td{padding:0; height:32px; vertical-align:middle; color:var(--sub); font-weight:700;}
   .wg-cal td.dim{opacity:.25;}
-  .wg-cal td.today span{background:var(--grad); color:#021413; border-radius:8px; padding:3px 7px; font-weight:900;}
+  .wg-cal td.today span{display:inline-block; background:var(--grad); color:#021413; border-radius:8px; padding:2px 7px; font-weight:900; line-height:1.4;}
   /* 큰 숫자 (D-day·문서) */
   .wg-bn{font-size:32px; font-weight:900; letter-spacing:-.03em; margin-top:auto;
     background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
@@ -842,15 +821,6 @@
       <button class="hbtn" id="dash-edit">편집</button>
     </div>
     <div class="wgrid" id="wgrid">
-      <div class="widget s21" id="w-clock">
-        <div class="wt"><svg class="wic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg> 지금</div>
-        <div class="fclock" id="wg-tm" aria-label="현재 시각">
-          <span class="fd" data-d="-"></span><span class="fd" data-d="-"></span>
-          <span class="fsep">:</span>
-          <span class="fd" data-d="-"></span><span class="fd" data-d="-"></span>
-        </div>
-        <div class="wg-dt num" id="wg-dt"></div>
-      </div>
       <div class="widget s22" id="w-cal">
         <div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> 이번 주 <span class="r"><a href="#" id="cal-ext" style="color:var(--sub2);text-decoration:none">구글 캘린더 ↗</a></span></div>
         <div class="qadd">
@@ -870,7 +840,7 @@
         <div class="qprev hidden" id="q-prev"></div>
         <div id="money-body"><div class="w-empty">연결 필요</div></div>
       </div>
-      <div class="widget s12" id="w-wd"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg> 이번 달 출금</div><div class="w-empty">연결 필요</div></div>
+      <div class="widget s22" id="w-wd"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg> 이번 달 출금</div><div class="w-empty">연결 필요</div></div>
       <div class="widget s22" id="w-mail"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.2l8.5 6 8.5-6"/></svg> 메일</div><div class="w-empty">연결 필요</div></div>
     </div>
   </div>
@@ -2730,20 +2700,6 @@ async function openWdDetail(){
 
 
 /* ================= 애플 위젯 렌더 ================= */
-function wgClock(){
-  const n=new Date();
-  const tm=$("wg-tm"), dt=$("wg-dt");
-  if(!tm)return;
-  const s=String(n.getHours()).padStart(2,"0")+String(n.getMinutes()).padStart(2,"0");
-  tm.querySelectorAll(".fd").forEach((el,i)=>{
-    if(el.dataset.d!==s[i]){
-      el.dataset.d=s[i];
-      el.classList.remove("flip"); void el.offsetWidth; el.classList.add("flip");
-    }
-  });
-  const D=["일","월","화","수","목","금","토"], w=n.getDay();
-  dt.innerHTML=(n.getMonth()+1)+"월 "+n.getDate()+"일 <span class="+(w===6?'"sat"':w===0?'"sun"':'""')+">"+D[w]+"요일</span>";
-}
 async function wgEvDays(y,m){
   try{
     if(!gtoken()||typeof fetchMonth!=="function")return new Set();
@@ -2798,12 +2754,11 @@ function wgDocs(){
     el.textContent=n;
   }catch(e){}
 }
-function renderAppleWidgets(){ wgClock(); wgMiniCal(); wgDday(); wgDocs(); }
-if(!window.__wgTimer)window.__wgTimer=setInterval(()=>{ if(!document.hidden)wgClock(); },15000);
+function renderAppleWidgets(){ wgMiniCal(); wgDday(); wgDocs(); }
 renderAppleWidgets();
 
 /* ================= 위젯 순서 편집 ================= */
-const W_DEFAULT=["w-clock","w-wd","w-cal","w-mail","w-money"];
+const W_DEFAULT=["w-cal","w-mail","w-money","w-wd"];
 let W_ORDER=W_DEFAULT.slice(), editMode=false;
 function applyOrder(){
   const g=$("wgrid");
