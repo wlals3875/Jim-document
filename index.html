@@ -2724,8 +2724,8 @@ async function wgMiniCal(){
   const ev=await wgEvDays(y,m);
   let hset=new Set(); try{ if(gtoken()&&typeof ensureHoli==="function")hset=await ensureHoli(y,m); }catch(e){}
   const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-  const first=new Date(y,m,1), start=new Date(first); start.setDate(1-((first.getDay()+6)%7)); /* 월요일 시작 */
-  let html='<span class="h">월</span><span class="h">화</span><span class="h">수</span><span class="h">목</span><span class="h">금</span><span class="h sa">토</span><span class="h su">일</span>';
+  const first=new Date(y,m,1), start=new Date(first); start.setDate(1-first.getDay()); /* 일요일 시작 */
+  let html='<span class="h su">일</span><span class="h">월</span><span class="h">화</span><span class="h">수</span><span class="h">목</span><span class="h">금</span><span class="h sa">토</span>';
   const cur=new Date(start);
   for(let r=0;r<6;r++){
     if(cur.getMonth()>m&&r>3&&cur.getDate()<8)break;
@@ -2737,7 +2737,7 @@ async function wgMiniCal(){
       html+='<span class="'+cls+'">'+(today?"<i>"+cur.getDate()+"</i>":cur.getDate())+dot+"</span>";
       cur.setDate(cur.getDate()+1);
     }
-    if(cur.getMonth()!==m&&cur.getDay()===1)break;
+    if(cur.getMonth()!==m&&cur.getDay()===0)break;
   }
   el.innerHTML=html;
 }
