@@ -290,8 +290,16 @@
   /* ===== 모달 ===== */
   .modal-bg{position:fixed; inset:0; z-index:110; background:rgba(3,4,4,.74); display:flex; align-items:center; justify-content:center; padding:18px;}
   .modal{
-    width:100%; max-width:440px; background:var(--card); border:1px solid var(--line2);
-    border-radius:13px; padding:22px;
+    width:100%; max-width:560px; background:var(--card); border:1px solid var(--line2);
+    border-radius:16px; padding:24px;
+  }
+  @media(min-width:1100px){
+    .modal{max-width:680px; padding:30px 32px;}
+    .modal h3{font-size:19px; margin-bottom:16px;}
+    .modal label{font-size:12.5px;}
+    .modal input[type=text],.modal textarea{font-size:15px; padding:12px 15px;}
+    .mbtn{height:42px; font-size:14px; padding:0 24px;}
+    .m-x{width:36px; height:36px; font-size:15px;}
   }
   .modal{position:relative;}
   .m-x{
@@ -550,6 +558,14 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .mgrid .me.more{background:none; color:var(--sub2);}
+  @media(min-width:1100px){
+    .mnav{font-size:17px; margin-bottom:15px;}
+    .mgrid{gap:6px;}
+    .mgrid .mh{font-size:12px;}
+    .mgrid .md{min-height:76px; padding:6px 7px; border-radius:10px;}
+    .mgrid .dn2{font-size:12px; margin-bottom:3px;}
+    .mgrid .me{font-size:11px; padding:2px 6px; border-radius:5px;}
+  }
   .chips{display:flex; gap:6px; flex-wrap:wrap;}
   .chip{
     background:var(--card2); border:1px solid var(--line2); border-radius:999px; cursor:pointer;
@@ -693,7 +709,15 @@
   .rp-view{animation:rpin .38s ease;}
   @keyframes rpin{from{opacity:0; transform:translateY(7px);}to{opacity:1; transform:none;}}
   @media(prefers-reduced-motion:reduce){ .rp-view{animation:none;} .rp-dot{transition:none;} }
-</style>
+
+  /* ===== 애플 곡선 (스쿼클) — 지원 브라우저 한정 프로그레시브 인핸스먼트 ===== */
+  @supports (corner-shape: squircle){
+    *, *::before, *::after{corner-shape:superellipse(2.2);}   /* 애플 아이콘급 곡률 */
+    /* 원형 요소는 원 유지 */
+    .avatar, .cdot, .c-item img, .edot, .rp-dot, .mrd, .mvbtn, .orbs i,
+    [style*="border-radius:50%"], [style*="border-radius: 50%"]{corner-shape:round;}
+  }
+  </style>
 </head>
 <body>
 <div class="orbs" aria-hidden="true"><i></i><i></i></div>
