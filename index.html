@@ -448,15 +448,17 @@
   #wg-mcal-wrap{margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
   .mcal-t{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;}
   .mcal-t #wg-mon{font-size:11.5px; font-weight:800; letter-spacing:.1em; color:var(--sub);}
-  .wg-cal td{position:relative;}
-  .wg-cal td .edot2{position:absolute; left:50%; transform:translateX(-50%); bottom:2px;
+  #wg-mcal{display:grid; grid-template-columns:repeat(7,1fr); font-size:12.5px;}
+  #wg-mcal .h{height:26px; display:flex; align-items:center; justify-content:center;
+    color:var(--sub2); font-weight:800; font-size:11px;}
+  #wg-mcal .c{height:32px; display:flex; align-items:center; justify-content:center;
+    position:relative; color:var(--sub); font-weight:700;}
+  #wg-mcal .h.sa,#wg-mcal .c.sa{color:#7aa7ff;} #wg-mcal .h.su,#wg-mcal .c.su{color:var(--red);}
+  #wg-mcal .c.dim{opacity:.25;}
+  #wg-mcal .c.today i{font-style:normal; background:var(--grad); color:#021413;
+    border-radius:8px; padding:2px 7px; font-weight:900; line-height:1.35;}
+  #wg-mcal .c .edot2{position:absolute; left:50%; transform:translateX(-50%); bottom:1px;
     width:4.5px; height:4.5px; border-radius:50%; background:var(--lime);}
-  .wg-cal table{width:100%; border-collapse:collapse; font-size:12.5px; text-align:center;}
-  .wg-cal th{color:var(--sub2); font-weight:800; padding-bottom:7px; font-size:11px;}
-  .wg-cal th.sa,.wg-cal td.sa{color:#7aa7ff;} .wg-cal th.su,.wg-cal td.su{color:var(--red);}
-  .wg-cal td{padding:0; height:32px; vertical-align:middle; color:var(--sub); font-weight:700;}
-  .wg-cal td.dim{opacity:.25;}
-  .wg-cal td.today span{display:inline-block; background:var(--grad); color:#021413; border-radius:8px; padding:2px 7px; font-weight:900; line-height:1.4;}
   /* 큰 숫자 (D-day·문서) */
   .wg-bn{font-size:32px; font-weight:900; letter-spacing:-.03em; margin-top:auto;
     background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
@@ -2703,7 +2705,8 @@ async function openWdDetail(){
 async function wgEvDays(y,m){
   try{
     if(!gtoken()||typeof fetchMonth!=="function")return new Set();
-    const evs=await fetchMonth(y,m), s=new Set();
+    const isWd=e=>["4","6","11"].includes(e.colorId)||(!e.colorId&&/\(\s*\d+(?:\.\d+)?\s*\)/.test(e.summary||""));
+    const evs=(await fetchMonth(y,m)).filter(e=>!isWd(e)), s=new Set();
     evs.forEach(e=>{
       const st=e.start.dateTime?new Date(e.start.dateTime):new Date(e.start.date+"T00:00:00");
       let en=e.end?(e.end.dateTime?new Date(e.end.dateTime):new Date(e.end.date+"T00:00:00")):new Date(st.getTime()+1);
@@ -2719,23 +2722,24 @@ async function wgMiniCal(){
   const n=new Date(), y=n.getFullYear(), m=n.getMonth();
   const mon=$("wg-mon"); if(mon)mon.textContent=(m+1)+"월";
   const ev=await wgEvDays(y,m);
+  let hset=new Set(); try{ if(gtoken()&&typeof ensureHoli==="function")hset=await ensureHoli(y,m); }catch(e){}
+  const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   const first=new Date(y,m,1), start=new Date(first); start.setDate(1-((first.getDay()+6)%7)); /* 월요일 시작 */
-  let html='<table><tr><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th class="sa">토</th><th class="su">일</th></tr>';
+  let html='<span class="h">월</span><span class="h">화</span><span class="h">수</span><span class="h">목</span><span class="h">금</span><span class="h sa">토</span><span class="h su">일</span>';
   const cur=new Date(start);
   for(let r=0;r<6;r++){
     if(cur.getMonth()>m&&r>3&&cur.getDate()<8)break;
-    html+="<tr>";
     for(let c=0;c<7;c++){
       const dim=cur.getMonth()!==m, today=!dim&&cur.getDate()===n.getDate();
-      const wd=cur.getDay(), cls=[dim?"dim":"",wd===6?"sa":wd===0?"su":"",today?"today":""].filter(Boolean).join(" ");
+      const holi=!dim&&hset.has(iso(cur));
+      const wd=cur.getDay(), cls=["c",dim?"dim":"",(wd===0||holi)?"su":wd===6?"sa":"",today?"today":""].filter(Boolean).join(" ");
       const dot=(!dim&&ev.has(cur.getDate()))?'<i class="edot2"></i>':"";
-      html+='<td class="'+cls+'">'+(today?"<span>"+cur.getDate()+"</span>":cur.getDate())+dot+"</td>";
+      html+='<span class="'+cls+'">'+(today?"<i>"+cur.getDate()+"</i>":cur.getDate())+dot+"</span>";
       cur.setDate(cur.getDate()+1);
     }
-    html+="</tr>";
     if(cur.getMonth()!==m&&cur.getDay()===1)break;
   }
-  el.innerHTML=html+"</table>";
+  el.innerHTML=html;
 }
 function wgDday(){
   const ev=window.__nextEv;
