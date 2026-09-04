@@ -441,8 +441,11 @@
     background:var(--card); border:1px solid var(--line); border-radius:24px; padding:16px 17px;
     display:flex; flex-direction:column; overflow:hidden; min-width:0;
   }
-  #cal-body,#money-body{flex:1; min-height:0; overflow-y:auto; scrollbar-width:none;}
-  #cal-body::-webkit-scrollbar,#money-body::-webkit-scrollbar{display:none;}
+  #cal-body,#money-body,.widget .wsc{flex:1; min-height:0; overflow-y:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+  .wd-sum{flex-shrink:0; text-align:right; font-size:11.5px; color:var(--sub2);
+    padding-top:9px; margin-top:2px; border-top:1px solid var(--line);}
+  .wd-sum b{color:var(--ink);}
+  #cal-body::-webkit-scrollbar,#money-body::-webkit-scrollbar,.widget .wsc::-webkit-scrollbar{display:none;}
   .wg-dt .sat{color:#7aa7ff;} .wg-dt .sun{color:var(--red);}
   /* 미니 달력 (이번주 위젯 하단) */
   #wg-mcal-wrap{margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
@@ -2299,6 +2302,7 @@ function renderWd(){
     +pg.title+' <span class="r"><button class="wnav" data-w="-1"'+(WD_PI===0?" disabled":"")+'>‹</button> '+pg.mon+' <button class="wnav" data-w="1"'+(WD_PI===1?" disabled":"")+'>›</button></span></div>';
   if(pg.list.length){
     const total=pg.list.reduce((s,x)=>s+(x.amt||0),0);
+    wh+='<div class="wsc">';
     wh+=pg.list.map(x=>{
       const dd=evDate(x.e);
       const past=dd<today;
@@ -2306,7 +2310,7 @@ function renderWd(){
       return '<div class="wd'+(past?" wpast":"")+'"><span class="d">'+(dd.getMonth()+1)+"/"+dd.getDate()+" "+DAYS[dd.getDay()]+'</span>'
         +'<span class="t">'+nm+'</span><span class="a">'+(x.amt!=null?x.amt.toLocaleString()+"원":"—")+'</span></div>';
     }).join("");
-    wh+='<div style="text-align:right;font-size:11.5px;color:var(--sub2);margin-top:9px">합계 <b style="color:var(--ink)">'+total.toLocaleString()+'원</b></div>';
+    wh+='</div><div class="wd-sum">합계 <b>'+total.toLocaleString()+'원</b></div>';
   }else wh+='<div class="w-empty">'+pg.mon+' 출금 일정 없음 (캘린더에 "항목 N만" 형식)</div>';
   $("w-wd").innerHTML=wh;
   $("w-wd").querySelectorAll(".wnav").forEach(bn=>bn.onclick=e2=>{
@@ -2926,13 +2930,15 @@ async function loadGmail(){
   }).filter(Boolean);
   let html='<div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.2l8.5 6 8.5-6"/></svg> 메일 <span class="r">'+(unreadTotal?'<b style="color:var(--lime)">안읽음 '+unreadTotal+'</b> · ':'')+'기본 탭 7일</span></div>';
   if(rows.length){
-    html+=rows.slice(0,6).map(r=>
+    html+='<div class="wsc">';
+    html+=rows.slice(0,10).map(r=>
       '<a class="ev mailrow" style="text-decoration:none;cursor:pointer" href="https://mail.google.com/mail/u/0/#inbox/'+r.id+'" target="_blank" rel="noopener">'
       +'<span class="d'+(r.unread?" today":"")+'">'+(r.d.getMonth()+1)+"/"+r.d.getDate()+'</span>'
       +'<span class="t" style="'+(r.unread?"font-weight:800;color:var(--ink)":"color:var(--sub)")+'">'+esc(r.subj)+'</span>'
       +'<span class="tm">'+esc(r.from)+'</span>'
       +(r.unread?'<button class="mrd" data-mid="'+r.id+'" title="읽음 처리"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg></button>':'')
       +'</a>').join("");
+    html+='</div>';
   }else html+='<div class="w-empty">최근 7일 기본 탭 메일 없음</div>';
   $("w-mail").innerHTML=html;
   $("w-mail").querySelectorAll(".mrd").forEach(b=>b.onclick=async e=>{
