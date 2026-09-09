@@ -2986,20 +2986,30 @@ function qParse(s){
   const cat=type==="지출"?guessTarget(desc):null;
   return {amt:Math.round(amt),desc,cat,type,date,inst};
 }
+const INST_OPTS=[1,2,3,4,5,6,9,12,18,24,36];
 $("q-in").addEventListener("input",()=>{
   const p=qParse($("q-in").value);
-  Q=p||{amt:null};
+  const keep={type:Q&&Q.type, inst:Q&&Q.inst, cat:Q&&Q.cat};
+  Q=p?Object.assign({},p):{amt:null};   /* p 참조 공유 금지 — keep 복원이 p를 오염하지 않게 */
+  if(keep.type)Q.type=keep.type;
+  if(keep.inst)Q.inst=keep.inst;
+  if(keep.cat)Q.cat=keep.cat;
   $("q-save").disabled=!p;
   const pv=$("q-prev");
   if(!p){pv.classList.add("hidden");return;}
   pv.classList.remove("hidden");
+  const type=Q.type||p.type;
+  const inst=p.inst>1?p.inst:(Q.inst||1);   /* 텍스트 문법 우선, 없으면 셀렉트 */
   pv.innerHTML='<div class="qp1"><span class="amt">'+p.amt.toLocaleString()+'원</span>'
     +(p.date?'<span class="qdate">'+(p.date.getMonth()+1)+"/"+p.date.getDate()+'</span>':"")
-    +(p.inst>1?'<span class="qdate">'+p.inst+'회 할부 · 회당 '+Math.round(p.amt/p.inst).toLocaleString()+'원</span>':"")
+    +(inst>1?'<span class="qdate">'+inst+'회 · 회당 '+Math.round(p.amt/inst).toLocaleString()+'원</span>':"")
     +'<span class="qd">'+esc(p.desc)+'</span></div>'
-    +'<div class="qp2"><span class="tsel"><button data-t="지출" class="'+(p.type==="지출"?"on":"")+'">지출</button><button data-t="수입" class="'+(p.type==="수입"?"on":"")+'">수입</button></span>'
-    +(p.type==="지출"?'<select id="q-cat">'+(p.cat?"":'<option selected value="">항목 선택</option>')+catOptions(p.cat)+'</select>':"")+'</div>';
-  pv.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{Q.type=b.dataset.t;$("q-in").dispatchEvent(new Event("input"));const v=$("q-in").value;});
+    +'<div class="qp2"><span class="tsel"><button data-t="지출" class="'+(type==="지출"?"on":"")+'">지출</button><button data-t="수입" class="'+(type==="수입"?"on":"")+'">수입</button></span>'
+    +(type==="지출"?'<select id="q-cat">'+((p.cat||Q.cat)?"":'<option selected value="">항목 선택</option>')+catOptions(Q.cat||p.cat)+'</select>':"")
+    +(type==="지출"?'<select id="q-inst">'+INST_OPTS.map(n=>'<option value="'+n+'"'+(n===inst?" selected":"")+'>'+(n===1?"일시불":n+"개월")+"</option>").join("")+'</select>':"")+'</div>';
+  pv.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{Q.type=b.dataset.t;$("q-in").dispatchEvent(new Event("input"));});
+  const qc=pv.querySelector("#q-cat"); if(qc)qc.onchange=()=>{Q.cat=qc.value;};
+  const qs=pv.querySelector("#q-inst"); if(qs)qs.onchange=()=>{Q.inst=+qs.value;$("q-in").dispatchEvent(new Event("input"));};
 });
 $("q-in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("q-save").disabled)qSave();});
 $("q-save").onclick=qSave;
@@ -3007,6 +3017,7 @@ async function qSave(){
   const p=qParse($("q-in").value); if(!p)return;
   if(Math.abs(p.amt)>=10000000&&!confirm(p.amt.toLocaleString()+"원 — 금액이 맞나요?"))return;
   if(Q.type)p.type=Q.type;
+  if(p.inst<=1&&Q.inst>1)p.inst=Q.inst;
   const sel=$("q-cat"); if(sel&&sel.value)p.cat=sel.value;
   if(p.type==="지출"&&!p.cat){toast("항목을 골라주세요");return;}
   if(!gtoken()){toast("구글 데이터 연결이 필요해요");return;}
@@ -3062,7 +3073,7 @@ async function qSave(){
       }
     }
     toast(p.inst>1?("💳 할부 "+p.inst+"회차 기록 완료 · 총 "+p.amt.toLocaleString()+"원"):((p.type==="지출"?"지출":"수입")+" "+p.amt.toLocaleString()+"원 기록됨"));
-    $("q-in").value=""; $("q-prev").classList.add("hidden"); 
+    $("q-in").value=""; $("q-prev").classList.add("hidden"); Q={amt:null};
     dashLoaded=0; loadSheet().catch(()=>{});
   }catch(e){ toast("저장 실패: "+e.message); }
   $("q-save").disabled=false;
