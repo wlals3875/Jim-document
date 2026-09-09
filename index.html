@@ -425,13 +425,14 @@
   .wgrid{columns:2; column-gap:16px;}
   /* ===== 애플 위젯 그리드: 고정 셀 + 스팬 ===== */
   .wgrid{
-    --wcell:245px; --wgap:14px;
-    display:grid; grid-template-columns:repeat(4,var(--wcell));
-    grid-auto-rows:var(--wcell); gap:var(--wgap);
-    grid-auto-flow:dense; justify-content:center;
+    --wgap:14px;
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:var(--wgap); grid-auto-flow:dense;
+    width:100%; max-width:calc(4*245px + 3*var(--wgap)); margin:0 auto;   /* 컨테이너보다 절대 안 넓어짐 */
   }
+  .widget.s22{aspect-ratio:1/1;}   /* 열폭이 줄면 정방 비율로 함께 수축 */
   @media(max-width:1129px){
-    .wgrid{--wcell:calc((100vw - 36px - var(--wgap))/2); grid-template-columns:repeat(2,var(--wcell));}
+    .wgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
   }
   .wgrid .widget{margin:0; width:auto; min-height:0;}
   .widget.s21{grid-column:span 2;}
