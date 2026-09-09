@@ -407,6 +407,7 @@
     font-size:12.5px; color:var(--sub);
   }
   .qprev .qp1{display:flex; align-items:baseline; gap:8px; min-width:0;}
+  .qprev .qdate{flex-shrink:0; font-size:11px; font-weight:900; color:#021413; background:var(--grad); border-radius:999px; padding:2px 8px; align-self:center;}
   .qprev .qd{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .qprev .qp2{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .qprev .amt{white-space:nowrap;}
@@ -839,7 +840,7 @@
       <div class="widget s22" id="w-money">
         <div class="wt"><svg class="wic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 9.3l1.4 5 2.3-5 2.3 5 1.4-5M8.2 13.4h7.6"/></svg> 가계부 <span class="r"><a href="#" id="sheet-ext" style="color:var(--sub2);text-decoration:none">구글 시트 ↗</a> · <span id="money-mon"></span></span></div>
         <div class="qadd">
-          <input id="q-in" type="text" placeholder="예: 점심 8500 · 물 4400" autocomplete="off">
+          <input id="q-in" type="text" placeholder="예: 점심 8500 · 10/1 마일드마켓 145590 3개월" autocomplete="off">
           <button class="qbtn" id="q-save" disabled>기록</button>
         </div>
         <div class="qprev hidden" id="q-prev"></div>
@@ -2863,7 +2864,7 @@ async function loadWeekly(){
     /* 오늘 00:00~ / 어제 00:00~오늘 00:00 */
     const t0=new Date(); t0.setHours(0,0,0,0);
     const yst=new Date(t0); yst.setDate(t0.getDate()-1);
-    const tItems=all.filter(x=>x.t>=t0.getTime());
+    const tItems=all.filter(x=>x.t>=t0.getTime()&&x.t<t0.getTime()+86400000);   /* 미래 할부 제외 */
     const yItems=all.filter(x=>x.t>=yst.getTime()&&x.t<t0.getTime());
     /* 지난주 월요일 00:00 ~ 이번 주 월요일 00:00 */
     const thisMon=new Date(t0); thisMon.setDate(t0.getDate()-((t0.getDay()+6)%7));
@@ -2963,6 +2964,17 @@ async function loadGmail(){
 let Q={amt:null,desc:"",cat:null,type:"지출"};
 function qParse(s){
   s=s.trim(); if(!s)return null;
+  let date=null;
+  const dm=s.match(/^(\d{1,2})[\/.](\d{1,2})(?=\s)/);
+  if(dm){
+    const now=new Date(); const mo=+dm[1]-1, da=+dm[2];
+    let d=new Date(now.getFullYear(),mo,da);
+    if(d.getTime()<now.getTime()-180*86400000)d=new Date(now.getFullYear()+1,mo,da);
+    if(d.getMonth()===mo){ date=d; s=s.slice(dm[0].length).trim(); }
+  }
+  let inst=1;
+  const im=s.match(/(\d{1,2})\s*(?:개월|회\s*할부|할부)/);
+  if(im){ const n=+im[1]; if(n>=2&&n<=36){ inst=n; s=(s.slice(0,im.index)+s.slice(im.index+im[0].length)).trim(); } }
   let type=/수입/.test(s)?"수입":"지출";
   s=s.replace(/수입|지출/g,"").trim();
   const ms=[...s.matchAll(/(-?\d[\d,]*(?:\.\d+)?)\s*(만)?\s*원?/g)];
@@ -2972,7 +2984,7 @@ function qParse(s){
   if(m[2])amt*=10000;
   const desc=(s.slice(0,m.index)+s.slice(m.index+m[0].length)).replace(/\s+/g," ").trim()||"기타";
   const cat=type==="지출"?guessTarget(desc):null;
-  return {amt:Math.round(amt),desc,cat,type};
+  return {amt:Math.round(amt),desc,cat,type,date,inst};
 }
 $("q-in").addEventListener("input",()=>{
   const p=qParse($("q-in").value);
@@ -2981,7 +2993,10 @@ $("q-in").addEventListener("input",()=>{
   const pv=$("q-prev");
   if(!p){pv.classList.add("hidden");return;}
   pv.classList.remove("hidden");
-  pv.innerHTML='<div class="qp1"><span class="amt">'+p.amt.toLocaleString()+'원</span><span class="qd">'+esc(p.desc)+'</span></div>'
+  pv.innerHTML='<div class="qp1"><span class="amt">'+p.amt.toLocaleString()+'원</span>'
+    +(p.date?'<span class="qdate">'+(p.date.getMonth()+1)+"/"+p.date.getDate()+'</span>':"")
+    +(p.inst>1?'<span class="qdate">'+p.inst+'회 할부 · 회당 '+Math.round(p.amt/p.inst).toLocaleString()+'원</span>':"")
+    +'<span class="qd">'+esc(p.desc)+'</span></div>'
     +'<div class="qp2"><span class="tsel"><button data-t="지출" class="'+(p.type==="지출"?"on":"")+'">지출</button><button data-t="수입" class="'+(p.type==="수입"?"on":"")+'">수입</button></span>'
     +(p.type==="지출"?'<select id="q-cat">'+(p.cat?"":'<option selected value="">항목 선택</option>')+catOptions(p.cat)+'</select>':"")+'</div>';
   pv.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{Q.type=b.dataset.t;$("q-in").dispatchEvent(new Event("input"));const v=$("q-in").value;});
@@ -2997,10 +3012,27 @@ async function qSave(){
   if(!gtoken()){toast("구글 데이터 연결이 필요해요");return;}
   $("q-save").disabled=true;
   try{
-    const now=new Date();
-    const ds=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+    const d0=p.date||new Date();
+    const fmt=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    /* 회차 전개 (단건이면 1개) — 말일 보정 + 마지막 회차 잔차 보정 */
+    const insts=[];
+    if(p.inst>1){
+      const per=Math.round(p.amt/p.inst);
+      for(let i=0;i<p.inst;i++){
+        let d=new Date(d0.getFullYear(),d0.getMonth()+i,d0.getDate());
+        if(d.getMonth()!==((d0.getMonth()+i)%12))d=new Date(d0.getFullYear(),d0.getMonth()+i+1,0);
+        insts.push({d,desc:p.desc+" ("+(i+1)+"/"+p.inst+")",amt:i===p.inst-1?p.amt-per*(p.inst-1):per});
+      }
+      const lb=insts[0], le=insts[insts.length-1];
+      if(!confirm("💳 "+Math.round(p.amt/p.inst).toLocaleString()+"원 × "+p.inst+"회 ("
+        +(lb.d.getMonth()+1)+"/"+lb.d.getDate()+" → "+(le.d.getMonth()+1)+"/"+le.d.getDate()
+        +") · 총 "+p.amt.toLocaleString()+"원 — 할부로 기록할까?")){ $("q-save").disabled=false; return; }
+    }else insts.push({d:d0,desc:p.desc,amt:p.amt});
+    /* 이번 달 회차만 예산(Details)에 가산 */
+    const nowM=new Date();
+    const dAmt=insts.filter(x=>x.d.getFullYear()===nowM.getFullYear()&&x.d.getMonth()===nowM.getMonth()).reduce((s,x)=>s+x.amt,0);
     /* 1) 입력로그 append (탭 없으면 생성 후 재시도) */
-    const row=[[ds,p.desc,p.amt,p.cat||"",p.type]];
+    const row=insts.map(x=>[fmt(x.d),x.desc,x.amt,p.cat||"",p.type]);
     const appendURL="https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/"+encodeURIComponent("입력로그!A:E")+":append?valueInputOption=USER_ENTERED";
     try{
       await gfetch(appendURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({values:row})});
@@ -3011,8 +3043,8 @@ async function qSave(){
         await gfetch(appendURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({values:[["날짜","내용","금액","카테고리","구분"],...row]})});
       }else throw e;
     }
-    /* 2) 지출이면 Details 카테고리 셀 가산 */
-    if(p.type==="지출"){
+    /* 2) 지출이면 이번 달 회차분만 Details 카테고리 셀 가산 */
+    if(p.type==="지출"&&dAmt!==0){
       if(!SHEET)await loadSheet();
       const r=SHEET.targetRows[p.cat];
       if(r!==undefined){
@@ -3021,15 +3053,15 @@ async function qSave(){
         const cur=await gfetch("https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/"+encodeURIComponent(a1)+"?valueRenderOption=FORMULA");
         const raw=cur.values&&cur.values[0]?cur.values[0][0]:"";
         let nv;
-        if(typeof raw==="string"&&raw.trim().startsWith("="))nv=raw+(p.amt<0?"":"+")+p.amt;
-        else if(typeof raw==="number")nv=raw+p.amt;
-        else if(raw!==""&&!isNaN(+raw))nv=(+raw)+p.amt;
-        else nv=p.amt;
+        if(typeof raw==="string"&&raw.trim().startsWith("="))nv=raw+(dAmt<0?"":"+")+dAmt;
+        else if(typeof raw==="number")nv=raw+dAmt;
+        else if(raw!==""&&!isNaN(+raw))nv=(+raw)+dAmt;
+        else nv=dAmt;
         await gfetch("https://sheets.googleapis.com/v4/spreadsheets/"+SHEET_ID+"/values/"+encodeURIComponent(a1)+"?valueInputOption=USER_ENTERED",
           {method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({values:[[nv]]})});
       }
     }
-    toast((p.type==="지출"?"지출":"수입")+" "+p.amt.toLocaleString()+"원 기록됨");
+    toast(p.inst>1?("💳 할부 "+p.inst+"회차 기록 완료 · 총 "+p.amt.toLocaleString()+"원"):((p.type==="지출"?"지출":"수입")+" "+p.amt.toLocaleString()+"원 기록됨"));
     $("q-in").value=""; $("q-prev").classList.add("hidden"); 
     dashLoaded=0; loadSheet().catch(()=>{});
   }catch(e){ toast("저장 실패: "+e.message); }
