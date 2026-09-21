@@ -42,12 +42,16 @@
   ::-webkit-scrollbar-thumb:hover{background:#3a4147; border:2px solid transparent; background-clip:padding-box;}
   html,body{overflow-x:hidden; max-width:100vw;}
   body{
-    font-family:'Google Sans Flex','Wanted Sans Variable','Wanted Sans','Pretendard Variable',Pretendard,
-      -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo",
+      'Wanted Sans Variable','Wanted Sans','Pretendard Variable',Pretendard, "Malgun Gothic", system-ui, sans-serif;
+    /* iOS 다크 월페이퍼 — 브랜드 색의 은은한 메시 */
     background:
-      radial-gradient(ellipse 70% 40% at 50% -5%, rgba(0,210,190,.06), transparent 60%),
-      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 30%);
-    background-color:var(--bg);
+      radial-gradient(1100px 620px at 12% -8%,  rgba(0,210,190,.18), transparent 62%),
+      radial-gradient(900px 560px at 96% 108%,  rgba(184,242,75,.11), transparent 60%),
+      radial-gradient(760px 520px at 62% 42%,   rgba(0,163,217,.10), transparent 62%),
+      linear-gradient(180deg, #0b0d10 0%, #07080a 100%);
+    background-attachment:fixed;
+    background-color:#07080a;
     color:var(--ink); line-height:1.6; min-height:100vh;
     word-break:keep-all; -webkit-font-smoothing:antialiased;
   }
@@ -785,6 +789,54 @@
   @media(max-width:860px){ .ev,.wd{min-height:44px;} .modal{animation-name:mInSheet;} }
   @keyframes mInSheet{from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:none;}}
   @media(prefers-reduced-motion:reduce){ .modal{animation:none;} .widget:active,.hbtn:active,.mbtn:active{transform:none;} }
+  /* ═══════════ iOS 홈 화면 레이어 ═══════════ */
+  /* 위젯 = 머티리얼: 반투명 + 블러(월페이퍼 색이 비침) + 상단 하이라이트 + 부유 그림자 */
+  .widget{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,.02) 40%, rgba(255,255,255,0) 100%),
+      rgba(22,25,28,.72);
+    border:1px solid rgba(255,255,255,.065);
+    -webkit-backdrop-filter:blur(28px) saturate(160%); backdrop-filter:blur(28px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 14px 36px rgba(0,0,0,.42), 0 2px 6px rgba(0,0,0,.25);
+    padding:var(--sp-4) var(--sp-4) var(--sp-3);
+  }
+  .widget:hover{border-color:rgba(255,255,255,.1);}
+  /* 위젯 헤더 = iOS 위젯 틴트 라벨 (Calendar 위젯의 빨간 요일처럼) */
+  .widget .wt{color:var(--lime); font-size:var(--fs-caption2); font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin-bottom:var(--sp-3); opacity:.95;}
+  .widget .wt .wic{stroke:var(--lime);}
+  .widget .wt .r{color:var(--sub2); font-weight:600; letter-spacing:0; text-transform:none;}
+  .widget .wt .r a, .widget .wt .r b{font-weight:700;}
+  /* 내부 박스 = iOS systemFill (테두리 없음) */
+  .qadd, .qprev, .mn, .ev-next, .wg-cal #wg-mcal-wrap{
+    background:rgba(120,120,128,.14); border:0; border-radius:var(--r-md);
+  }
+  .qadd{padding:4px 4px 4px var(--sp-3);}
+  .qadd input{font-size:var(--fs-subhead); font-weight:500;}
+  .qadd input::placeholder{color:rgba(235,235,245,.3);}
+  .ev-next{border:1px solid rgba(0,210,190,.28); background:rgba(0,210,190,.08);}
+  #wg-mcal-wrap{background:transparent; border-top:1px solid rgba(255,255,255,.07); border-radius:0;}
+  /* 큰 숫자 카드 = 라벨 작게, 숫자 크게(SF 헤비) */
+  .mn{padding:var(--sp-3) var(--sp-3); text-align:left;}
+  .mn .k{font-size:var(--fs-caption2); font-weight:600; color:var(--sub2); letter-spacing:.02em;}
+  .mn .v{font-size:var(--fs-title2); font-weight:800; letter-spacing:-.03em; margin-top:2px; line-height:1.1;}
+  /* 행 = 헤어라인 구분선, 숫자 헤비 */
+  .ev+.ev::before, .wd+.wd::before{background:rgba(255,255,255,.07);}
+  .ev b, .wd b{font-weight:800; letter-spacing:-.01em;}
+  .ev .d, .wd .d{font-weight:600; color:var(--sub2);}
+  .wd-sum{border-top-color:rgba(255,255,255,.09);}
+  /* 대시 액션 버튼 = iOS 틴트 버튼 */
+  #dash-refresh, #dash-edit{background:rgba(0,210,190,.12); border:0; color:var(--lime); font-weight:700;}
+  #dash-refresh:hover, #dash-edit:hover{background:rgba(0,210,190,.2);}
+  /* 세그먼트·셀렉트도 systemFill */
+  .qprev .tsel{background:rgba(120,120,128,.18);}
+  .qprev .tsel button.on{background:rgba(255,255,255,.16);}
+  .qprev select{background-color:rgba(120,120,128,.18); border:0;}
+  /* 미니달력 숫자는 SF 세미볼드 */
+  #wg-mcal .c{font-weight:600;}
+  #wg-mcal .h{font-weight:700;}
+  /* 우측 지출 패널·사이드바도 월페이퍼 위 머티리얼 */
+  .rside{background:rgba(22,25,28,.55); -webkit-backdrop-filter:blur(24px) saturate(160%); backdrop-filter:blur(24px) saturate(160%); border-left:1px solid rgba(255,255,255,.05);}
+  @media(prefers-reduced-transparency:reduce){ .widget,.rside{-webkit-backdrop-filter:none; backdrop-filter:none; background:var(--card);} }
 </style>
 </head>
 <body>
