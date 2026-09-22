@@ -37,13 +37,16 @@ html,body{height:100%;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Wanted Sans Variable","Pretendard Variable",Pretendard,system-ui,sans-serif;
   color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.45; word-break:keep-all;
-  background:#06090b;
-  background-image:
-    radial-gradient(1200px 780px at 8% -12%, rgba(0,210,190,.32), transparent 62%),
-    radial-gradient(760px 620px at 22% 6%, rgba(184,242,75,.16), transparent 58%),
-    radial-gradient(900px 700px at 100% 100%, rgba(0,120,160,.18), transparent 60%);
-  background-attachment:fixed; min-height:100vh;
+  background:transparent; min-height:100vh;
 }
+html{background:#06090b;}
+/* 월페이퍼 = 뷰포트 고정 레이어 (iOS는 background-attachment:fixed 미지원 → 긴 페이지에 늘어나 색이 틀어짐) */
+body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(120vmax 78vmax at 8% -10%, rgba(0,210,190,.30), transparent 60%),
+    radial-gradient(70vmax 58vmax at 26% 4%, rgba(184,242,75,.12), transparent 58%),
+    radial-gradient(90vmax 70vmax at 100% 100%, rgba(0,120,160,.18), transparent 60%),
+    #06090b;}
 body::before{content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay; z-index:0;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
 button,input,select,textarea{font:inherit; color:inherit;}
@@ -80,7 +83,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none; bo
 
 /* ── 헤더 ── */
 header{position:sticky; top:0; z-index:40; padding-top:env(safe-area-inset-top,0);
-  background:rgba(6,9,11,.55); -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+  background:rgba(8,12,13,.72); -webkit-backdrop-filter:blur(24px) saturate(170%); backdrop-filter:blur(24px) saturate(170%);
   border-bottom:1px solid var(--hair);}
 header .hbar{max-width:1104px; margin:0 auto; padding:0 var(--sp-5); height:60px; display:flex; align-items:center; gap:var(--sp-3);}
 .logo{display:flex; align-items:center; gap:12px; font-weight:800; font-size:var(--fs-17); letter-spacing:-.02em; color:var(--ink); text-decoration:none; cursor:pointer;}
@@ -288,7 +291,6 @@ main{position:relative; z-index:1; max-width:1104px; margin:0 auto; padding:0 va
 #viewer .v-bar .nm{flex:1; min-width:0; font-size:var(--fs-15); font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 #viewer .v-bar .v-meta{font-size:var(--fs-12); color:var(--sub2); white-space:nowrap;}
 #viewer .v-bar .hbtn svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
-#viewer.full .vbar,#viewer.full .v-side{display:none;}
 .v-frame{flex:1; border:0; width:100%; background:#fff;}
 .v-side{border-top:1px solid var(--hair); background:rgba(14,18,19,.9); padding-bottom:env(safe-area-inset-bottom,0px);}
 #c-toggle{display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:12px var(--sp-4); font-size:var(--fs-13); font-weight:700; color:var(--sub);}
@@ -425,6 +427,20 @@ main{position:relative; z-index:1; max-width:1104px; margin:0 auto; padding:0 va
 .drow{display:flex; justify-content:space-between; gap:8px; padding:8px 0; font-size:var(--fs-13); border-bottom:1px solid var(--hair);}
 .drow.p{font-weight:700;} .drow.s{color:var(--sub); padding-left:var(--sp-4); font-size:var(--fs-12);} .drow b{font-variant-numeric:tabular-nums;}
 /* 뷰 전환 */
+/* 편집 모드 위젯 이동 버튼 · 상태 클래스 */
+.mvbtn{position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:30px; height:30px; border-radius:50%;
+  background:rgba(255,255,255,.92); color:#111; font-size:17px; font-weight:900; line-height:1; display:grid; place-items:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.4); animation:none;}
+.mvbtn.prev{left:12px;} .mvbtn.next{right:12px;}
+.mvbtn:active{transform:translateY(-50%) scale(.9);}
+header.loading{box-shadow:inset 0 -1px 0 rgba(0,210,190,.6);}
+header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height:2px; width:38%; background:var(--grad-h); animation:sweep 1.6s var(--ease) infinite;}
+@keyframes sweep{from{transform:translateX(-100%);} to{transform:translateX(270%);}}
+#viewer.vfull .v-bar,#viewer.vfull .v-side{display:none;}
+.v-side.closed #c-wrap{display:none;} .v-side.closed #c-toggle .arr{transform:rotate(-90deg);}
+.modal.wide{max-width:760px;}
+#rp-rot-body.rp-view{animation:rpIn .38s var(--ease);}
+@keyframes rpIn{from{opacity:0; transform:translateY(7px);} to{opacity:1; transform:none;}}
 /* ── 반응형 ── */
 @media(max-width:900px){
   main{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));}
@@ -629,9 +645,7 @@ main{position:relative; z-index:1; max-width:1104px; margin:0 auto; padding:0 va
     ||matchMedia("(display-mode: standalone)").matches
     ||(ios&&window.innerHeight>=screen.height-12);
   if(app){
-    document.documentElement.classList.add("ios-app");
-    const t="max(calc(env(safe-area-inset-top, 0px) + 12px), 58px)";
-    document.querySelectorAll(".hbar,.v-bar").forEach(el=>el.style.paddingTop=t);
+    document.documentElement.classList.add("ios-app");   /* safe-area는 CSS(env)가 처리 */
   }
 })();
 const MASTER_EMAIL="wlals3875@gmail.com";   /* 마스터 계정 (본인 구글 이메일) */
