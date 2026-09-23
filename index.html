@@ -284,7 +284,8 @@ body:not(.is-master) #dash-acts{display:none;}
   background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.06) 42%,rgba(255,255,255,0) 60%);}
 .s-item .ic .dk{position:relative; z-index:1; width:64%; height:64%; filter:drop-shadow(0 1.5px 2.5px rgba(0,0,0,.24));}
 .s-item .ic .dk{width:72%; height:72%;}
-#s-home .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#00c7be,#00807b);}   /* systemMint */
+#s-home .ic{background:radial-gradient(90% 70% at 50% 110%,rgba(0,210,190,.32),rgba(0,210,190,0) 65%),radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.16),rgba(255,255,255,0) 58%),linear-gradient(180deg,#1b2426,#060909);}   /* 홈: 브랜드 톤 어두운 유리 */
+#s-home{margin-right:var(--sp-2);} #s-home::before{content:""; position:absolute; top:8px; right:-14px; width:1px; height:40px; background:rgba(255,255,255,.18); border-radius:999px;}   /* 앱 아이콘과 구분하는 Dock 구분선 */
 /* Dock 앱 아이콘 팔레트 — Apple HIG 시스템 색(blue·indigo·orange·red·gray·purple) + JimStorage 고유 글리프 */
 .s-item[data-go="root"] .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#007aff,#0051c7);}
 #s-stats .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#1c9418,#017400);}   /* 사용자 지정 녹색 #017400 */
@@ -516,24 +517,16 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
 #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 #toast{display:flex; align-items:center; justify-content:center; gap:var(--sp-2);} #toast .wic{width:15px; height:15px; flex-shrink:0; stroke:var(--tint);}
 
-/* ── 게이트(로그인) = 리퀴드 글라스 카드 ── */
+/* ── 게이트(로그인) = 배경 위 가운데 배치 ── */
 #gate{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden;
   padding:calc(24px + env(safe-area-inset-top,0px)) var(--sp-5) calc(24px + env(safe-area-inset-bottom,0px));}
 #gate.hidden{display:none;}
 /* 유리가 비칠 빛 */
 .gate-orb{position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px); animation:orb 16s ease-in-out infinite alternate;}
-.gate-orb.o1{width:380px; height:380px; background:#0a9e90; opacity:.3; top:calc(50% - 300px); left:calc(50% - 320px);}
-.gate-orb.o2{width:320px; height:320px; background:#8fb84a; opacity:.14; top:calc(50% + 8px); left:calc(50% + 24px); animation-delay:-8s;}
+.gate-orb.o1{width:380px; height:380px; background:#0a9e90; opacity:.2; top:calc(50% - 300px); left:calc(50% - 320px);}
+.gate-orb.o2{width:320px; height:320px; background:#8fb84a; opacity:.09; top:calc(50% + 8px); left:calc(50% + 24px); animation-delay:-8s;}
 @keyframes orb{from{transform:translate(0,0) scale(1);} to{transform:translate(48px,-32px) scale(1.14);}}
-/* 카드 */
-.gate-box{position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:420px; padding:var(--sp-8) 40px;
-  border-radius:var(--r-32); animation:gIn .6s var(--ease) both;
-  background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.04) 45%,rgba(255,255,255,.07)),rgba(16,22,22,.42);
-  -webkit-backdrop-filter:blur(40px) saturate(180%); backdrop-filter:blur(40px) saturate(180%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(255,255,255,.05), 0 30px 80px rgba(0,0,0,.5);}
-.gate-box::before{content:""; position:absolute; inset:0; border-radius:inherit; padding:1px; pointer-events:none;
-  background:linear-gradient(135deg,rgba(110,232,216,.75),rgba(255,255,255,.16) 32%,rgba(255,255,255,.04) 60%,rgba(184,242,75,.4));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude;}
+.gate-box{position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:400px; padding:var(--sp-8) var(--sp-5); animation:gIn .6s var(--ease) both;}   /* 카드 없이 배경 위에 바로 배치 */
 @keyframes gIn{from{opacity:0; transform:translateY(12px) scale(.98);} to{opacity:1; transform:none;}}
 .gate-box .eyebrow{font-size:var(--fs-12); font-weight:600; color:var(--sub2); letter-spacing:.02em;}
 .gmark{margin:var(--sp-4) 0 var(--sp-2);} .gmark svg{width:72px; height:72px; display:block; filter:drop-shadow(0 8px 20px rgba(0,210,190,.35));}
@@ -547,7 +540,7 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
 /* 승인 대기: 로그인 안내·버튼 자리를 계정 카드와 요청 버튼으로 교체 */
 #gate.denied-on .gate-box>p,#gate.denied-on #login-btn{display:none;}
 /* 승인 대기 화면 새로고침: 모바일 웹앱에는 브라우저 새로고침이 없어 카드 안에 둠 */
-.gate-refresh{display:none; position:absolute; top:var(--sp-4); right:var(--sp-4); z-index:1; width:var(--m-x); height:var(--m-x); border-radius:50%; background:var(--fill2); color:var(--ink);
+.gate-refresh{display:none; position:absolute; top:calc(var(--sp-4) + env(safe-area-inset-top,0px)); right:var(--sp-4); z-index:1; width:var(--m-x); height:var(--m-x); border-radius:50%; background:var(--fill2); color:var(--ink);
   place-items:center; transition:background var(--fast) var(--ease);}
 #gate.denied-on .gate-refresh{display:grid;}
 .gate-refresh:hover{background:rgba(120,130,128,.36);} .gate-refresh:active{transform:scale(.94);}
@@ -567,7 +560,7 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
 .dn-acts .gbtn:disabled{background:var(--fill); color:var(--sub); box-shadow:none; cursor:default; transform:none;}
 .dn-alt{display:inline-flex; align-items:center; justify-content:center; height:40px; border-radius:999px; font-size:var(--fs-13); font-weight:600; color:var(--sub); transition:color var(--fast) var(--ease), background var(--fast) var(--ease);}
 .dn-alt:hover{color:var(--ink); background:var(--fill);}
-@media(max-width:900px){ .gate-box{padding:var(--sp-8) var(--sp-6);} .gate-orb.o1{width:280px; height:280px; left:calc(50% - 220px);} .gate-orb.o2{width:240px; height:240px; left:calc(50% - 20px);} }
+@media(max-width:900px){ .gate-box{padding:var(--sp-8) var(--sp-4);} .gate-orb.o1{width:280px; height:280px; left:calc(50% - 220px);} .gate-orb.o2{width:240px; height:240px; left:calc(50% - 20px);} }
 
 /* ── 미니홈(멤버 홈) ── */
 .gbw{display:flex; align-items:center; gap:var(--sp-2); height:44px; padding:4px 4px 4px var(--sp-4); border-radius:999px; background:var(--fill); margin-bottom:var(--sp-2);}
@@ -637,7 +630,7 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
   .ev,.wd{min-height:44px;}
   #aside{left:50%; right:auto; transform:translateX(-50%); width:max-content; bottom:max(12px, calc(env(safe-area-inset-bottom,0px) - 18px)); justify-content:center; gap:var(--sp-5); padding:12px 20px 16px; border-radius:var(--r-32);}
   body.is-master #aside{left:16px; right:16px; transform:none; width:auto; justify-content:space-between; gap:0; padding:12px 16px 16px;}
-  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-12);} .s-item.on::after{bottom:-7px;}
+  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} #s-home{margin-right:0;} #s-home::before{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-12);} .s-item.on::after{bottom:-7px;}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .modal-bg{align-items:flex-end; padding:0;}
   .modal{max-width:none; border-radius:var(--r-26) var(--r-26) 0 0; border-bottom:0; min-height:56dvh; max-height:92dvh; animation:sheetIn var(--sheet-t) var(--ease);}
@@ -669,8 +662,8 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
 <!-- 게이트 -->
 <div id="gate">
   <div class="gate-orb o1"></div><div class="gate-orb o2"></div>
+  <button class="gate-refresh" id="gate-refresh" aria-label="새로고침"><svg class="gl" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.4v3.9h-3.9"/></svg></button>
   <div class="gate-box">
-    <button class="gate-refresh" id="gate-refresh" aria-label="새로고침"><svg class="gl" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.4v3.9h-3.9"/></svg></button>
     <div class="eyebrow">Personal Document Hub</div>
     <div class="gmark"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="ggd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".58"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".58"/><stop offset="1" stop-color="#0077b6" stop-opacity=".58"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#ggd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#gg)"/></svg></div>
     <h1>Jim<span class="s-mark">S</span>torage</h1>
@@ -698,7 +691,7 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
 <!-- Dock -->
 <aside id="aside">
   <div class="s-label">메뉴</div>
-  <button class="s-item hidden" id="s-home"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwh" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="geh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient><linearGradient id="dkhl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2ffc4"/><stop offset="1" stop-color="#b8f24b"/></linearGradient></defs><rect x="3.8" y="3.8" width="7.4" height="7.4" rx="2.3" fill="url(#gwh)" stroke="url(#geh)" stroke-width=".7"/><rect x="12.8" y="3.8" width="7.4" height="7.4" rx="2.3" fill="url(#dkhl)"/><rect x="3.8" y="12.8" width="7.4" height="7.4" rx="2.3" fill="url(#gwh)" stroke="url(#geh)" stroke-width=".7"/><rect x="12.8" y="12.8" width="7.4" height="7.4" rx="2.3" fill="url(#gwh)" stroke="url(#geh)" stroke-width=".7" opacity=".7"/></svg></span><span class="tx">홈</span></button>
+  <button class="s-item hidden" id="s-home"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dkhh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4ff6e"/><stop offset=".55" stop-color="#1fe0c4"/><stop offset="1" stop-color="#1a9fe0"/></linearGradient><linearGradient id="dkhe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".5" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/></linearGradient></defs><path d="M12 3.4c.5 0 1 .2 1.4.5l6.3 5.3c.5.4.8 1 .8 1.7v7.8a2.2 2.2 0 0 1-2.2 2.2H5.7a2.2 2.2 0 0 1-2.2-2.2v-7.8c0-.7.3-1.3.8-1.7l6.3-5.3c.4-.3.9-.5 1.4-.5Z" fill="url(#dkhh)" stroke="url(#dkhe)" stroke-width=".7"/><rect x="9.9" y="13.6" width="4.2" height="7.3" rx="1.5" fill="#0a1214" opacity=".82"/></svg></span><span class="tx">홈</span></button>
   <button class="s-item" data-go="root"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwd" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="ged" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient></defs><path d="M8.2 3.8h6.6l3.6 3.6v10.8a1.8 1.8 0 0 1-1.8 1.8H8.2a1.8 1.8 0 0 1-1.8-1.8V5.6a1.8 1.8 0 0 1 1.8-1.8Z" fill="#cfe4ff" opacity=".45" transform="rotate(-9 12 12) translate(-1.4 .3)"/><path d="M9 5h5.6l3.8 3.8v10a1.8 1.8 0 0 1-1.8 1.8H9a1.8 1.8 0 0 1-1.8-1.8V6.8A1.8 1.8 0 0 1 9 5Z" fill="url(#gwd)" stroke="url(#ged)" stroke-width=".7"/><path d="M14.6 5v2.4a1.4 1.4 0 0 0 1.4 1.4h2.4Z" fill="#fff"/><path d="M10 11.8h5.6M10 14.4h5.6M10 17h3.6" stroke="#007aff" stroke-width="1.25" stroke-linecap="round" opacity=".6"/></svg></span><span class="tx">문서</span></button>
   <button class="s-item hidden" id="s-stats"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gws" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="ges" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient><linearGradient id="dksl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dcff7a"/></linearGradient><linearGradient id="dksa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".42"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="3.6" y="4.8" width="16.8" height="14.4" rx="3.4" fill="url(#gws)" stroke="url(#ges)" stroke-width=".7" fill-opacity=".22"/><path d="M5.6 16.2l3.6-3.8 3 2.2 5.4-6.2v8.8H5.6Z" fill="url(#dksa)"/><path d="M5.6 16.2l3.6-3.8 3 2.2 5.4-6.2" fill="none" stroke="url(#dksl)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17.6" cy="8.4" r="1.7" fill="#fff"/></svg></span><span class="tx">방문 통계</span></button>
   <button class="s-item hidden" id="s-guest"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwg" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="geg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient><linearGradient id="dkgh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9500"/><stop offset="1" stop-color="#ff3b30"/></linearGradient></defs><path d="M5.6 4.6h12.8A2.4 2.4 0 0 1 20.8 7v8.2a2.4 2.4 0 0 1-2.4 2.4H11.2l-4.3 3.3c-.4.3-1 0-1-.5v-2.8h-.3a2.4 2.4 0 0 1-2.4-2.4V7a2.4 2.4 0 0 1 2.4-2.4Z" fill="url(#gwg)" stroke="url(#geg)" stroke-width=".7"/><path d="M12 14.8s-3.5-2.1-3.5-4.5a1.9 1.9 0 0 1 3.5-1 1.9 1.9 0 0 1 3.5 1c0 2.4-3.5 4.5-3.5 4.5Z" fill="url(#dkgh)"/></svg></span><span class="tx">방명록</span></button>
