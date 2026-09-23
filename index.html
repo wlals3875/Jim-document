@@ -515,13 +515,11 @@ body:not(.is-master) #dash-acts{display:none;}
 .gmark{margin:var(--sp-4) 0 var(--sp-2);} .gmark svg{width:72px; height:72px; display:block; filter:drop-shadow(0 8px 20px rgba(0,210,190,.35));}
 .gate-box h1{font-size:var(--fs-34); font-weight:800; letter-spacing:-.035em;} .gate-box h1 .s-mark{color:var(--tint);}
 .gate-box p{color:var(--sub); font-size:var(--fs-15); margin:var(--sp-2) 0 var(--sp-6);}
-/* 틴트 유리 버튼 */
-.gbtn{gap:var(--sp-3); height:48px; padding:0 var(--sp-6) 0 var(--sp-2); border-radius:999px; color:#fff; font-size:var(--fs-15); font-weight:700;
-  background:linear-gradient(180deg,rgba(0,210,190,.34),rgba(0,210,190,.16)); border:1px solid rgba(110,232,216,.5);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 10px 28px rgba(0,210,190,.22); transition:transform var(--fast) var(--ease), background var(--fast) var(--ease);}
-.gbtn:hover{background:linear-gradient(180deg,rgba(0,210,190,.44),rgba(0,210,190,.22));} .gbtn:active{transform:scale(.97);}
-.gbtn .glogo{width:34px; height:34px; border-radius:50%; background:#fff; display:grid; place-items:center; box-shadow:0 2px 6px rgba(0,0,0,.2);}
-.gbtn .glogo svg{width:18px; height:18px; display:block;}
+/* 흰 버튼 */
+.gbtn{gap:var(--sp-3); height:48px; padding:0 var(--sp-6); border-radius:999px; background:#fff; color:#111; font-size:var(--fs-15); font-weight:700; border:0;
+  box-shadow:0 8px 24px rgba(0,0,0,.35); transition:transform var(--fast) var(--ease), background var(--fast) var(--ease);}
+.gbtn:hover{background:#f2f4f5;} .gbtn:active{transform:scale(.97);}
+.gbtn .glogo svg{width:20px; height:20px; display:block;}
 #req-btn{margin-top:var(--sp-3);}
 @media(max-width:900px){ .gate-box{padding:var(--sp-8) var(--sp-6);} .gate-orb.o1{width:280px; height:280px; left:calc(50% - 220px);} .gate-orb.o2{width:240px; height:240px; left:calc(50% - 20px);} }
 
