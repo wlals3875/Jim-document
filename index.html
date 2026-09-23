@@ -257,7 +257,7 @@ body:not(.is-master) #dash-acts{display:none;}
 .tiles{display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); gap:12px; margin-top:auto;}
 .tile{display:block; text-align:left; padding:12px; border-radius:var(--r-16); background:var(--fill); min-width:0; color:var(--ink); transition:background var(--fast) var(--ease);}
 .tile:hover{background:var(--fill2);}
-.tile .wic{width:18px; height:18px; stroke:var(--lime);}
+.tile .wic{width:18px; height:18px; stroke:var(--lime);} .tile.priv .wic{stroke:var(--sub);}
 .tile .n{font-size:var(--fs-15); font-weight:700; margin-top:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .tile .c{font-size:var(--fs-12); color:var(--sub2); font-weight:500;}
 .ring{margin:auto; position:relative; width:96px; height:96px;}
@@ -282,15 +282,15 @@ body:not(.is-master) #dash-acts{display:none;}
   transition:transform .08s var(--ease), filter var(--fast) var(--ease);}
 .s-item .ic::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.06) 42%,rgba(255,255,255,0) 60%);}
-.s-item .ic .dk{position:relative; z-index:1; width:64%; height:64%; filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.22));}
+.s-item .ic .dk{position:relative; z-index:1; width:64%; height:64%; filter:drop-shadow(0 1.5px 2.5px rgba(0,0,0,.24));}
 #s-home .ic .dk{width:68%; height:68%;} .s-item:not(#s-home) .ic .dk{width:72%; height:72%;}
-#s-home .ic{background:linear-gradient(160deg,#283032,#0b0f10);}
-/* Dock 앱 아이콘 팔레트 — JimStorage 고유 디자인 (브랜드 민트·라임 계열 + 앱별 색) */
-.s-item[data-go="root"] .ic{background:linear-gradient(160deg,#43efcf,#0b8d85);}
-#s-stats .ic{background:linear-gradient(160deg,#4d5ff2,#191c60);}
-#s-guest .ic{background:linear-gradient(160deg,#ffbb72,#ff5a5f);}
-#s-trash .ic{background:linear-gradient(160deg,#6c7580,#22272d);}
-#s-members .ic{background:linear-gradient(160deg,#b995ff,#5a2ce0);}
+#s-home .ic{background:radial-gradient(90% 80% at 80% 100%,rgba(0,210,190,.35),rgba(0,210,190,0) 60%),radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.16),rgba(255,255,255,0) 58%),linear-gradient(160deg,#1d3234,#070b0c);}
+/* Dock 앱 아이콘 팔레트 — Apple HIG 시스템 색(blue·indigo·orange·red·gray·purple) + JimStorage 고유 글리프 */
+.s-item[data-go="root"] .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#007aff,#0051c7);}
+#s-stats .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#1c9418,#017400);}   /* 사용자 지정 녹색 #017400 */
+#s-guest .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#ff9500,#ff3b30);}
+#s-trash .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#8e8e93,#48484a);}
+#s-members .ic{background:radial-gradient(120% 90% at 18% 0%,rgba(255,255,255,.34),rgba(255,255,255,0) 58%),linear-gradient(180deg,#af52de,#7d2fb0);}
 .s-item:hover .ic{filter:brightness(1.07);}
 .s-item:active .ic{transform:scale(.92);}
 .s-item.on{color:var(--ink);}
@@ -546,6 +546,14 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
 .gbtn .glogo svg{width:20px; height:20px; display:block;}
 /* 승인 대기: 로그인 안내·버튼 자리를 계정 카드와 요청 버튼으로 교체 */
 #gate.denied-on .gate-box>p,#gate.denied-on #login-btn{display:none;}
+/* 승인 대기 화면 새로고침: 모바일 웹앱에는 브라우저 새로고침이 없어 카드 안에 둠 */
+.gate-refresh{display:none; position:absolute; top:var(--sp-4); right:var(--sp-4); z-index:1; width:var(--m-x); height:var(--m-x); border-radius:50%; background:var(--fill2); color:var(--ink);
+  place-items:center; transition:background var(--fast) var(--ease);}
+#gate.denied-on .gate-refresh{display:grid;}
+.gate-refresh:hover{background:rgba(120,130,128,.36);} .gate-refresh:active{transform:scale(.94);}
+.gate-refresh .gl{width:16px; height:16px;}
+.gate-refresh.spin .gl{animation:spin .9s var(--ease) infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 .denied{width:100%; display:flex; flex-direction:column; align-items:stretch; gap:var(--sp-4); margin-top:var(--sp-6);}
 .dn-acct{display:flex; align-items:center; gap:var(--sp-3); padding:var(--sp-3) var(--sp-4); border-radius:var(--r-16); background:var(--fill); text-align:left;}
 .dn-av{flex-shrink:0; width:40px; height:40px; border-radius:50%; object-fit:cover; background:var(--fill2); display:grid; place-items:center; font-size:var(--fs-17); font-weight:700; color:var(--ink);}
@@ -655,13 +663,14 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
 <!-- 브랜드 그라디언트 defs -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="wgi" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22"><stop offset="0" stop-color="#b8f24b"/><stop offset=".55" stop-color="#00d2be"/><stop offset="1" stop-color="#00a3d9"/></linearGradient>
-<linearGradient id="wgf" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22"><stop offset="0" stop-color="#b8f24b"/><stop offset="1" stop-color="#00d2be"/></linearGradient>
+<linearGradient id="wgf" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22"><stop offset="0" stop-color="#b8f24b"/><stop offset="1" stop-color="#00d2be"/></linearGradient><linearGradient id="wgfp" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22"><stop offset="0" stop-color="#c3cad3"/><stop offset="1" stop-color="#6f7a86"/></linearGradient>
 </defs></svg>
 
 <!-- 게이트 -->
 <div id="gate">
   <div class="gate-orb o1"></div><div class="gate-orb o2"></div>
   <div class="gate-box">
+    <button class="gate-refresh" id="gate-refresh" aria-label="새로고침"><svg class="gl" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.4v3.9h-3.9"/></svg></button>
     <div class="eyebrow">Personal Document Hub</div>
     <div class="gmark"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="ggd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".58"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".58"/><stop offset="1" stop-color="#0077b6" stop-opacity=".58"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#ggd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#gg)"/></svg></div>
     <h1>Jim<span class="s-mark">S</span>torage</h1>
@@ -689,12 +698,12 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
 <!-- Dock -->
 <aside id="aside">
   <div class="s-label">메뉴</div>
-  <button class="s-item hidden" id="s-home"><span class="ic"><svg class="dk" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="dkm" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0a8fd6"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#dkm)" opacity=".62"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#dkm)"/></svg></span><span class="tx">홈</span></button>
-  <button class="s-item" data-go="root"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dkd1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dcf8f1"/></linearGradient></defs><path d="M8.2 3.8h6.6l3.6 3.6v10.8a1.8 1.8 0 0 1-1.8 1.8H8.2a1.8 1.8 0 0 1-1.8-1.8V5.6a1.8 1.8 0 0 1 1.8-1.8Z" fill="#fff" opacity=".42" transform="rotate(-9 12 12) translate(-1.4 .3)"/><path d="M9 5h5.6l3.8 3.8v10a1.8 1.8 0 0 1-1.8 1.8H9a1.8 1.8 0 0 1-1.8-1.8V6.8A1.8 1.8 0 0 1 9 5Z" fill="url(#dkd1)"/><path d="M14.6 5v2.4a1.4 1.4 0 0 0 1.4 1.4h2.4Z" fill="#9de8d8"/><path d="M10 11.8h5.6M10 14.4h5.6M10 17h3.6" stroke="#10a293" stroke-width="1.25" stroke-linecap="round" opacity=".72"/></svg></span><span class="tx">문서</span></button>
-  <button class="s-item hidden" id="s-stats"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dks1" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="0" y2="4"><stop offset="0" stop-color="#2fd9c3"/><stop offset="1" stop-color="#dcff7a"/></linearGradient></defs><rect x="4.4" y="12.4" width="4" height="7.2" rx="1.5" fill="url(#dks1)" opacity=".82"/><rect x="10" y="8.8" width="4" height="10.8" rx="1.5" fill="url(#dks1)" opacity=".92"/><rect x="15.6" y="4.8" width="4" height="14.8" rx="1.5" fill="url(#dks1)"/><path d="M3.8 21h16.4" stroke="#fff" stroke-opacity=".32" stroke-width="1.1" stroke-linecap="round"/></svg></span><span class="tx">방문 통계</span></button>
-  <button class="s-item hidden" id="s-guest"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dkg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ffece4"/></linearGradient></defs><path d="M5.6 4.6h12.8A2.4 2.4 0 0 1 20.8 7v8.2a2.4 2.4 0 0 1-2.4 2.4H11.2l-4.3 3.3c-.4.3-1 0-1-.5v-2.8h-.3a2.4 2.4 0 0 1-2.4-2.4V7a2.4 2.4 0 0 1 2.4-2.4Z" fill="url(#dkg1)"/><path d="M12 14.8s-3.5-2.1-3.5-4.5a1.9 1.9 0 0 1 3.5-1 1.9 1.9 0 0 1 3.5 1c0 2.4-3.5 4.5-3.5 4.5Z" fill="#ff6258"/></svg></span><span class="tx">방명록</span></button>
-  <button class="s-item hidden" id="s-trash"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dkt1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d9dee4"/></linearGradient></defs><g transform="rotate(-9 5.4 7)" fill="#fff"><rect x="5" y="5.4" width="14" height="2.3" rx="1.15"/><rect x="9.6" y="3.5" width="4.8" height="2.4" rx="1"/></g><path d="M6.6 9.4h10.8l-.9 9.9a1.9 1.9 0 0 1-1.9 1.7H9.4a1.9 1.9 0 0 1-1.9-1.7Z" fill="url(#dkt1)"/><path d="M10 12l.2 6.2M14 12l-.2 6.2" stroke="#8b939c" stroke-width="1.2" stroke-linecap="round"/></svg></span><span class="tx">휴지통</span></button>
-  <button class="s-item hidden" id="s-members"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dkm1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ebe3ff"/></linearGradient></defs><g fill="#fff" opacity=".55"><circle cx="16.2" cy="8.4" r="2.7"/><path d="M11.9 18.9a4.4 4.4 0 0 1 8.6-.6v.6Z"/></g><g fill="url(#dkm1)"><circle cx="9.6" cy="8.8" r="3.3"/><path d="M3.6 20.2a6 6 0 0 1 12 0Z"/></g></svg></span><span class="tx">멤버</span></button>
+  <button class="s-item hidden" id="s-home"><span class="ic"><svg class="dk" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="dkhb" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#d4ff6e"/><stop offset="1" stop-color="#1fe0c4"/></linearGradient><linearGradient id="dkhf" gradientUnits="userSpaceOnUse" x1="170" y1="170" x2="460" y2="460"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#bff6ec"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#dkhb)" opacity=".92"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#dkhf)"/></svg></span><span class="tx">홈</span></button>
+  <button class="s-item" data-go="root"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwd" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="ged" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient></defs><path d="M8.2 3.8h6.6l3.6 3.6v10.8a1.8 1.8 0 0 1-1.8 1.8H8.2a1.8 1.8 0 0 1-1.8-1.8V5.6a1.8 1.8 0 0 1 1.8-1.8Z" fill="#cfe4ff" opacity=".45" transform="rotate(-9 12 12) translate(-1.4 .3)"/><path d="M9 5h5.6l3.8 3.8v10a1.8 1.8 0 0 1-1.8 1.8H9a1.8 1.8 0 0 1-1.8-1.8V6.8A1.8 1.8 0 0 1 9 5Z" fill="url(#gwd)" stroke="url(#ged)" stroke-width=".7"/><path d="M14.6 5v2.4a1.4 1.4 0 0 0 1.4 1.4h2.4Z" fill="#fff"/><path d="M10 11.8h5.6M10 14.4h5.6M10 17h3.6" stroke="#007aff" stroke-width="1.25" stroke-linecap="round" opacity=".6"/></svg></span><span class="tx">문서</span></button>
+  <button class="s-item hidden" id="s-stats"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gws" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="ges" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient><linearGradient id="dksl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dcff7a"/></linearGradient><linearGradient id="dksa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".42"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="3.6" y="4.8" width="16.8" height="14.4" rx="3.4" fill="url(#gws)" stroke="url(#ges)" stroke-width=".7" fill-opacity=".22"/><path d="M5.6 16.2l3.6-3.8 3 2.2 5.4-6.2v8.8H5.6Z" fill="url(#dksa)"/><path d="M5.6 16.2l3.6-3.8 3 2.2 5.4-6.2" fill="none" stroke="url(#dksl)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17.6" cy="8.4" r="1.7" fill="#fff"/></svg></span><span class="tx">방문 통계</span></button>
+  <button class="s-item hidden" id="s-guest"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwg" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="geg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient><linearGradient id="dkgh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9500"/><stop offset="1" stop-color="#ff3b30"/></linearGradient></defs><path d="M5.6 4.6h12.8A2.4 2.4 0 0 1 20.8 7v8.2a2.4 2.4 0 0 1-2.4 2.4H11.2l-4.3 3.3c-.4.3-1 0-1-.5v-2.8h-.3a2.4 2.4 0 0 1-2.4-2.4V7a2.4 2.4 0 0 1 2.4-2.4Z" fill="url(#gwg)" stroke="url(#geg)" stroke-width=".7"/><path d="M12 14.8s-3.5-2.1-3.5-4.5a1.9 1.9 0 0 1 3.5-1 1.9 1.9 0 0 1 3.5 1c0 2.4-3.5 4.5-3.5 4.5Z" fill="url(#dkgh)"/></svg></span><span class="tx">방명록</span></button>
+  <button class="s-item hidden" id="s-trash"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwt" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="get" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient></defs><g transform="rotate(-9 5.4 7)" fill="#fff"><rect x="5" y="5.4" width="14" height="2.3" rx="1.15"/><rect x="9.6" y="3.5" width="4.8" height="2.4" rx="1"/></g><path d="M6.6 9.4h10.8l-.9 9.9a1.9 1.9 0 0 1-1.9 1.7H9.4a1.9 1.9 0 0 1-1.9-1.7Z" fill="url(#gwt)" stroke="url(#get)" stroke-width=".7"/><path d="M10 12l.2 6.2M14 12l-.2 6.2" stroke="#4a525b" stroke-width="1.2" stroke-linecap="round" opacity=".55"/></svg></span><span class="tx">휴지통</span></button>
+  <button class="s-item hidden" id="s-members"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gwm" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".96"/><stop offset="1" stop-color="#fff" stop-opacity=".58"/></linearGradient><linearGradient id="gem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient></defs><g fill="#e8c9f7" opacity=".7"><circle cx="16.2" cy="8.4" r="2.7"/><path d="M11.9 18.9a4.4 4.4 0 0 1 8.6-.6v.6Z"/></g><g fill="url(#gwm)" stroke="url(#gem)" stroke-width=".7"><circle cx="9.6" cy="8.8" r="3.3"/><path d="M3.6 20.2a6 6 0 0 1 12 0Z"/></g></svg></span><span class="tx">멤버</span></button>
   <div class="s-label">폴더</div>
   <div id="tree"></div>
   <div class="stor hidden" id="stor">
@@ -887,9 +896,9 @@ let DEEP=new URLSearchParams(location.search).get("d");
 })();
 
 const I_FOLDER='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="url(#wgf)"/><path d="M3 7q0-2 2-2h5l1.2 1.2H5q-1 0-1 1Z" fill="rgba(255,255,255,.22)"/></svg>';
-const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.6" fill="#c9ced4"/><path d="M7.8 10V7.4a4.2 4.2 0 0 1 8.4 0V10" fill="none" stroke="#c9ced4" stroke-width="2.5"/><circle cx="12" cy="15.2" r="1.8" fill="#121416"/></svg>';
+const I_FOLDER_LOCK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 7q0-2 2-2h5l2 2h7q2 0 2 2v8q0 2-2 2H5q-2 0-2-2Z" fill="url(#wgfp)"/><path d="M3 7q0-2 2-2h5l1.2 1.2H5q-1 0-1 1Z" fill="rgba(255,255,255,.22)"/><circle cx="18.2" cy="17.4" r="4.6" fill="#11161a"/><rect x="16.1" y="17.2" width="4.2" height="3.3" rx=".9" fill="#fff"/><path d="M16.9 17.2v-.9a1.3 1.3 0 0 1 2.6 0v.9" fill="none" stroke="#fff" stroke-width="1.1"/></svg>';   /* 비공개 폴더: 은회색 + 자물쇠 배지 */
 const I_FILE='<svg class="wic" viewBox="0 0 24 24" style="vertical-align:-2px"><path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/></svg>';
-const I_LOCK='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" style="vertical-align:-1.5px"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="#c9ced4"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="#c9ced4" stroke-width="2.4"/><circle cx="12" cy="15" r="1.7" fill="#121416"/></svg>';
+const I_LOCK='<svg class="wic" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 /* 윈도우는 국기 이모지 글리프가 없어 문자로 깨짐 → 국기만 Twemoji 이미지로 치환 (esc 처리된 문자열에 사용) */
@@ -1052,6 +1061,18 @@ function showDenied(u){
     const st=dn.querySelector("#dn-st"); st.textContent="승인 대기"; st.classList.remove("plain");
     dn.querySelector("#dn-msg").textContent="관리자가 승인하면 이 계정으로 바로 들어올 수 있어요."; };
   db.ref("hub/requests/"+key).get().then(s=>{ if(s.val())sent(); }).catch(()=>{});
+  /* 새로고침: 페이지를 다시 불러오지 않고 멤버 승인 여부만 다시 확인 */
+  const rf=$("gate-refresh");
+  rf.onclick=async()=>{
+    if(rf.disabled)return;
+    rf.disabled=true; rf.classList.add("spin");
+    try{
+      const m=(await db.ref("hub/members/"+key).get()).val();
+      if(m){ dn.remove(); $("gate").classList.remove("denied-on"); enterApp(u,m); }
+      else toast("아직 승인되지 않았어요");
+    }catch(e){ toast("확인하지 못했어요. 잠시 후 다시 시도해 주세요"); }
+    rf.disabled=false; rf.classList.remove("spin");
+  };
   rb.onclick=async()=>{
     try{
       await db.ref("hub/requests/"+key).set({email:u.email,n:u.displayName||"",at:Date.now()});
@@ -2184,13 +2205,13 @@ function wgMemberDocs(){
   $("m-recent-b").innerHTML=recent.map(row).join("")||'<div class="w-empty">볼 수 있는 문서가 없어요</div>';
   const pins=docs.filter(d=>d.pinned).slice(0,4);
   $("m-pins-b").innerHTML=pins.map(row).join("")||'<div class="w-empty">고정된 문서가 없어요</div>';
-  const lock='<svg class="wic" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg>';
+  const lock='<svg class="wic" viewBox="0 0 24 24"><path d="M21 11V9.5A2.5 2.5 0 0 0 18.5 7h-7l-2-2h-4A2.5 2.5 0 0 0 3 7.5V17a2.5 2.5 0 0 0 2.5 2.5H11"/><rect x="14" y="14.5" width="7" height="5.5" rx="1.4"/><path d="M15.6 14.5v-1.3a1.9 1.9 0 0 1 3.8 0v1.3"/></svg>';
   const fo='<svg class="wic" viewBox="0 0 24 24"><path d="M3 7.5a2.5 2.5 0 0 1 2.5-2.5h4l2 2h7a2.5 2.5 0 0 1 2.5 2.5V17a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17z"/></svg>';
   const fold=[]; ["pub","priv"].forEach(sc=>{ if(sc==="priv"&&!IS_MASTER)return;   /* 멤버 홈은 공개 폴더만 */
     Object.entries(DATA[sc].folders||{}).forEach(([id,f])=>{ if(!f.trashed&&(!f.parent||f.parent==="root")&&!lockedF(id))fold.push({id,...f,locked:isPrivFolder(id)}); }); });
   const cnt=id=>docs.filter(d=>(d.folder||"root")===id).length;
   $("m-folders-r").textContent=fold.length?"폴더 "+fold.length+"개":"";
-  $("m-folder-tiles").innerHTML=fold.slice(0,4).map(f=>'<button class="tile" data-go2="'+f.id+'"'+(f.locked&&!IS_MASTER?' data-locked="1"':'')+'>'+(f.locked?lock:fo)
+  $("m-folder-tiles").innerHTML=fold.slice(0,4).map(f=>'<button class="tile'+(f.locked?' priv':'')+'" data-go2="'+f.id+'"'+(f.locked&&!IS_MASTER?' data-locked="1"':'')+'>'+(f.locked?lock:fo)
     +'<div class="n">'+esc(f.name)+'</div><div class="c">'+(f.locked&&!IS_MASTER?"비공개":"문서 "+cnt(f.id)+"개")+'</div></button>').join("")||'<div class="w-empty">폴더가 없어요</div>';
   $("minihome").querySelectorAll("[data-od]").forEach(el=>el.onclick=()=>openDoc(el.dataset.od,el.dataset.sc));
   $("minihome").querySelectorAll("[data-go2]").forEach(b=>b.onclick=()=>{ if(b.dataset.locked){toast("비공개 폴더라 열 수 없어요",I_LOCK_S);return;} curFolder=b.dataset.go2; $("search").value=""; setView("docs"); render(); });
@@ -2789,9 +2810,9 @@ function wgDocsTiles(){
     const cnt=id=>["pub","priv"].reduce((s,sc)=>s+Object.values(DATA[sc].docs||{}).filter(d=>!d.trashed&&(d.folder||"root")===id).length,0);
     const total=["pub","priv"].reduce((s,sc)=>s+Object.values(DATA[sc].docs||{}).filter(d=>!d.trashed).length,0);
     const r=$("docs-r"); if(r)r.textContent="폴더 "+fold.length+" · 문서 "+total;
-    const lock='<svg class="wic" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg>';
+    const lock='<svg class="wic" viewBox="0 0 24 24"><path d="M21 11V9.5A2.5 2.5 0 0 0 18.5 7h-7l-2-2h-4A2.5 2.5 0 0 0 3 7.5V17a2.5 2.5 0 0 0 2.5 2.5H11"/><rect x="14" y="14.5" width="7" height="5.5" rx="1.4"/><path d="M15.6 14.5v-1.3a1.9 1.9 0 0 1 3.8 0v1.3"/></svg>';
     const fo='<svg class="wic" viewBox="0 0 24 24"><path d="M3 7.5a2.5 2.5 0 0 1 2.5-2.5h4l2 2h7a2.5 2.5 0 0 1 2.5 2.5V17a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17z"/></svg>';
-    el.innerHTML=fold.slice(0,4).map(f=>'<button class="tile" data-go="'+f.id+'"'+(f.locked&&!IS_MASTER?' data-locked="1"':'')+'>'+(f.locked?lock:fo)+'<div class="n">'+esc(f.name)+'</div><div class="c">'+cnt(f.id)+(f.locked?" · 나만 보기":"")+'</div></button>').join("")
+    el.innerHTML=fold.slice(0,4).map(f=>'<button class="tile'+(f.locked?' priv':'')+'" data-go="'+f.id+'"'+(f.locked&&!IS_MASTER?' data-locked="1"':'')+'>'+(f.locked?lock:fo)+'<div class="n">'+esc(f.name)+'</div><div class="c">'+cnt(f.id)+(f.locked?" · 나만 보기":"")+'</div></button>').join("")
       ||'<div class="w-empty">폴더가 없어요</div>';
     el.querySelectorAll("[data-go]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(b.dataset.locked){toast("비공개 폴더라 열 수 없어요",I_LOCK_S);return;} curFolder=b.dataset.go; $("search").value=""; setView("docs"); render(); });
   }catch(e){}
