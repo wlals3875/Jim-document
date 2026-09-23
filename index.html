@@ -405,14 +405,14 @@ body:not(.is-master) #dash-acts{display:none;}
 .cpick{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
 .cdot{width:26px; height:26px; border-radius:50%; border:2px solid transparent; padding:0; transition:transform var(--fast) var(--ease);}
 .cdot.on{border-color:#fff; transform:scale(1.12);}
-#mem-list>div,#det>div{display:flex; align-items:center; gap:12px; padding:12px 0; font-size:var(--fs-13); border-bottom:1px solid var(--hair);}
-.p{color:var(--sub2); font-size:var(--fs-12);} .off{opacity:.5;} .more{color:var(--sub2); font-size:var(--fs-11);}
+.dsun{color:var(--red);} .dsat{color:var(--sat);} .off{opacity:.5;} .more{color:var(--sub2); font-size:var(--fs-11);}
 /* 캘린더 모달 */
 .mnav{display:flex; align-items:center; justify-content:center; gap:var(--sp-4); margin-bottom:var(--sp-3); font-size:var(--fs-17); font-weight:800;}
 .mnav button{width:32px; height:32px; border-radius:50%; background:var(--fill); color:var(--sub);} .mnav button:hover{background:var(--fill2); color:var(--ink);}
 .mgrid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
 .mgrid .mh{text-align:center; font-size:var(--fs-11); font-weight:700; color:var(--sub2); padding-bottom:4px;}
-.mgrid .mh.sa{color:var(--sat);} .mgrid .mh.su{color:var(--red);}
+.mgrid .mh.sa,.mgrid .mh.dsat{color:var(--sat);} .mgrid .mh.su,.mgrid .mh.dsun{color:var(--red);}
+.mgrid .md.off{background:transparent; opacity:1;} .mgrid .dn2.dsat{color:var(--sat);} .mgrid .dn2.dsun{color:var(--red);}
 .mgrid .md{min-height:70px; padding:4px 8px; border-radius:var(--r-8); background:var(--fill); font-size:var(--fs-11); overflow:hidden;}
 .mgrid .md.dim{opacity:.35;} .mgrid .md.sa .dn2{color:var(--sat);} .mgrid .md.su .dn2,.mgrid .md.holi .dn2{color:var(--red);}
 .mgrid .md.today{background:rgba(0,210,190,.16); outline:1px solid rgba(0,210,190,.4);}
@@ -492,27 +492,26 @@ body:not(.is-master) #dash-acts{display:none;}
   border:1px solid var(--hair2); box-shadow:0 12px 32px rgba(0,0,0,.45); opacity:0; pointer-events:none; transition:opacity var(--base) var(--ease), transform var(--base) var(--ease);}
 #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
-/* ── 게이트(로그인) = 잠금 화면 ── */
-#gate{position:fixed; inset:0; z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:space-between; text-align:center;
-  padding:calc(64px + env(safe-area-inset-top,0px)) var(--sp-6) calc(40px + env(safe-area-inset-bottom,0px));}
-#gate::before{content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.5));}
+/* ── 게이트(로그인) = iCloud 로그인형 ── */
+#gate{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) var(--sp-6) calc(24px + env(safe-area-inset-bottom,0px));}
 #gate.hidden{display:none;}
-.gate-clock{animation:gIn .6s var(--ease) both;}
-.gate-clock .gd{font-size:var(--fs-20); font-weight:600; color:rgba(255,255,255,.86); letter-spacing:-.01em;}
-.gate-clock .gt{font-size:clamp(80px,20vw,120px); font-weight:700; letter-spacing:-.045em; line-height:1; margin-top:var(--sp-1); color:rgba(255,255,255,.94);}
-.gate-box{display:flex; flex-direction:column; align-items:center; width:100%; max-width:360px; animation:gIn .6s .08s var(--ease) both;}
+.gate-box{position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:420px; animation:gIn .6s var(--ease) both;}
 @keyframes gIn{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
-.gicon{position:relative; overflow:hidden; width:84px; height:84px; border-radius:20px; display:grid; place-items:center; background:linear-gradient(160deg,#283032,#0b0f10);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 14px 34px rgba(0,0,0,.5);}
+.gate-box::before{content:""; position:absolute; top:-40px; left:50%; width:280px; height:280px; transform:translateX(-50%); z-index:-1; pointer-events:none;
+  border-radius:50%; background:radial-gradient(circle,rgba(0,210,190,.18),rgba(184,242,75,.06) 45%,transparent 70%);}
+.gicon{position:relative; overflow:hidden; width:112px; height:112px; border-radius:24px; display:grid; place-items:center; background:linear-gradient(160deg,#283032,#0b0f10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 18px 40px rgba(0,0,0,.5);}
 .gicon::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 50%);}
-.gicon svg{position:relative; z-index:1; width:66%; height:66%;}
-.gate-box h1{font-size:var(--fs-28); font-weight:800; letter-spacing:-.03em; margin-top:var(--sp-4);} .gate-box h1 .s-mark{color:var(--tint);}
-.gate-box p{color:var(--sub); font-size:var(--fs-15); margin:var(--sp-1) 0 var(--sp-6);}
-.gbtn{width:100%; gap:var(--sp-3); height:52px; padding:0 var(--sp-6); border-radius:999px; background:#fff; color:#111; font-size:var(--fs-17); font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.35); transition:transform var(--fast) var(--ease), background var(--fast) var(--ease);}
+.gicon svg{position:relative; z-index:1; width:64%; height:64%;}
+.gate-box h1{font-size:var(--fs-34); font-weight:800; letter-spacing:-.035em; margin-top:var(--sp-6);} .gate-box h1 .s-mark{color:var(--tint);}
+.gate-box p{color:var(--sub); font-size:var(--fs-17); margin:var(--sp-2) 0 var(--sp-8);}
+.gbtn{width:100%; max-width:320px; gap:var(--sp-3); height:52px; padding:0 var(--sp-6); border-radius:999px; background:#fff; color:#111; font-size:var(--fs-17); font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.35); transition:transform var(--fast) var(--ease), background var(--fast) var(--ease);}
 .gbtn:hover{background:#f2f4f5;} .gbtn:active{transform:scale(.97);}
 .gbtn .glogo svg{width:20px; height:20px; display:block;}
 .gnote{font-size:var(--fs-12); color:var(--sub2); margin-top:var(--sp-3);}
 #req-btn{margin-top:var(--sp-3);}
+@media(max-width:900px){ .gicon{width:96px; height:96px; border-radius:20px;} .gate-box h1{font-size:var(--fs-28);} .gate-box p{font-size:var(--fs-15); margin-bottom:var(--sp-6);} }
 
 /* ── 미니홈(멤버 홈) ── */
 #mh-gbw{width:100%; max-width:560px;}
@@ -524,8 +523,14 @@ body:not(.is-master) #dash-acts{display:none;}
 
 /* 댓글 본문 · 가계부 상세(drow) */
 .c-item .cn{font-weight:700; color:var(--sub); font-size:var(--fs-12);} .c-item .ct{margin-top:2px; overflow-wrap:anywhere;} .c-item .cd{color:var(--sub2); font-size:var(--fs-11); margin-top:2px;}
-.drow{display:flex; justify-content:space-between; gap:8px; padding:8px 0; font-size:var(--fs-13); border-bottom:1px solid var(--hair);}
-.drow.p{font-weight:700;} .drow.s{color:var(--sub); padding-left:var(--sp-4); font-size:var(--fs-12);} .drow b{font-variant-numeric:tabular-nums;}
+.drow{display:flex; justify-content:space-between; align-items:center; gap:8px; font-variant-numeric:tabular-nums;}
+.drow b{font-variant-numeric:tabular-nums;}
+.drow.p{margin-top:var(--sp-2); padding:var(--sp-3) 0 var(--sp-2); border-top:1px solid var(--hair); font-size:var(--fs-15); font-weight:700; color:var(--ink);}
+.drow.p b{font-weight:800; color:var(--ink);}
+.sec-label+.drow.p{border-top:0; margin-top:0;}
+.drow.s{position:relative; padding:var(--sp-1) 0 var(--sp-1) var(--sp-5); font-size:var(--fs-13); color:var(--sub);}
+.drow.s::before{content:""; position:absolute; left:6px; top:0; bottom:50%; width:8px; border-left:1px solid var(--hair2); border-bottom:1px solid var(--hair2); border-bottom-left-radius:4px;}
+.drow.s b{font-weight:600; color:var(--sub);}
 /* 뷰 전환 */
 /* 편집 모드 위젯 이동 버튼 · 상태 클래스 */
 .mvbtn{position:absolute; top:50%; transform:translateY(-50%); z-index:3; width:30px; height:30px; border-radius:50%;
@@ -599,11 +604,10 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.gbtn,.connect
 
 <!-- 게이트 -->
 <div id="gate">
-  <div class="gate-clock"><div class="gd" id="g-date"></div><div class="gt num" id="g-time">--:--</div></div>
   <div class="gate-box">
     <div class="gicon"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="ggd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".58"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".58"/><stop offset="1" stop-color="#0077b6" stop-opacity=".58"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#ggd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#gg)"/></svg></div>
     <h1>Jim<span class="s-mark">S</span>torage</h1>
-    <p>개인 문서 허브</p>
+    <p>개인 문서 허브에 로그인하세요</p>
     <button class="gbtn" id="login-btn"><span class="glogo"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg></span>Google로 계속하기</button>
     <div class="gnote">허용된 계정만 열람할 수 있어요</div>
   </div>
@@ -774,14 +778,6 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.gbtn,.connect
   }
 })();
 if(/Mac|iPhone|iPad|iPod/.test(navigator.platform||"")||/iPhone|iPad|Macintosh/.test(navigator.userAgent||""))document.documentElement.classList.add("apple");   /* Apple 폰트 보정용 */
-(function(){ /* 게이트 잠금 화면 시계 */
-  const D=["일요일","월요일","화요일","수요일","목요일","금요일","토요일"];
-  const tick=()=>{ const g=document.getElementById("gate"); if(!g||g.classList.contains("hidden"))return;
-    const n=new Date(), gd=document.getElementById("g-date"), gt=document.getElementById("g-time"); if(!gd||!gt)return;
-    gd.textContent=(n.getMonth()+1)+"월 "+n.getDate()+"일 "+D[n.getDay()];
-    gt.textContent=n.getHours()+":"+String(n.getMinutes()).padStart(2,"0"); };
-  tick(); setInterval(tick,10000);
-})();
 const MASTER_EMAIL="wlals3875@gmail.com";   /* 마스터 계정 (본인 구글 이메일) */
 const SESSION_HOURS=24;
 const MAX_VERSIONS=3;
@@ -2432,7 +2428,7 @@ async function openCalDetail(){
     });
     const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
     const today=new Date();
-    let cal='<div class="mnav"><button class="hbtn" id="mprev">‹</button><b>'+y+"."+p2(m+1)+'</b><button class="hbtn" id="mnext">›</button></div>';
+    let cal='<div class="mnav"><button id="mprev" aria-label="이전 달"><svg class="gl" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><b>'+y+"."+p2(m+1)+'</b><button id="mnext" aria-label="다음 달"><svg class="gl" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div>';
     cal+='<div class="mgrid">'+["일","월","화","수","목","금","토"].map((d,i)=>'<div class="mh'+(i===0?" dsun":(i===6?" dsat":""))+'">'+d+'</div>').join("");
     for(let i=0;i<first;i++)cal+='<div class="md off"></div>';
     for(let d=1;d<=days;d++){
