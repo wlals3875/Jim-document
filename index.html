@@ -497,9 +497,9 @@ body:not(.is-master) #dash-acts{display:none;}
   padding:calc(24px + env(safe-area-inset-top,0px)) var(--sp-5) calc(24px + env(safe-area-inset-bottom,0px));}
 #gate.hidden{display:none;}
 /* 유리가 비칠 빛 */
-.gate-orb{position:absolute; border-radius:50%; pointer-events:none; filter:blur(64px); animation:orb 16s ease-in-out infinite alternate;}
-.gate-orb.o1{width:380px; height:380px; background:#00d2be; opacity:.5; top:calc(50% - 300px); left:calc(50% - 320px);}
-.gate-orb.o2{width:320px; height:320px; background:#b8f24b; opacity:.28; top:calc(50% + 8px); left:calc(50% + 24px); animation-delay:-8s;}
+.gate-orb{position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px); animation:orb 16s ease-in-out infinite alternate;}
+.gate-orb.o1{width:380px; height:380px; background:#0a9e90; opacity:.3; top:calc(50% - 300px); left:calc(50% - 320px);}
+.gate-orb.o2{width:320px; height:320px; background:#8fb84a; opacity:.14; top:calc(50% + 8px); left:calc(50% + 24px); animation-delay:-8s;}
 @keyframes orb{from{transform:translate(0,0) scale(1);} to{transform:translate(48px,-32px) scale(1.14);}}
 /* 카드 */
 .gate-box{position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:420px; padding:var(--sp-8) 40px;
