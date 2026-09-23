@@ -102,7 +102,26 @@ main{position:relative; z-index:1; max-width:1104px; margin:0 auto; padding:0 va
 
 /* ── 히어로 ── */
 .hero{padding:24px 4px 16px;}
-.hero h1{font-size:var(--fs-34); font-weight:800; letter-spacing:-.035em; line-height:1.1; margin-bottom:var(--sp-4);}
+.hero h1{font-size:var(--fs-34); font-weight:800; letter-spacing:-.035em; line-height:1.1;}
+.hero-top{display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3); margin-bottom:var(--sp-4);}
+body:not(.is-master) #dash-acts{display:none;}
+/* 날씨 */
+.wx{display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:var(--sp-5); padding:var(--sp-4) var(--sp-5); border-radius:var(--r-26); margin-bottom:var(--sp-4); min-height:112px;}
+.wx .w-empty{grid-column:1/-1;}
+.wx-now{display:flex; align-items:center; gap:var(--sp-3); padding-right:var(--sp-5); border-right:1px solid var(--hair);}
+.wx-now .wx-ic{width:48px; height:48px;}
+.wx-now .loc{font-size:var(--fs-12); font-weight:700; color:var(--tint);}
+.wx-now .tp{font-size:var(--fs-34); font-weight:800; letter-spacing:-.04em; line-height:1;}
+.wx-now .cd{font-size:var(--fs-12); color:var(--sub); font-weight:600; margin-top:4px; white-space:nowrap;}
+.wx-days{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--sp-1);}
+.wx-d{display:flex; flex-direction:column; align-items:center; gap:4px; padding:var(--sp-2) var(--sp-1); border-radius:var(--r-12); font-variant-numeric:tabular-nums;}
+.wx-d.on{background:var(--fill);}
+.wx-d .dn{font-size:var(--fs-12); font-weight:700; color:var(--sub);}
+.wx-d.on .dn{color:var(--tint);} .wx-d .dn.su{color:var(--red);} .wx-d .dn.sa{color:var(--sat);}
+.wx-d .wx-ic{width:28px; height:28px;}
+.wx-d .hi{font-size:var(--fs-15); font-weight:700;} .wx-d .lo{font-size:var(--fs-12); color:var(--sub2); font-weight:600;}
+.wx-d .pp{font-size:var(--fs-11); font-weight:700; color:var(--sat); min-height:14px;}
+.acts{display:flex; gap:var(--sp-2);}
 .hsearch{display:flex; align-items:center; gap:12px; height:44px; padding:0 var(--sp-4); border-radius:var(--r-16); color:var(--sub2);}
 .hsearch .hs-i{font-size:15px; opacity:.7;}
 .hsearch input{flex:1; min-width:0; background:transparent; border:0; outline:none; color:var(--ink); font-size:var(--fs-15); font-weight:500;}
@@ -110,7 +129,6 @@ main{position:relative; z-index:1; max-width:1104px; margin:0 auto; padding:0 va
 .hsearch kbd{font:600 11px/1 inherit; color:var(--sub2); background:var(--fill); padding:4px 8px; border-radius:8px;}
 .hsearch:focus-within{border-color:rgba(0,210,190,.4); box-shadow:inset 0 1px 0 rgba(255,255,255,.08), var(--shadow), 0 0 0 3px rgba(0,210,190,.14);}
 .dash{display:flex; flex-direction:column; gap:var(--sp-4);}
-.acts{display:flex; justify-content:flex-end; gap:var(--sp-2);}
 .acts .hbtn{height:36px;}
 .acts .hbtn svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
 
@@ -458,6 +476,9 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
   main{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));}
   header .hbar{padding:0 var(--sp-4);} .who .un{display:none;}
   .hero h1{font-size:28px;}
+  .wx{grid-template-columns:1fr; gap:var(--sp-3); padding:var(--sp-4);}
+  .wx-now{border-right:0; padding-right:0; padding-bottom:var(--sp-3); border-bottom:1px solid var(--hair);}
+  .wx-d .wx-ic{width:24px; height:24px;} .wx-d .hi{font-size:var(--fs-13);}
   .wgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .widget.s22,.widget.s21{grid-column:span 2;} .widget.s22{aspect-ratio:auto; min-height:calc(100vw - 40px);}
   .mon-nums{grid-template-columns:repeat(2,minmax(0,1fr));} .mon-nums .mn:last-child{grid-column:span 2;} .mn .v{font-size:20px;}
@@ -537,14 +558,17 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 <!-- 홈 -->
 <div id="view-home" class="hidden">
   <section class="hero">
-    <h1 id="hero-date" class="num"></h1>
+    <div class="hero-top">
+      <h1 id="hero-date" class="num"></h1>
+      <div class="acts" id="dash-acts">
+        <button class="hbtn" id="dash-refresh" title="새로고침"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+        <button class="hbtn" id="dash-edit">편집</button>
+      </div>
+    </div>
+    <div class="wx glass" id="wx"><div class="w-empty">날씨 불러오는 중…</div></div>
     <div class="hsearch glass"><span class="hs-i">🔍</span><input id="search" type="text" placeholder="파일·폴더 검색" autocomplete="off"><kbd>⌘K</kbd></div>
   </section>
   <div class="dash">
-    <div class="acts" id="dash-acts">
-      <button class="hbtn" id="dash-refresh" title="새로고침"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
-      <button class="hbtn" id="dash-edit">편집</button>
-    </div>
     <div class="wgrid" id="wgrid">
       <div class="widget glass s22" id="w-cal">
         <div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> 이번 주<span class="r"><a href="#" id="cal-ext">구글 캘린더 ↗</a></span></div>
@@ -1941,7 +1965,8 @@ function renderMiniHome(){
 function initDash(){
   if(!IS_MASTER)return;   /* 위젯 대시보드는 마스터 전용 (오호출 가드) */
   { const mh=$("minihome"); if(mh)mh.remove();
-    const dash=$("view-home").querySelector(".dash"); if(dash)dash.classList.remove("hidden"); }
+    const dash=$("view-home").querySelector(".dash"); if(dash)dash.classList.remove("hidden");
+    const acts=$("dash-acts"); if(acts)acts.classList.remove("hidden"); }
   if(!gtoken()){
     try{
       if(!sessionStorage.getItem("gsilent")){
@@ -2583,7 +2608,65 @@ function openSpendModal(){
     draw();
   });
 }
-function renderAppleWidgets(){ wgHero(); wgMiniCal(); wgDday(); wgDocs(); wgDocsTiles(); wgGuest(); }
+/* ===== 날씨 (Open-Meteo · 서울 · 키 없음) ===== */
+const WX_CODE={0:["맑음","sun"],1:["대체로 맑음","part"],2:["구름 조금","part"],3:["흐림","cloud"],45:["안개","fog"],48:["안개","fog"],
+  51:["이슬비","rain"],53:["이슬비","rain"],55:["이슬비","rain"],56:["어는 비","rain"],57:["어는 비","rain"],61:["비","rain"],63:["비","rain"],65:["강한 비","rain"],
+  66:["어는 비","rain"],67:["어는 비","rain"],71:["눈","snow"],73:["눈","snow"],75:["강한 눈","snow"],77:["싸락눈","snow"],80:["소나기","rain"],81:["소나기","rain"],
+  82:["강한 소나기","rain"],85:["눈 소나기","snow"],86:["눈 소나기","snow"],95:["뇌우","storm"],96:["뇌우·우박","storm"],99:["뇌우·우박","storm"]};
+function wxIcon(code){
+  const k=(WX_CODE[code]||["","cloud"])[1];
+  const cloud='<path d="M9.5 25a4.8 4.8 0 0 1-.7-9.55 7.2 7.2 0 0 1 13.9-1.6A5.6 5.6 0 1 1 23.4 25z" fill="#d7dfdd"/>';
+  const cloudD='<path d="M9.5 21a4.8 4.8 0 0 1-.7-9.55 7.2 7.2 0 0 1 13.9-1.6A5.6 5.6 0 1 1 23.4 21z" fill="#b9c3c1"/>';
+  const sun=(cx,cy,r,ray)=>'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#ffd36b"/><g stroke="#ffd36b" stroke-width="2" stroke-linecap="round">'
+    +[0,45,90,135,180,225,270,315].map(a=>{const t=a*Math.PI/180,x1=cx+Math.cos(t)*(r+2.5),y1=cy+Math.sin(t)*(r+2.5),x2=cx+Math.cos(t)*(r+2.5+ray),y2=cy+Math.sin(t)*(r+2.5+ray);return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'"/>';}).join("")+'</g>';
+  const body={
+    sun:sun(16,16,6,3.5),
+    part:sun(12,11,4.5,2.5)+'<path d="M12.5 27a4.3 4.3 0 0 1-.6-8.55 6.4 6.4 0 0 1 12.4-1.4A5 5 0 1 1 25.2 27z" fill="#d7dfdd"/>',
+    cloud:cloud,
+    fog:'<g stroke="#b9c3c1" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="12" x2="26" y2="12"/><line x1="4" y1="17" x2="24" y2="17"/><line x1="8" y1="22" x2="28" y2="22"/></g>',
+    rain:cloudD+'<g stroke="#7fb2ff" stroke-width="2.2" stroke-linecap="round"><line x1="11" y1="24" x2="9.5" y2="28"/><line x1="16.5" y1="24" x2="15" y2="28"/><line x1="22" y1="24" x2="20.5" y2="28"/></g>',
+    snow:cloudD+'<g fill="#fff"><circle cx="11" cy="26" r="1.4"/><circle cx="16.5" cy="28" r="1.4"/><circle cx="22" cy="26" r="1.4"/></g>',
+    storm:cloudD+'<path d="M17 21l-4 6h3.5l-1.5 4 5-6.5h-3.5l1.5-3.5z" fill="#ffd36b"/>'
+  }[k];
+  return '<svg class="wx-ic" viewBox="0 0 32 32" aria-hidden="true">'+body+'</svg>';
+}
+function renderWx(data){
+  const el=$("wx"); if(!el||!data||!data.daily)return;
+  const d=data.daily, cur=data.current||{}, DN=["일","월","화","수","목","금","토"];
+  const r=v=>v==null?"—":Math.round(v)+"°";
+  const cc=cur.weather_code!=null?cur.weather_code:d.weather_code[0];
+  const days=d.time.slice(0,7).map((t,i)=>{
+    const wd=new Date(t+"T00:00:00").getDay(), pp=d.precipitation_probability_max?d.precipitation_probability_max[i]:null;
+    return '<div class="wx-d'+(i===0?" on":"")+'"><span class="dn'+(i>0&&wd===0?" su":i>0&&wd===6?" sa":"")+'">'+(i===0?"오늘":DN[wd])+'</span>'
+      +wxIcon(d.weather_code[i])+'<span class="hi">'+r(d.temperature_2m_max[i])+'</span><span class="lo">'+r(d.temperature_2m_min[i])+'</span>'
+      +'<span class="pp">'+(pp!=null&&pp>=20?pp+"%":"")+'</span></div>';
+  }).join("");
+  el.innerHTML='<div class="wx-now">'+wxIcon(cc)+'<div><div class="loc">서울</div><div class="tp num">'+r(cur.temperature_2m!=null?cur.temperature_2m:d.temperature_2m_max[0])+'</div>'
+    +'<div class="cd">'+(WX_CODE[cc]||["—"])[0]+' · 최고 '+r(d.temperature_2m_max[0])+' 최저 '+r(d.temperature_2m_min[0])+'</div></div></div>'
+    +'<div class="wx-days">'+days+'</div>';
+  el.dataset.ok="1";
+}
+async function wgWeather(force){
+  const el=$("wx"); if(!el)return;
+  const KEY="jimwx_v1", TTL=60*60*1000, n=new Date();
+  const today=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
+  let data=null;
+  try{ const c=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(!force&&c&&Date.now()-c.at<TTL&&c.d&&c.d.daily&&c.d.daily.time[0]===today)data=c.d; }catch(e){}
+  if(!data){
+    try{
+      const u="https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978"
+        +"&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max"
+        +"&timezone=Asia%2FSeoul&forecast_days=7";
+      const res=await fetch(u); if(!res.ok)throw new Error("HTTP "+res.status);
+      data=await res.json();
+      try{ localStorage.setItem(KEY,JSON.stringify({at:Date.now(),d:data})); }catch(e){}
+    }catch(e){ if(!el.dataset.ok)el.innerHTML='<div class="w-empty">날씨를 불러오지 못했어요</div>'; return; }
+  }
+  renderWx(data);
+}
+if(!window.__wxTimer)window.__wxTimer=setInterval(()=>{ if(!document.hidden)wgWeather(); },30*60*1000);
+function renderAppleWidgets(){ try{ wgWeather(); }catch(e){} wgHero(); wgMiniCal(); wgDday(); wgDocs(); wgDocsTiles(); wgGuest(); }
 renderAppleWidgets();
 
 /* ================= 위젯 순서 편집 ================= */
@@ -2616,6 +2699,7 @@ function drawHandles(){
       b.onclick=e=>{e.stopPropagation();moveW(id,1);};el.appendChild(b);}
   });
 }
+$("dash-refresh").addEventListener("click",()=>wgWeather(true));
 $("dash-refresh").onclick=()=>{
   if(!gtoken()){toast("구글 데이터 연결이 필요해요");return;}
   calCache={}; SHEET=null; dashLoaded=0;
