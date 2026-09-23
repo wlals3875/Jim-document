@@ -21,7 +21,8 @@
 :root{
   /* 색 */
   --ink:#eef4f2; --sub:rgba(235,245,243,.62); --sub2:rgba(235,245,243,.4);
-  --tint:#00d2be; --lime:#b8f24b; --red:#ff7a6b; --sat:#7fb2ff; --gold:#e6c592;
+  --tint:#00d2be;
+  --card:#151b1c; --card2:var(--fill); --line:var(--hair); --line2:var(--hair2);   /* 옛 JS 인라인 스타일 호환 */ --lime:#b8f24b; --red:#ff7a6b; --sat:#7fb2ff; --gold:#e6c592;
   --fill:rgba(120,130,128,.16); --fill2:rgba(120,130,128,.26); --hair:rgba(255,255,255,.08); --hair2:rgba(255,255,255,.14);
   --glass:rgba(20,26,26,.64); --glass2:rgba(28,34,34,.72); --sheet:rgba(24,29,30,.94);
   --grad:linear-gradient(135deg,#b8f24b,#00d2be); --grad-h:linear-gradient(90deg,#b8f24b,#00d2be);
@@ -77,7 +78,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none; bo
   transition:background var(--fast) var(--ease), color var(--fast) var(--ease);}
 .hbtn:hover,.tbtn:hover{background:var(--fill2); color:var(--ink);}
 .hbtn:active,.tbtn:active,.mbtn:active,.qbtn:active,.tile:active,.fcard:active,.dcard:active{transform:scale(.97);}
-.role{font-size:var(--fs-11); font-weight:800; letter-spacing:.08em; color:var(--tint); border:1.5px solid rgba(0,210,190,.55); border-radius:999px; padding:3px 12px;}
+.role{display:inline-flex; align-items:center; flex-shrink:0; height:24px; padding:0 12px; line-height:1; white-space:nowrap; font-size:var(--fs-11); font-weight:800; letter-spacing:.08em; color:var(--tint); border:1.5px solid rgba(0,210,190,.55); border-radius:999px;}
 .role:empty{display:none;}
 .reqn{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 4px; border-radius:999px; background:var(--grad); color:#062018; font-size:11px; font-weight:900; position:absolute; top:-4px; right:-6px;}
 
@@ -264,7 +265,6 @@ body:not(.is-master) #dash-acts{display:none;}
   transition:transform .08s var(--ease), filter var(--fast) var(--ease);}
 .s-item .ic::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.06) 42%,rgba(255,255,255,0) 60%);}
-@supports (corner-shape:squircle){ .s-item .ic{corner-shape:superellipse(2.2);} }
 .s-item .ic .dk{position:relative; z-index:1; width:64%; height:64%; filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.22));}
 #s-home .ic .dk{width:68%; height:68%;} #s-stats .ic .dk,#s-members .ic .dk{width:74%; height:74%;} .s-item[data-go="root"] .ic .dk{width:70%; height:70%;}
 #s-home .ic{background:linear-gradient(160deg,#283032,#0b0f10);}
@@ -363,7 +363,7 @@ body:not(.is-master) #dash-acts{display:none;}
 /* ── 모달 ── */
 .modal-bg{position:fixed; inset:0; z-index:110; display:flex; align-items:center; justify-content:center; padding:var(--sp-4);
   background:rgba(0,0,0,.5); -webkit-backdrop-filter:blur(10px) saturate(120%); backdrop-filter:blur(10px) saturate(120%);}
-.modal{position:relative; width:100%; max-width:560px; max-height:92vh; overflow-y:auto; padding:var(--sp-6); border-radius:var(--r-26);
+.modal{position:relative; width:100%; max-width:560px; min-height:min(340px,86vh); max-height:86vh; display:flex; flex-direction:column; overflow:hidden; padding:0; border-radius:var(--r-26);
   background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 50%),var(--sheet);
   -webkit-backdrop-filter:blur(30px) saturate(160%); backdrop-filter:blur(30px) saturate(160%);
   border:1px solid var(--hair2); box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 30px 80px rgba(0,0,0,.55); animation:mIn var(--sheet-t) var(--ease);}
@@ -374,7 +374,14 @@ body:not(.is-master) #dash-acts{display:none;}
 .modal input[type=text],.modal input[type=url],.modal input[type=email],.modal textarea{width:100%; padding:12px var(--sp-3); border:0; border-radius:var(--r-12); background:var(--fill); color:var(--ink); font-size:var(--fs-15); font-weight:500;}
 .modal textarea{min-height:88px; resize:vertical;}
 .modal p{font-size:var(--fs-13); color:var(--sub); margin-top:var(--sp-2);}
-.m-x{position:absolute; top:var(--sp-4); right:var(--sp-4); width:30px; height:30px; border-radius:50%; background:var(--fill2); color:var(--ink); font-size:15px;}
+.m-x{position:absolute; top:var(--sp-4); right:var(--sp-4); z-index:2; width:32px; height:32px; border-radius:50%; background:var(--fill2); color:var(--ink); font-size:15px;}
+.m-head{flex-shrink:0; display:flex; align-items:center; min-height:64px; padding:var(--sp-4) 64px var(--sp-3) var(--sp-6);}
+.m-head h3{margin:0; padding:0;}
+.m-body{flex:1; min-height:0; overflow-y:auto; padding:var(--sp-1) var(--sp-6) var(--sp-6);}
+.m-x+.m-body{padding-top:var(--sp-6);}
+.m-body>:first-child{margin-top:0;}
+.m-foot{flex-shrink:0; padding:var(--sp-3) var(--sp-6) var(--sp-5); border-top:1px solid var(--hair); background:rgba(0,0,0,.14);}
+.m-foot .m-row{margin:0;}
 .m-x:hover{background:rgba(120,130,128,.36);}
 .m-row{display:flex; gap:var(--sp-2); justify-content:flex-end; margin-top:var(--sp-5);}
 .mbtn{height:40px; padding:0 var(--sp-5); border-radius:var(--r-12); background:var(--fill); color:var(--ink); font-size:var(--fs-13); font-weight:700; transition:background var(--fast) var(--ease);}
@@ -382,7 +389,9 @@ body:not(.is-master) #dash-acts{display:none;}
 .mbtn.pri{background:var(--grad); color:#062018; font-weight:800;} .mbtn.pri:hover{filter:brightness(1.06);}
 .mbtn.warn,.mbtn.danger{background:rgba(255,122,107,.14); color:var(--red);}
 .m-check{display:flex; align-items:center; gap:8px; margin-top:var(--sp-4); font-size:var(--fs-13); color:var(--sub); cursor:pointer;}
-.m-check input{width:18px; height:18px; accent-color:var(--tint);}
+.m-check input{appearance:none; -webkit-appearance:none; flex-shrink:0; width:20px; height:20px; margin:0; border-radius:6px; background:var(--fill2); border:1px solid var(--hair2); display:grid; place-items:center; cursor:pointer; transition:background var(--fast) var(--ease);}
+.m-check input:checked{background:var(--tint); border-color:var(--tint);}
+.m-check input:checked::after{content:""; width:10px; height:5px; margin-top:-3px; border-left:2px solid #062018; border-bottom:2px solid #062018; transform:rotate(-45deg);}
 .cpick{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
 .cdot{width:26px; height:26px; border-radius:50%; border:2px solid transparent; padding:0; transition:transform var(--fast) var(--ease);}
 .cdot.on{border-color:#fff; transform:scale(1.12);}
@@ -411,6 +420,35 @@ body:not(.is-master) #dash-acts{display:none;}
 .visit-list>div{display:flex; justify-content:space-between; gap:8px; padding:8px 0; font-size:var(--fs-13); border-bottom:1px solid var(--hair);}
 .checker{height:10px; width:170px; margin:0 auto; opacity:.3; background:repeating-conic-gradient(#c9ced4 0% 25%, transparent 0% 50%); background-size:10px 10px;}
 
+.mem-row{display:flex; align-items:center; gap:var(--sp-3); min-height:48px; padding:var(--sp-2) 0; position:relative;}
+#mem-list>.mem-row{border-bottom:0;}
+.mem-row+.mem-row::before{content:""; position:absolute; top:0; left:0; right:0; height:1px; background:var(--hair);}
+.mem-em{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--fs-13); color:var(--sub2);}
+.mem-em b{color:var(--ink); font-weight:700; margin-right:4px;}
+.mem-row .c-del{flex-shrink:0; height:28px; padding:0 var(--sp-2); font-size:var(--fs-12);}
+/* 날씨 상세 모달 */
+.wx-d,.wx-now{cursor:pointer;} .wx-d:hover{background:var(--fill);} .wx-d:active{transform:scale(.96);}
+.wxd-seg{display:flex; width:100%; margin-bottom:var(--sp-4);} .wxd-seg button{flex:1;}
+.wxd-sum{display:flex; align-items:center; gap:var(--sp-4); margin-bottom:var(--sp-4);}
+.wxd-sum .wx-ic{width:64px; height:64px; flex-shrink:0;}
+.wxd-sum .dte{font-size:var(--fs-13); font-weight:700; color:var(--tint);}
+.wxd-sum .tp{font-size:var(--fs-34); font-weight:800; letter-spacing:-.04em; line-height:1.1;} .wxd-sum .tp span{color:var(--sub2); font-size:var(--fs-22);}
+.wxd-sum .cd{font-size:var(--fs-13); color:var(--sub); font-weight:600; margin-top:2px;}
+.wxd-sec{font-size:var(--fs-12); font-weight:700; color:var(--sub2); margin:var(--sp-4) 0 var(--sp-2);}
+.wxd-chart{overflow-x:auto; margin:0 calc(-1 * var(--sp-2)); padding:0 var(--sp-2); -webkit-overflow-scrolling:touch; scrollbar-width:none;} .wxd-chart::-webkit-scrollbar{display:none;}
+.wxc{display:block; min-width:720px;} .wxc text{font-family:inherit; font-variant-numeric:tabular-nums;}
+.wxc-t{font-size:12px; font-weight:700; fill:var(--ink);} .wxc-h{font-size:11px; font-weight:600; fill:rgba(235,245,243,.45);} .wxc-p{font-size:11px; font-weight:700; fill:#7fb2ff;}
+.wxd-tiles{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--sp-2); margin-top:var(--sp-4);}
+.wxd-t{padding:var(--sp-3); border-radius:var(--r-12); background:var(--fill);}
+.wxd-t .k,.wxd-aq .k{font-size:var(--fs-12); font-weight:600; color:var(--sub);}
+.wxd-t .v{font-size:var(--fs-20); font-weight:800; letter-spacing:-.02em; margin-top:2px;}
+.wxd-t .s,.wxd-aq .s{font-size:var(--fs-12); color:var(--sub2); font-weight:600; margin-top:2px;}
+.wxd-aqs{display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-2);}
+.wxd-aq{padding:var(--sp-3); border-radius:var(--r-12); background:var(--fill); position:relative;}
+.wxd-aq .v{font-size:var(--fs-28); font-weight:800; letter-spacing:-.03em; margin-top:2px;} .wxd-aq .v small{font-size:var(--fs-12); color:var(--sub2); font-weight:600; margin-left:4px;}
+.wxd-aq .gr{position:absolute; top:var(--sp-3); right:var(--sp-3); font-size:var(--fs-11); font-weight:800; padding:4px 8px; border-radius:999px;}
+.gr.g1{background:rgba(127,178,255,.18); color:#9cc4ff;} .gr.g2{background:rgba(111,230,141,.16); color:#8eeaa5;} .gr.g3{background:rgba(255,179,92,.18); color:#ffc27d;} .gr.g4{background:rgba(255,122,107,.18); color:#ff9a8d;}
+.wxd-note{font-size:var(--fs-13); color:var(--sub2); padding:var(--sp-3); border-radius:var(--r-12); background:var(--fill);}
 /* 지출 모달 */
 .sp-seg{display:flex; width:100%; margin-bottom:var(--sp-4);} .sp-seg button{flex:1;}
 .sp-sum{margin-bottom:var(--sp-3);} .sp-sum .k{font-size:var(--fs-12); color:var(--sub2); font-weight:600; margin-top:4px;}
@@ -473,7 +511,7 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 @keyframes sweep{from{transform:translateX(-100%);} to{transform:translateX(270%);}}
 #viewer.vfull .v-bar,#viewer.vfull .v-side{display:none;}
 .v-side.closed #c-wrap{display:none;} .v-side.closed #c-toggle .arr{transform:rotate(-90deg);}
-.modal.wide{max-width:760px;}
+.modal.wide{max-width:760px; height:min(780px,86vh);}
 #rp-rot-body.rp-view{animation:rpIn .38s var(--ease);}
 @keyframes rpIn{from{opacity:0; transform:translateY(7px);} to{opacity:1; transform:none;}}
 /* ── 와이드(≥1280): 폭 확장 + 위젯 한 줄 3개 ── */
@@ -490,17 +528,24 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
   .wx{grid-template-columns:1fr; gap:var(--sp-3); padding:var(--sp-4);}
   .wx-now{border-right:0; padding-right:0; padding-bottom:var(--sp-3); border-bottom:1px solid var(--hair);}
   .wx-d .wx-ic{width:24px; height:24px;} .wx-d .hi{font-size:var(--fs-13);}
+  .wxd-tiles{grid-template-columns:repeat(2,minmax(0,1fr));} .wxd-seg button{padding:0 var(--sp-1);}
   .wgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .widget.s22,.widget.s21{grid-column:span 2;} .widget.s22{aspect-ratio:auto; min-height:calc(100vw - 40px);}
   .mon-nums{grid-template-columns:repeat(2,minmax(0,1fr));} .mon-nums .mn:last-child{grid-column:span 2;} .mn .v{font-size:20px;}
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr));}
   .ev,.wd{min-height:44px;}
   #aside{left:16px; right:16px; transform:none; bottom:max(12px, calc(env(safe-area-inset-bottom,0px) - 18px)); justify-content:space-between; gap:0; padding:12px 16px 16px; border-radius:var(--r-32);}
-  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-16);} .s-item.on::after{bottom:-7px;}
+  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-12);} .s-item.on::after{bottom:-7px;}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .modal-bg{align-items:flex-end; padding:0;}
-  .modal{max-width:none; border-radius:var(--r-26) var(--r-26) 0 0; border-bottom:0; padding:var(--sp-5) var(--sp-5) calc(var(--sp-6) + env(safe-area-inset-bottom,0px)); animation:sheetIn var(--sheet-t) var(--ease);}
-  .modal::before{content:""; display:block; width:36px; height:5px; border-radius:999px; background:rgba(255,255,255,.22); margin:-4px auto var(--sp-4);}
+  .modal{max-width:none; border-radius:var(--r-26) var(--r-26) 0 0; border-bottom:0; min-height:56dvh; max-height:92dvh; animation:sheetIn var(--sheet-t) var(--ease);}
+  .modal.wide{max-width:none; height:92dvh;}
+  .modal::before{content:""; position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:2; width:36px; height:5px; border-radius:999px; background:rgba(255,255,255,.22);}
+  .m-head{min-height:0; padding:var(--sp-6) 56px var(--sp-3) var(--sp-5);}
+  .m-x{top:var(--sp-5);}
+  .m-body{padding:var(--sp-1) var(--sp-5) var(--sp-5);} .m-x+.m-body{padding-top:var(--sp-8);}
+  .m-body:last-child{padding-bottom:calc(var(--sp-6) + env(safe-area-inset-bottom,0px));}
+  .m-foot{padding:var(--sp-3) var(--sp-5) calc(var(--sp-4) + env(safe-area-inset-bottom,0px));}
   .m-row{flex-direction:column-reverse;} .m-row .mbtn{width:100%; height:48px; font-size:var(--fs-15);}
   .mgrid .md{min-height:52px;}
   #toast{bottom:calc(96px + env(safe-area-inset-bottom,0px));}
@@ -1199,6 +1244,17 @@ function showMenu(anchor,items){
 function modal(html,onOpen){
   const bg=document.createElement("div"); bg.className="modal-bg";
   bg.innerHTML=`<div class="modal"><button class="m-x" aria-label="닫기">✕</button>${html}</div>`;
+  { /* 공통 구조: 머리(h3) · 본문(스크롤) · 바닥(마지막 버튼 줄) */
+    const md=bg.querySelector(".modal"), nodes=[...md.childNodes].filter(n=>!(n.classList&&n.classList.contains("m-x")));
+    const els=nodes.filter(n=>n.nodeType===1);
+    const head=els[0]&&els[0].tagName==="H3"?els[0]:null;
+    const foot=els.length>1&&els[els.length-1].classList.contains("m-row")?els[els.length-1]:null;
+    const body=document.createElement("div"); body.className="m-body";
+    nodes.forEach(n=>{ if(n!==head&&n!==foot)body.appendChild(n); });
+    if(head){ const hd=document.createElement("div"); hd.className="m-head"; hd.appendChild(head); md.appendChild(hd); }
+    md.appendChild(body);
+    if(foot){ const ft=document.createElement("div"); ft.className="m-foot"; ft.appendChild(foot); md.appendChild(ft); }
+  }
   bg.querySelector(".m-x").onclick=()=>bg.remove();
   bg.onclick=e=>{if(e.target===bg)bg.remove();};
   document.body.appendChild(bg);
@@ -1753,8 +1809,8 @@ function openMembers(){
         let reqHtml="";
         if(rq.length){
           reqHtml='<div class="sec-label" style="margin:0 0 8px">접근 요청</div>'
-            +rq.map(([k,r])=>'<div class="wd" style="align-items:center"><span class="t" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.n||"")+' <span style="color:var(--sub2);font-size:12px">'+esc(r.email)+'</span></span>'
-              +'<button class="c-del" data-ap="'+k+'" style="margin-left:auto;color:var(--lime)">승인</button>'
+            +rq.map(([k,r])=>'<div class="mem-row"><span class="mem-em"><b>'+esc(r.n||"")+'</b> '+esc(r.email)+'</span>'
+              +'<button class="c-del" data-ap="'+k+'" style="color:var(--tint)">승인</button>'
               +'<button class="c-del" data-rj="'+k+'">거절</button></div>').join("")
             +'<div style="height:14px"></div>';
         }
@@ -1762,7 +1818,7 @@ function openMembers(){
         el.previousHtml=reqHtml;
         const rows=Object.entries(v);
         el.innerHTML=(el.previousHtml||"")+(rows.length?rows.map(([k,m])=>
-          '<div class="wd"><span class="t"><span class="role" style="'+badgeStyle(m.color)+(m.color?"":"color:var(--sub);border:1px solid var(--line2);background:var(--card2)")+'">'+esc(m.label||"멤버")+'</span> <span style="color:var(--sub2);font-size:12px">'+esc(m.email)+'</span></span>'
+          '<div class="mem-row"><span class="role" style="'+badgeStyle(m.color)+(m.color?"":"color:var(--sub);border-color:var(--hair2);background:var(--fill)")+'">'+esc(m.label||"멤버")+'</span><span class="mem-em">'+esc(m.email)+'</span>'
           +'<button class="c-del" data-e="'+k+'">수정</button><button class="c-del" data-k="'+k+'">삭제</button></div>').join("")
           :'<div class="w-empty">등록된 멤버 없음 — 마스터 본인은 항상 접근 가능해요</div>');
         el.querySelectorAll("[data-ap]").forEach(b2=>b2.onclick=async()=>{await approveReq(b2.dataset.ap); drawList();});
@@ -2594,7 +2650,7 @@ function openSpendModal(){
   let cur="today";
   modal('<h3><svg class="wic" viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg>지출</h3>'
     +'<div class="tsel sp-seg">'+Object.entries(R).map(([k,v])=>'<button data-k="'+k+'">'+v[2]+'</button>').join("")+'</div>'
-    +'<div id="sp-body"></div>', bg=>{
+    +'<div id="sp-body"></div>', bg=>{ bg.querySelector(".modal").classList.add("wide");
     const draw=()=>{
       const [a,b]=R[cur], multi=b-a>D;
       const it=S.all.filter(x=>x.t>=a&&x.t<b).sort((x,y)=>y.t-x.t);
@@ -2624,7 +2680,7 @@ const WX_CODE={0:["맑음","sun"],1:["대체로 맑음","part"],2:["구름 조�
   51:["이슬비","rain"],53:["이슬비","rain"],55:["이슬비","rain"],56:["어는 비","rain"],57:["어는 비","rain"],61:["비","rain"],63:["비","rain"],65:["강한 비","rain"],
   66:["어는 비","rain"],67:["어는 비","rain"],71:["눈","snow"],73:["눈","snow"],75:["강한 눈","snow"],77:["싸락눈","snow"],80:["소나기","rain"],81:["소나기","rain"],
   82:["강한 소나기","rain"],85:["눈 소나기","snow"],86:["눈 소나기","snow"],95:["뇌우","storm"],96:["뇌우·우박","storm"],99:["뇌우·우박","storm"]};
-function wxIcon(code){
+function wxIconBody(code){
   const k=(WX_CODE[code]||["","cloud"])[1];
   const cloud='<path d="M9.5 25a4.8 4.8 0 0 1-.7-9.55 7.2 7.2 0 0 1 13.9-1.6A5.6 5.6 0 1 1 23.4 25z" fill="#d7dfdd"/>';
   const cloudD='<path d="M9.5 21a4.8 4.8 0 0 1-.7-9.55 7.2 7.2 0 0 1 13.9-1.6A5.6 5.6 0 1 1 23.4 21z" fill="#b9c3c1"/>';
@@ -2639,8 +2695,9 @@ function wxIcon(code){
     snow:cloudD+'<g fill="#fff"><circle cx="11" cy="26" r="1.4"/><circle cx="16.5" cy="28" r="1.4"/><circle cx="22" cy="26" r="1.4"/></g>',
     storm:cloudD+'<path d="M17 21l-4 6h3.5l-1.5 4 5-6.5h-3.5l1.5-3.5z" fill="#ffd36b"/>'
   }[k];
-  return '<svg class="wx-ic" viewBox="0 0 32 32" aria-hidden="true">'+body+'</svg>';
+  return body;
 }
+function wxIcon(code){ return '<svg class="wx-ic" viewBox="0 0 32 32" aria-hidden="true">'+wxIconBody(code)+'</svg>'; }
 function renderWx(data){
   const el=$("wx"); if(!el||!data||!data.daily)return;
   const d=data.daily, cur=data.current||{}, DN=["일","월","화","수","목","금","토"];
@@ -2648,7 +2705,7 @@ function renderWx(data){
   const cc=cur.weather_code!=null?cur.weather_code:d.weather_code[0];
   const days=d.time.slice(0,7).map((t,i)=>{
     const wd=new Date(t+"T00:00:00").getDay(), pp=d.precipitation_probability_max?d.precipitation_probability_max[i]:null;
-    return '<div class="wx-d'+(i===0?" on":"")+'"><span class="dn'+(i>0&&wd===0?" su":i>0&&wd===6?" sa":"")+'">'+(i===0?"오늘":DN[wd])+'</span>'
+    return '<div class="wx-d'+(i===0?" on":"")+'" data-i="'+i+'" role="button" tabindex="0"><span class="dn'+(i>0&&wd===0?" su":i>0&&wd===6?" sa":"")+'">'+(i===0?"오늘":DN[wd])+'</span>'
       +wxIcon(d.weather_code[i])+'<span class="hi">'+r(d.temperature_2m_max[i])+'</span><span class="lo">'+r(d.temperature_2m_min[i])+'</span>'
       +'<span class="pp">'+(pp!=null&&pp>=20?pp+"%":"")+'</span></div>';
   }).join("");
@@ -2656,10 +2713,99 @@ function renderWx(data){
     +'<div class="cd">'+(WX_CODE[cc]||["—"])[0]+' · 최고 '+r(d.temperature_2m_max[0])+' 최저 '+r(d.temperature_2m_min[0])+'</div></div></div>'
     +'<div class="wx-days">'+days+'</div>';
   el.dataset.ok="1";
+  window.__wx=data;
+  el.querySelectorAll(".wx-d").forEach(c=>c.onclick=()=>openWxDay(+c.dataset.i));
+  const nw=el.querySelector(".wx-now"); if(nw)nw.onclick=()=>openWxDay(0);
+}
+/* ===== 날씨 상세 (요일 탭 → 모달) ===== */
+async function wgAir(){
+  const KEY="jimaq_v1", TTL=60*60*1000;
+  try{ const c=JSON.parse(localStorage.getItem(KEY)||"null"); if(c&&Date.now()-c.at<TTL)return c.d; }catch(e){}
+  try{
+    const r=await fetch("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=37.5665&longitude=126.978&hourly=pm10,pm2_5&timezone=Asia%2FSeoul&forecast_days=5");
+    if(!r.ok)throw 0; const d=await r.json();
+    try{ localStorage.setItem(KEY,JSON.stringify({at:Date.now(),d})); }catch(e){}
+    return d;
+  }catch(e){ return null; }
+}
+function wxGrade(v,kind){
+  if(v==null)return ["—",""];
+  const cut=kind==="pm10"?[30,80,150]:[15,35,75];
+  return v<=cut[0]?["좋음","g1"]:v<=cut[1]?["보통","g2"]:v<=cut[2]?["나쁨","g3"]:["매우 나쁨","g4"];
+}
+function uvGrade(v){ return v==null?"—":v<3?"낮음":v<6?"보통":v<8?"높음":v<11?"매우 높음":"위험"; }
+function wxChart(hrs,isToday){
+  const W=720,H=196,px=26,n=hrs.length; if(n<2)return "";
+  const xs=i=>px+i*(W-2*px)/(n-1);
+  const ts=hrs.map(x=>x.t), tmin=Math.min(...ts), tmax=Math.max(...ts), rg=Math.max(1,tmax-tmin);
+  const ys=v=>112-(v-tmin)/rg*56;
+  const line=hrs.map((x,i)=>(i?"L":"M")+xs(i).toFixed(1)+" "+ys(x.t).toFixed(1)).join(" ");
+  const area=line+" L"+xs(n-1).toFixed(1)+" 124 L"+xs(0).toFixed(1)+" 124 Z";
+  let g='<defs><linearGradient id="wxa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00d2be" stop-opacity=".35"/><stop offset="1" stop-color="#00d2be" stop-opacity="0"/></linearGradient>'
+    +'<linearGradient id="wxl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b8f24b"/><stop offset="1" stop-color="#00d2be"/></linearGradient></defs>';
+  hrs.forEach((x,i)=>{ const hgt=Math.round((x.pp||0)/100*26); if(hgt>0)g+='<rect x="'+(xs(i)-6).toFixed(1)+'" y="'+(158-hgt)+'" width="12" height="'+hgt+'" rx="3" fill="#7fb2ff" opacity=".45"/>'; });
+  g+='<path d="'+area+'" fill="url(#wxa)"/><path d="'+line+'" fill="none" stroke="url(#wxl)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
+  if(isToday){ const hr=new Date().getHours(); if(hr<n){ const cx=xs(hr); g+='<line x1="'+cx+'" y1="30" x2="'+cx+'" y2="160" stroke="rgba(255,255,255,.25)" stroke-dasharray="3 4"/><circle cx="'+cx+'" cy="'+ys(hrs[hr].t)+'" r="4.5" fill="#fff" stroke="#00d2be" stroke-width="2"/>'; } }
+  hrs.forEach((x,i)=>{ if(i%3)return; const cx=xs(i);
+    g+='<svg x="'+(cx-11)+'" y="2" width="22" height="22" viewBox="0 0 32 32">'+wxIconBody(x.c)+'</svg>'
+      +'<text x="'+cx+'" y="'+(ys(x.t)-10).toFixed(1)+'" text-anchor="middle" class="wxc-t">'+Math.round(x.t)+'°</text>'
+      +(x.pp>=20?'<text x="'+cx+'" y="172" text-anchor="middle" class="wxc-p">'+x.pp+'%</text>':'')
+      +'<text x="'+cx+'" y="190" text-anchor="middle" class="wxc-h">'+String(i).padStart(2,"0")+'시</text>'; });
+  return '<svg class="wxc" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" aria-hidden="true">'+g+'</svg>';
+}
+async function openWxDay(idx){
+  const W=window.__wx; if(!W||!W.daily){ toast("날씨 정보를 불러오는 중이에요"); return; }
+  const D=W.daily, HR=W.hourly||{}, DN=["일","월","화","수","목","금","토"];
+  let cur=idx||0, air=null;
+  const bg=modal('<h3><svg class="wic" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.95A6 6 0 0 1 18 9.6 4.2 4.2 0 1 1 17.6 18z"/></svg>서울 날씨</h3>'
+    +'<div class="tsel wxd-seg">'+D.time.slice(0,7).map((t,i)=>{const wd=new Date(t+"T00:00:00").getDay();return '<button data-i="'+i+'">'+(i===0?"오늘":DN[wd])+'</button>';}).join("")+'</div>'
+    +'<div id="wxd-body"></div>', b=>{ b.querySelector(".modal").classList.add("wide"); });
+  const r=v=>v==null?"—":Math.round(v)+"°";
+  const hm=s=>s?s.slice(11,16):"—";
+  const draw=()=>{
+    const day=D.time[cur], dt=new Date(day+"T00:00:00");
+    const ids=(HR.time||[]).map((t,i)=>t.startsWith(day)?i:-1).filter(i=>i>=0);
+    const pick=k=>ids.map(i=>(HR[k]||[])[i]).filter(v=>v!=null);
+    const hrs=ids.map(i=>({t:HR.temperature_2m[i],pp:(HR.precipitation_probability||[])[i]||0,c:(HR.weather_code||[])[i]}));
+    const hum=pick("relative_humidity_2m"), app=pick("apparent_temperature");
+    const avg=a=>a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):null;
+    const code=D.weather_code[cur];
+    let aq='<div class="wxd-note">대기질 예보는 5일까지만 제공돼요</div>';
+    if(air&&air.hourly){
+      const ai=air.hourly.time.map((t,i)=>t.startsWith(day)?i:-1).filter(i=>i>=0);
+      if(ai.length){
+        const card=(k,label,kind)=>{ const vs=ai.map(i=>air.hourly[k][i]).filter(v=>v!=null); const a=avg(vs), mx=vs.length?Math.round(Math.max(...vs)):null; const [gt,gc]=wxGrade(a,kind);
+          return '<div class="wxd-aq"><div class="k">'+label+'</div><div class="v num">'+(a==null?"—":a)+'<small>㎍/㎥</small></div><span class="gr '+gc+'">'+gt+'</span><div class="s">최고 '+(mx==null?"—":mx)+'</div></div>'; };
+        aq='<div class="wxd-aqs">'+card("pm10","미세먼지","pm10")+card("pm2_5","초미세먼지","pm25")+'</div>';
+      }
+    }else if(air===null&&cur<5){ aq='<div class="wxd-note">대기질 불러오는 중…</div>'; }
+    const tile=(k,v,s)=>'<div class="wxd-t"><div class="k">'+k+'</div><div class="v num">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>';
+    const uv=D.uv_index_max?D.uv_index_max[cur]:null, pps=D.precipitation_probability_max?D.precipitation_probability_max[cur]:null;
+    b_body.innerHTML=
+      '<div class="wxd-sum">'+wxIcon(code)+'<div><div class="dte">'+(dt.getMonth()+1)+'월 '+dt.getDate()+'일 '+DN[dt.getDay()]+'요일</div>'
+        +'<div class="tp num">'+r(D.temperature_2m_max[cur])+' <span>/ '+r(D.temperature_2m_min[cur])+'</span></div>'
+        +'<div class="cd">'+(WX_CODE[code]||["—"])[0]+(app.length?' · 체감 '+r(Math.min(...app))+'~'+r(Math.max(...app)):"")+'</div></div></div>'
+      +(hrs.length?'<div class="wxd-sec">시간대별</div><div class="wxd-chart">'+wxChart(hrs,cur===0)+'</div>':"")
+      +'<div class="wxd-tiles">'
+        +tile("습도",hum.length?avg(hum)+"%":"—",hum.length?Math.min(...hum)+"~"+Math.max(...hum)+"%":"")
+        +tile("강수",pps!=null?pps+"%":"—",D.precipitation_sum&&D.precipitation_sum[cur]!=null?D.precipitation_sum[cur].toFixed(1)+"mm":"")
+        +tile("바람",D.wind_speed_10m_max&&D.wind_speed_10m_max[cur]!=null?D.wind_speed_10m_max[cur].toFixed(1)+"m/s":"—","최대 풍속")
+        +tile("자외선",uv!=null?uv.toFixed(1):"—",uvGrade(uv))
+        +tile("일출",hm(D.sunrise&&D.sunrise[cur]),"")
+        +tile("일몰",hm(D.sunset&&D.sunset[cur]),"")
+      +'</div>'
+      +'<div class="wxd-sec">대기질</div>'+aq;
+    bg.querySelectorAll(".wxd-seg button").forEach(bt=>bt.classList.toggle("on",+bt.dataset.i===cur));
+  };
+  const b_body=bg.querySelector("#wxd-body");
+  bg.querySelectorAll(".wxd-seg button").forEach(bt=>bt.onclick=()=>{cur=+bt.dataset.i;draw();});
+  draw();
+  { const ch=bg.querySelector(".wxd-chart"); if(ch&&cur===0){ const x=26+new Date().getHours()*(720-52)/23; ch.scrollLeft=Math.max(0,x-ch.clientWidth/2); } }
+  air=await wgAir(); if(!air)air=false; if(document.body.contains(bg))draw();
 }
 async function wgWeather(force){
   const el=$("wx"); if(!el)return;
-  const KEY="jimwx_v1", TTL=60*60*1000, n=new Date();
+  const KEY="jimwx_v2", TTL=60*60*1000, n=new Date();
   const today=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");
   let data=null;
   try{ const c=JSON.parse(localStorage.getItem(KEY)||"null");
@@ -2667,8 +2813,10 @@ async function wgWeather(force){
   if(!data){
     try{
       const u="https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978"
-        +"&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max"
-        +"&timezone=Asia%2FSeoul&forecast_days=7";
+        +"&current=temperature_2m,weather_code"
+        +"&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m"
+        +"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset,uv_index_max,wind_speed_10m_max"
+        +"&wind_speed_unit=ms&timezone=Asia%2FSeoul&forecast_days=7";
       const res=await fetch(u); if(!res.ok)throw new Error("HTTP "+res.status);
       data=await res.json();
       try{ localStorage.setItem(KEY,JSON.stringify({at:Date.now(),d:data})); }catch(e){}
