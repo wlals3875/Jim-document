@@ -259,18 +259,24 @@ body:not(.is-master) #dash-acts{display:none;}
   border:1px solid rgba(255,255,255,.16); box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.05), 0 18px 44px rgba(0,0,0,.45);}
 #aside .s-label,#aside #tree,#aside #stor{display:none;}
 .s-item{position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; width:64px; color:var(--sub); font-size:var(--fs-11); font-weight:600; transition:color var(--fast) var(--ease);}
-.s-item .ic{width:56px; height:56px; border-radius:var(--r-16); display:grid; place-items:center;
-  background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,.05) 55%,rgba(255,255,255,.08));
-  border:1px solid rgba(255,255,255,.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 4px 12px rgba(0,0,0,.25);
-  transition:transform .08s var(--ease), background var(--fast) var(--ease), border-color var(--fast) var(--ease);}
+.s-item .ic{position:relative; overflow:hidden; width:56px; height:56px; border-radius:var(--r-16); display:grid; place-items:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18), 0 6px 14px rgba(0,0,0,.38);
+  transition:transform .08s var(--ease), filter var(--fast) var(--ease);}
+.s-item .ic::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.06) 42%,rgba(255,255,255,0) 60%);}
 @supports (corner-shape:squircle){ .s-item .ic{corner-shape:superellipse(2.2);} }
-.s-item .ic .wic{width:26px; height:26px; stroke:#6ee8d8; stroke-width:2; transition:stroke var(--fast) var(--ease);}
-.s-item:hover .ic{background:linear-gradient(160deg,rgba(255,255,255,.24),rgba(255,255,255,.08) 55%,rgba(255,255,255,.1));}
+.s-item .ic .dk{position:relative; z-index:1; width:64%; height:64%; filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.22));}
+#s-home .ic .dk{width:68%; height:68%;} #s-stats .ic .dk,#s-members .ic .dk{width:74%; height:74%;} .s-item[data-go="root"] .ic .dk{width:70%; height:70%;}
+#s-home .ic{background:linear-gradient(160deg,#283032,#0b0f10);}
+.s-item[data-go="root"] .ic{background:linear-gradient(180deg,#ffffff,#e4e9f1);}
+#s-stats .ic{background:linear-gradient(160deg,#6fe68d,#17a24a);}
+#s-guest .ic{background:linear-gradient(180deg,#ffffff,#eceef2);}
+#s-trash .ic{background:linear-gradient(160deg,#b0b6be,#5b6169);}
+#s-members .ic{background:linear-gradient(160deg,#bc9cff,#6a3df0);}
+.s-item:hover .ic{filter:brightness(1.07);}
 .s-item:active .ic{transform:scale(.92);}
 .s-item.on{color:var(--ink);}
-.s-item.on .ic{background:linear-gradient(160deg,rgba(0,210,190,.42),rgba(0,210,190,.18) 60%,rgba(184,242,75,.16)); border-color:rgba(110,232,216,.55);}
-.s-item.on .ic .wic{stroke:#effffc;}
-.s-item.on::after{content:""; position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:#6ee8d8;}
+.s-item.on::after{content:""; position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:#fff; box-shadow:0 0 6px rgba(255,255,255,.6);}
 .s-item .reqn{top:-2px; right:2px;}
 #aside-bg{display:none !important;}
 
@@ -490,7 +496,7 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr));}
   .ev,.wd{min-height:44px;}
   #aside{left:16px; right:16px; transform:none; bottom:max(12px, calc(env(safe-area-inset-bottom,0px) - 18px)); justify-content:space-between; gap:0; padding:12px 16px 16px; border-radius:var(--r-32);}
-  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-16);} .s-item .ic .wic{width:23px; height:23px;} .s-item.on::after{bottom:-7px;}
+  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-16);} .s-item.on::after{bottom:-7px;}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .modal-bg{align-items:flex-end; padding:0;}
   .modal{max-width:none; border-radius:var(--r-26) var(--r-26) 0 0; border-bottom:0; padding:var(--sp-5) var(--sp-5) calc(var(--sp-6) + env(safe-area-inset-bottom,0px)); animation:sheetIn var(--sheet-t) var(--ease);}
@@ -544,12 +550,12 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 <!-- Dock -->
 <aside id="aside">
   <div class="s-label">메뉴</div>
-  <button class="s-item hidden" id="s-home"><span class="ic"><svg class="wic" viewBox="0 0 24 24"><path d="M12 4l1.8 6.2L20 12l-6.2 1.8L12 20l-1.8-6.2L4 12l6.2-1.8z"/></svg></span><span class="tx">홈</span></button>
-  <button class="s-item" data-go="root"><span class="ic"><svg class="wic" viewBox="0 0 24 24"><path d="M13.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M13.5 3v5.5H19"/></svg></span><span class="tx">문서</span></button>
-  <button class="s-item hidden" id="s-stats"><span class="ic"><svg class="wic" viewBox="0 0 24 24"><path d="M5 20v-8M12 20V5M19 20v-9"/></svg></span><span class="tx">방문 통계</span></button>
-  <button class="s-item hidden" id="s-guest"><span class="ic"><svg class="wic" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10a4.3 4.3 0 0 1 7.5-2.9 4.3 4.3 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/></svg></span><span class="tx">방명록</span></button>
-  <button class="s-item hidden" id="s-trash"><span class="ic"><svg class="wic" viewBox="0 0 24 24"><path d="M4.5 6.5h15M9.5 6.5V4.8c0-.7.6-1.3 1.3-1.3h2.4c.7 0 1.3.6 1.3 1.3v1.7M6.5 6.5l1 13h9l1-13"/></svg></span><span class="tx">휴지통</span></button>
-  <button class="s-item hidden" id="s-members"><span class="ic"><svg class="wic" viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.1"/><path d="M3.6 19c.4-3 2.7-5 5.4-5s5 2 5.4 5M16 5.4a3.1 3.1 0 0 1 0 6.4M20.4 19c-.3-2.6-2-4.5-4.4-5"/></svg></span><span class="tx">멤버</span></button>
+  <button class="s-item hidden" id="s-home"><span class="ic"><svg class="dk" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="dkm" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0a8fd6"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#dkm)" opacity=".62"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#dkm)"/></svg></span><span class="tx">홈</span></button>
+  <button class="s-item" data-go="root"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.6A2.6 2.6 0 0 1 5.6 5h3.3c.6 0 1.1.2 1.5.6L11.6 7h6.8A2.6 2.6 0 0 1 21 9.6v7.8a2.6 2.6 0 0 1-2.6 2.6H5.6A2.6 2.6 0 0 1 3 17.4z" fill="#1576ef"/><path d="M3 10.2h18v7.2a2.6 2.6 0 0 1-2.6 2.6H5.6A2.6 2.6 0 0 1 3 17.4z" fill="#48a8ff"/></svg></span><span class="tx">문서</span></button>
+  <button class="s-item hidden" id="s-stats"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><g fill="#fff"><rect x="4.6" y="12" width="3.6" height="7.5" rx="1.3"/><rect x="10.2" y="6.5" width="3.6" height="13" rx="1.3"/><rect x="15.8" y="9.5" width="3.6" height="10" rx="1.3"/></g></svg></span><span class="tx">방문 통계</span></button>
+  <button class="s-item hidden" id="s-guest"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="dkh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a97"/><stop offset="1" stop-color="#ff2d55"/></linearGradient></defs><path d="M12 20.6s-8-4.8-8-10.4a4.5 4.5 0 0 1 8-2.9 4.5 4.5 0 0 1 8 2.9c0 5.6-8 10.4-8 10.4z" fill="url(#dkh)"/></svg></span><span class="tx">방명록</span></button>
+  <button class="s-item hidden" id="s-trash"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><g fill="#fff"><rect x="9.2" y="3.6" width="5.6" height="2.4" rx="1"/><rect x="4.6" y="5.6" width="14.8" height="2.4" rx="1.2"/><path d="M6.4 9.2h11.2l-.95 10.1a1.8 1.8 0 0 1-1.8 1.6H9.15a1.8 1.8 0 0 1-1.8-1.6z"/></g><g stroke="#8a9098" stroke-width="1.3" stroke-linecap="round"><line x1="10" y1="11.6" x2="10.2" y2="18.4"/><line x1="14" y1="11.6" x2="13.8" y2="18.4"/></g></svg></span><span class="tx">휴지통</span></button>
+  <button class="s-item hidden" id="s-members"><span class="ic"><svg class="dk" viewBox="0 0 24 24" aria-hidden="true"><g fill="#fff"><circle cx="15.8" cy="8.6" r="2.7" opacity=".72"/><path d="M11.6 18.8a4.2 4.2 0 0 1 8.4 0z" opacity=".72"/><circle cx="9.4" cy="9.2" r="3.1"/><path d="M3.8 19.8a5.6 5.6 0 0 1 11.2 0z"/></g></svg></span><span class="tx">멤버</span></button>
   <div class="s-label">폴더</div>
   <div id="tree"></div>
   <div class="stor hidden" id="stor">
