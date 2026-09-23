@@ -85,9 +85,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none; bo
 header{position:sticky; top:0; z-index:40; padding-top:env(safe-area-inset-top,0);
   background:rgba(8,12,13,.72); -webkit-backdrop-filter:blur(24px) saturate(170%); backdrop-filter:blur(24px) saturate(170%);
   border-bottom:1px solid var(--hair);}
-header .hbar{max-width:1104px; margin:0 auto; padding:0 var(--sp-5); height:60px; display:flex; align-items:center; gap:var(--sp-3);}
-.logo{display:flex; align-items:center; gap:12px; font-weight:800; font-size:var(--fs-17); letter-spacing:-.02em; color:var(--ink); text-decoration:none; cursor:pointer;}
-.logo .lmark{width:22px; height:22px;}
+header .hbar{max-width:1104px; margin:0 auto; padding:0 var(--sp-5); height:64px; display:flex; align-items:center; gap:var(--sp-3);}
+.logo{display:flex; align-items:center; gap:12px; font-weight:800; font-size:var(--fs-22); letter-spacing:-.02em; color:var(--ink); text-decoration:none; cursor:pointer;}
+.logo .lmark{width:30px; height:30px;}
 .logo .S{color:var(--tint); font-weight:inherit;}
 header #role{margin-left:auto;}
 .who{display:flex; align-items:center; gap:12px;}
@@ -251,22 +251,26 @@ body:not(.is-master) #dash-acts{display:none;}
 .center{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; flex:1;}
 .center .bigc{font-size:var(--fs-34);} .center .k{font-size:var(--fs-13); color:var(--sub); font-weight:600; margin-top:4px;}
 
-/* ── Dock (aside) ── */
-#aside{position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:60;
-  display:flex; align-items:flex-start; gap:24px; padding:16px 24px; border-radius:var(--r-32);
-  background:var(--glass2); -webkit-backdrop-filter:blur(34px) saturate(180%); backdrop-filter:blur(34px) saturate(180%);
-  border:1px solid var(--hair2); box-shadow:0 20px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1);}
+/* ── Dock (iOS 틴트 · 리퀴드 글라스) ── */
+#aside{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:60;
+  display:flex; align-items:flex-start; gap:20px; padding:16px 20px 12px; border-radius:var(--r-32);
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06)), rgba(96,112,110,.22);
+  -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
+  border:1px solid rgba(255,255,255,.16); box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.05), 0 18px 44px rgba(0,0,0,.45);}
 #aside .s-label,#aside #tree,#aside #stor{display:none;}
-.s-item{position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; width:64px; color:var(--ink); font-size:var(--fs-12); font-weight:600;}
+.s-item{position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; width:64px; color:var(--sub); font-size:var(--fs-11); font-weight:600; transition:color var(--fast) var(--ease);}
 .s-item .ic{width:56px; height:56px; border-radius:var(--r-16); display:grid; place-items:center;
-  background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.04)),var(--ic,#2a3234);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 6px 14px rgba(0,0,0,.35); transition:transform .08s var(--ease);}
+  background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,.05) 55%,rgba(255,255,255,.08));
+  border:1px solid rgba(255,255,255,.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 4px 12px rgba(0,0,0,.25);
+  transition:transform .08s var(--ease), background var(--fast) var(--ease), border-color var(--fast) var(--ease);}
 @supports (corner-shape:squircle){ .s-item .ic{corner-shape:superellipse(2.2);} }
-.s-item .ic .wic{width:26px; height:26px; stroke:#fff;}
+.s-item .ic .wic{width:26px; height:26px; stroke:#6ee8d8; stroke-width:2; transition:stroke var(--fast) var(--ease);}
+.s-item:hover .ic{background:linear-gradient(160deg,rgba(255,255,255,.24),rgba(255,255,255,.08) 55%,rgba(255,255,255,.1));}
 .s-item:active .ic{transform:scale(.92);}
-.s-item.on .ic{outline:2px solid rgba(255,255,255,.5); outline-offset:3px;}
-.s-item.on::after{content:""; width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.85); margin-top:-3px;}
-#s-home .ic{--ic:#1f6f66;} .s-item[data-go="root"] .ic{--ic:#3b4b8f;} #s-stats .ic{--ic:#2d6e9e;} #s-guest .ic{--ic:#8a4a6e;} #s-trash .ic{--ic:#5a5f63;} #s-members .ic{--ic:#6a7a2e;}
+.s-item.on{color:var(--ink);}
+.s-item.on .ic{background:linear-gradient(160deg,rgba(0,210,190,.42),rgba(0,210,190,.18) 60%,rgba(184,242,75,.16)); border-color:rgba(110,232,216,.55);}
+.s-item.on .ic .wic{stroke:#effffc;}
+.s-item.on::after{content:""; position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:#6ee8d8;}
 .s-item .reqn{top:-2px; right:2px;}
 #aside-bg{display:none !important;}
 
@@ -474,7 +478,8 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 /* ── 반응형 ── */
 @media(max-width:900px){
   main{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));}
-  header .hbar{padding:0 var(--sp-4);} .who .un{display:none;}
+  header .hbar{padding:0 var(--sp-4); height:60px;} .who .un{display:none;}
+  .logo{font-size:var(--fs-20); gap:8px;} .logo .lmark{width:28px; height:28px;}
   .hero h1{font-size:28px;}
   .wx{grid-template-columns:1fr; gap:var(--sp-3); padding:var(--sp-4);}
   .wx-now{border-right:0; padding-right:0; padding-bottom:var(--sp-3); border-bottom:1px solid var(--hair);}
@@ -484,8 +489,8 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
   .mon-nums{grid-template-columns:repeat(2,minmax(0,1fr));} .mon-nums .mn:last-child{grid-column:span 2;} .mn .v{font-size:20px;}
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr));}
   .ev,.wd{min-height:44px;}
-  #aside{left:12px; right:12px; transform:none; justify-content:space-between; gap:0; padding:12px 16px; border-radius:var(--r-26);}
-  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:48px; height:48px;} .s-item .ic .wic{width:23px; height:23px;} .s-item.on::after{margin-top:4px;}
+  #aside{left:16px; right:16px; transform:none; bottom:max(12px, calc(env(safe-area-inset-bottom,0px) - 18px)); justify-content:space-between; gap:0; padding:12px 16px 16px; border-radius:var(--r-32);}
+  .s-item{width:auto; gap:0;} .s-item .tx{display:none;} .s-item .ic{width:50px; height:50px; border-radius:var(--r-16);} .s-item .ic .wic{width:23px; height:23px;} .s-item.on::after{bottom:-7px;}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .modal-bg{align-items:flex-end; padding:0;}
   .modal{max-width:none; border-radius:var(--r-26) var(--r-26) 0 0; border-bottom:0; padding:var(--sp-5) var(--sp-5) calc(var(--sp-6) + env(safe-area-inset-bottom,0px)); animation:sheetIn var(--sheet-t) var(--ease);}
@@ -510,7 +515,7 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 <div id="gate">
   <div class="gate-box glass">
     <div class="eyebrow">Personal Document Hub</div>
-    <div class="gmark"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#00a3d9"/></linearGradient></defs><rect x="70" y="150" width="240" height="240" rx="64" fill="none" stroke="url(#gg)" stroke-width="34" opacity=".55"/><rect x="200" y="100" width="240" height="240" rx="64" fill="none" stroke="url(#gg)" stroke-width="34"/></svg></div>
+    <div class="gmark"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="gg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="ggd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".58"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".58"/><stop offset="1" stop-color="#0077b6" stop-opacity=".58"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#ggd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#gg)"/></svg></div>
     <h1>Jim<span class="s-mark">S</span>torage</h1>
     <p>구글 계정으로 로그인하면 열람할 수 있어요</p>
     <button class="gbtn" id="login-btn">
@@ -525,7 +530,7 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 <header>
   <div class="hbar">
     <button class="hbtn" id="menu-btn">☰</button>
-    <a class="logo" id="logo"><svg class="lmark" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="12" height="12" rx="3.5" stroke="url(#wgi)" stroke-width="2" opacity=".6"/><rect x="9" y="4" width="12" height="12" rx="3.5" stroke="url(#wgi)" stroke-width="2"/></svg><span>Jim<b class="S">S</b>torage</span></a>
+    <a class="logo" id="logo"><svg class="lmark" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="hmg" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b"/><stop offset=".5" stop-color="#00d2be"/><stop offset="1" stop-color="#0077b6"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient><linearGradient id="hmgd" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="452" y2="452"><stop offset="0" stop-color="#b8f24b" stop-opacity=".55"/><stop offset=".5" stop-color="#00d2be" stop-opacity=".55"/><stop offset="1" stop-color="#0077b6" stop-opacity=".55"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 256 256;360 256 256" dur="5.2s" repeatCount="indefinite"/></linearGradient></defs><path d="M293.243,346.487H107.025c-29.358,0-53.243-23.885-53.243-53.244V107.025c0-29.358,23.885-53.243,53.243-53.243h176.061c34.96,0,63.401,28.441,63.401,63.4v8.451c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.451c0-17.314-14.087-31.4-31.401-31.4H107.025c-11.714,0-21.243,9.529-21.243,21.243v186.218c0,11.714,9.529,21.244,21.243,21.244h186.218c11.714,0,21.244-9.53,21.244-21.244v-19.076c0-8.837,7.163-16,16-16s16,7.163,16,16v19.076c0,29.359-23.885,53.244-53.244,53.244h0Z" fill="url(#hmgd)"/><path d="M404.975,458.218h-176.061c-34.96,0-63.401-28.441-63.401-63.4v-8.462c0-8.837,7.163-16,16-16s16,7.163,16,16v8.462c0,17.314,14.087,31.4,31.401,31.4h176.061c11.714,0,21.243-9.529,21.243-21.243v-186.218c0-11.714-9.529-21.244-21.243-21.244h-176.061c-17.314,0-31.401,14.087-31.401,31.401v8.485c0,8.837-7.163,16-16,16s-16-7.163-16-16v-8.485c0-34.96,28.441-63.401,63.401-63.401h176.061c29.358,0,53.243,23.885,53.243,53.244v186.218c0,29.358-23.885,53.243-53.243,53.243Z" fill="url(#hmg)"/></svg><span>Jim<b class="S">S</b>torage</span></a>
     <button class="hbtn hidden" id="stats-btn">방문 통계</button>
     <span class="role" id="role"></span>
     <div class="who">
