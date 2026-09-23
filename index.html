@@ -383,6 +383,13 @@ main{position:relative; z-index:1; max-width:1104px; margin:0 auto; padding:0 va
 .visit-list>div{display:flex; justify-content:space-between; gap:8px; padding:8px 0; font-size:var(--fs-13); border-bottom:1px solid var(--hair);}
 .checker{height:10px; width:170px; margin:0 auto; opacity:.3; background:repeating-conic-gradient(#c9ced4 0% 25%, transparent 0% 50%); background-size:10px 10px;}
 
+/* 지출 모달 */
+.sp-seg{display:flex; width:100%; margin-bottom:var(--sp-4);} .sp-seg button{flex:1;}
+.sp-sum{margin-bottom:var(--sp-3);} .sp-sum .k{font-size:var(--fs-12); color:var(--sub2); font-weight:600; margin-top:4px;}
+.sp-list{max-height:52vh; overflow-y:auto; margin:0 calc(-1 * var(--sp-1)); padding:0 var(--sp-1);}
+.sp-day{display:flex; justify-content:space-between; align-items:center; padding:var(--sp-3) 0 var(--sp-1); font-size:var(--fs-12); font-weight:700; color:var(--tint);}
+.sp-day b{color:var(--sub); font-weight:700;}
+.sp-list .ev.sp-g::before{left:0;}
 /* ── 컨텍스트 메뉴 ── */
 .menu{position:fixed; z-index:100; min-width:200px; padding:var(--sp-1) 0; border-radius:var(--r-16); overflow:hidden;
   background:rgba(30,33,36,.86); -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
@@ -441,6 +448,11 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 .modal.wide{max-width:760px;}
 #rp-rot-body.rp-view{animation:rpIn .38s var(--ease);}
 @keyframes rpIn{from{opacity:0; transform:translateY(7px);} to{opacity:1; transform:none;}}
+/* ── 와이드(≥1280): 폭 확장 + 위젯 한 줄 3개 ── */
+@media(min-width:1280px){
+  header .hbar,main{max-width:1480px;}
+  .wgrid{grid-template-columns:repeat(6,minmax(0,1fr));}
+}
 /* ── 반응형 ── */
 @media(max-width:900px){
   main{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));}
@@ -534,7 +546,6 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
       <button class="hbtn" id="dash-edit">편집</button>
     </div>
     <div class="wgrid" id="wgrid">
-
       <div class="widget glass s22" id="w-cal">
         <div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg> 이번 주<span class="r"><a href="#" id="cal-ext">구글 캘린더 ↗</a></span></div>
         <div class="qadd">
@@ -544,11 +555,6 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
         <div class="qprev hidden" id="c-prev"></div>
         <div id="cal-body"><div class="w-empty">연결 필요</div></div>
         <div class="wg-cal" id="wg-mcal-wrap"><div class="mcal-t"><span id="wg-mon"></span></div><div id="wg-mcal"></div></div>
-      </div>
-
-      <div class="widget glass s22" id="w-spend">
-        <div class="wt"><svg class="wic" viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg> 지출<span class="r" id="spend-r"></span></div>
-        <div id="spend-body"><div class="w-empty">가계부 연결 시 표시</div></div>
       </div>
 
       <div class="widget glass s22" id="w-money">
@@ -561,6 +567,12 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
         <div id="money-body"><div class="w-empty">연결 필요</div></div>
       </div>
 
+      <div class="widget glass s22" id="w-spend">
+        <div class="wt"><svg class="wic" viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg> 지출<span class="r" id="spend-r"></span></div>
+        <div id="spend-body"><div class="w-empty">가계부 연결 시 표시</div></div>
+      </div>
+
+      <div class="widget glass s22" id="w-mail"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg> 메일</div><div class="w-empty">연결 필요</div></div>
       <div class="widget glass s22" id="w-wd"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="3"/><circle cx="12" cy="12" r="2.6"/></svg> 이번 달 출금</div><div class="w-empty">연결 필요</div></div>
 
       <div class="widget glass s21" id="w-docs">
@@ -578,7 +590,6 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
         <div class="center"><div class="bigc num" id="guest-n">—</div><div class="k">이번 주 새 글</div></div>
       </div>
 
-      <div class="widget glass s22" id="w-mail"><div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg> 메일</div><div class="w-empty">연결 필요</div></div>
 
     </div>
   </div>
@@ -2536,6 +2547,42 @@ async function wgGuest(){
     el.textContent=Object.values(s.val()||{}).filter(x=>x.at>=mon.getTime()).length;
   }catch(e){ el.textContent="—"; }
 }
+function openSpendModal(){
+  const S=window.__spend;
+  if(!S){ toast("가계부 연결 후 볼 수 있어요"); return; }
+  const D=86400000, t0=S.t0, now=new Date(t0);
+  const mon=t0-((now.getDay()+6)%7)*D, m1=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const R={today:[t0,t0+D,"오늘"], yest:[t0-D,t0,"어제"], week:[mon,t0+D,"이번 주"], last:[mon-7*D,mon,"지난주"], month:[m1,t0+D,"이번 달"]};
+  const md=t=>{const d=new Date(t);return (d.getMonth()+1)+"/"+d.getDate();};
+  const DN=["일","월","화","수","목","금","토"];
+  let cur="today";
+  modal('<h3><svg class="wic" viewBox="0 0 24 24"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg>지출</h3>'
+    +'<div class="tsel sp-seg">'+Object.entries(R).map(([k,v])=>'<button data-k="'+k+'">'+v[2]+'</button>').join("")+'</div>'
+    +'<div id="sp-body"></div>', bg=>{
+    const draw=()=>{
+      const [a,b]=R[cur], multi=b-a>D;
+      const it=S.all.filter(x=>x.t>=a&&x.t<b).sort((x,y)=>y.t-x.t);
+      const sum=it.reduce((s,x)=>s+x.amt,0);
+      let html='<div class="sp-sum"><div class="bigc num">'+sum.toLocaleString()+'<small>원</small></div>'
+        +'<div class="k">'+it.length+'건 · '+md(a)+(multi?"~"+md(b-D):"")+'</div></div>';
+      if(!it.length) html+='<div class="w-empty">지출 내역 없음</div>';
+      else{
+        html+='<div class="sp-list">'; let last="";
+        it.forEach(x=>{
+          const k=md(x.t);
+          if(multi&&k!==last){ last=k; const ds=it.filter(y=>md(y.t)===k).reduce((s,y)=>s+y.amt,0);
+            html+='<div class="sp-day"><span>'+k+' '+DN[new Date(x.t).getDay()]+'</span><b class="num">'+ds.toLocaleString()+'</b></div>'; }
+          html+='<div class="ev sp-g"><span class="t">'+esc(x.n||"—")+'</span><b class="num">'+x.amt.toLocaleString()+'</b></div>';
+        });
+        html+='</div>';
+      }
+      bg.querySelector("#sp-body").innerHTML=html;
+      bg.querySelectorAll(".sp-seg button").forEach(bt=>bt.classList.toggle("on",bt.dataset.k===cur));
+    };
+    bg.querySelectorAll(".sp-seg button").forEach(bt=>bt.onclick=()=>{cur=bt.dataset.k;draw();});
+    draw();
+  });
+}
 function renderAppleWidgets(){ wgHero(); wgMiniCal(); wgDday(); wgDocs(); wgDocsTiles(); wgGuest(); }
 renderAppleWidgets();
 
@@ -2601,7 +2648,7 @@ function bindWidgetClicks(){
   $("w-money").onclick=e=>{if(!guard(e))openMoneyDetail();};
   $("w-wd").onclick=e=>{if(!guard(e))openWdDetail();};
   $("w-mail").onclick=e=>{if(!guard(e))openExt("googlegmail://","https://mail.google.com/");};
-  $("w-spend").onclick=e=>{if(!guard(e))$("rw-btn").click();};
+  $("w-spend").onclick=e=>{if(!guard(e))openSpendModal();};
 }
 bindWidgetClicks();
 
