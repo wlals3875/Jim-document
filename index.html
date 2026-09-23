@@ -1819,12 +1819,7 @@ async function approveReq(k){
   const r=REQS[k]; if(!r)return;
   await db.ref("hub/members/"+k).set({email:r.email,label:"멤버",at:Date.now()});
   await db.ref("hub/requests/"+k).remove();
-  modal('<h3>승인됨</h3>'
-    +'<p>'+esc(r.email)+' 님이 이제 허브에 들어올 수 있어요.<br><br>'
-    +'<b>한 단계 더:</b> 지메일 등 구글 기능까지 쓰게 하려면 콘솔 <b>테스트 사용자</b>에도 등록해주세요.</p>'
-    +'<div class="m-row"><button class="mbtn" data-x>나중에</button>'
-    +'<a class="mbtn pri" target="_blank" rel="noopener" href="https://console.cloud.google.com/auth/audience?project=jim-s-document">콘솔 열기 ↗</a></div>',
-    b=>{b.querySelector("[data-x]").onclick=()=>b.remove();});
+  toast(r.email+" 님을 승인했어요");   /* 멤버는 기본 로그인 범위만 쓰므로 콘솔 테스트 사용자 등록이 필요 없음 */
 }
 
 /* ================= 멤버 관리 (마스터) ================= */
@@ -1923,15 +1918,7 @@ function openMembers(){
         await db.ref("hub/members/"+em.replace(/\./g,",")).set(rec);
         const wasEdit=!!editKey;
         resetForm(); drawList();
-        if(wasEdit){ toast("멤버 수정됨"); }
-        else{
-          modal('<h3>멤버 추가됨</h3>'
-            +'<p>'+esc(em)+' 님이 이제 허브에 로그인할 수 있어요.<br><br>'
-            +'<b>한 단계 더:</b> 지메일 등 구글 데이터 기능까지 쓰게 하려면 구글 콘솔의 <b>테스트 사용자</b>에도 이 이메일을 등록해야 해요. (구글이 자동 등록을 막아놔서 수동만 가능해요)</p>'
-            +'<div class="m-row"><button class="mbtn" data-x>나중에</button>'
-            +'<a class="mbtn pri" target="_blank" rel="noopener" href="https://console.cloud.google.com/auth/audience?project=jim-s-document">콘솔 열기 ↗</a></div>',
-            b=>{b.querySelector("[data-x]").onclick=()=>b.remove();});
-        }
+        toast(wasEdit?"멤버 수정됨":"멤버 추가됨 — 바로 로그인할 수 있어요");
       };
       async function drawList(){
         const v=(await db.ref("hub/members").get()).val()||{};
