@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<script>try{if(localStorage.getItem("hub-login-at")||location.hash.indexOf("id_token=")>-1)document.documentElement.classList.add("authwait");}catch(e){}</script>
 <meta name="theme-color" content="#06090b">
 <title>JimStorage</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -523,6 +524,7 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
 #gate{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden;
   padding:calc(24px + env(safe-area-inset-top,0px)) var(--sp-5) calc(24px + env(safe-area-inset-bottom,0px));}
 #gate.hidden{display:none;}
+html.authwait #gate{visibility:hidden;}   /* 재방문 시 인증 확인 전까지 게이트 숨김 */
 /* 유리가 비칠 빛 */
 .gate-orb{position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px); animation:orb 16s ease-in-out infinite alternate;}
 .gate-orb.o1{width:380px; height:380px; background:#0a9e90; opacity:.2; top:calc(50% - 300px); left:calc(50% - 320px);}
@@ -861,6 +863,9 @@ let DATA={pub:{folders:{},docs:{}}, priv:{folders:{},docs:{}}};
 let VIEWS={};
 let curFolder="root";
 let curDoc=null, curDocScope=null;
+/* 인증 확인 완료 → 게이트 감춤 해제 (확인이 늦어져도 5초 뒤에는 게이트를 보여줌) */
+function authReady(){ document.documentElement.classList.remove("authwait"); }
+setTimeout(authReady,5000);
 /* 폰트 준비 후 게이트 공개 (FOUC 방지) */
 (function(){
   const done=()=>document.documentElement.classList.remove("booting");
@@ -1028,6 +1033,7 @@ auth.onAuthStateChanged(u=>{
     $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); $("viewer").classList.add("hidden");
     const dn=$("denied"); if(dn)dn.remove();
     $("gate").classList.remove("denied-on");
+    authReady();
     oneTap();
   }
 });
@@ -1039,7 +1045,7 @@ function showDenied(u){
     dn=document.createElement("div"); dn.id="denied"; dn.className="denied";
     box.appendChild(dn);
   }
-  $("gate").classList.add("denied-on");
+  $("gate").classList.add("denied-on"); authReady();
   const name=u.displayName||(u.email||"게스트").split("@")[0];
   const key=(u.email||"").replace(/\./g,",");
   const I_REQ='<svg class="gl" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 19.5c.6-3.4 3.2-5.5 6.5-5.5 1.4 0 2.7.4 3.8 1.1M18 13v6M15 16h6"/></svg>';
@@ -1135,7 +1141,7 @@ async function renderGuestbook(el, u, canModerate){
   }catch(e){ el.innerHTML='<div class="w-empty">불러오기 실패</div>'; }
 }
 function enterApp(u,memberRec){
-    $("gate").classList.add("hidden"); $("app").classList.remove("hidden");
+    $("gate").classList.add("hidden"); $("app").classList.remove("hidden"); authReady();
     $("avatar").src=u.photoURL||"";
     $("uname").textContent=u.displayName||u.email;
     if(IS_MASTER){ $("role").textContent="MASTER"; $("role").className="role master"; }
