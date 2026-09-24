@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<script>try{if(localStorage.getItem("hub-login-at")||location.hash.indexOf("id_token=")>-1)document.documentElement.classList.add("authwait");}catch(e){}</script>
+<script>try{(function(){var c=document.documentElement.classList,hs=location.hash,sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches;
+if(hs.indexOf("id_token=")>-1){ c.add("authbusy"); if(hs.indexOf("state=pwa")>-1&&!sa)c.add("handoff"); }
+else if(localStorage.getItem("hub-login-at"))c.add("authwait");})();}catch(e){}</script>
 <meta name="theme-color" content="#06090b">
 <title>JimStorage</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
@@ -525,6 +527,13 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
   padding:calc(24px + env(safe-area-inset-top,0px)) var(--sp-5) calc(24px + env(safe-area-inset-bottom,0px));}
 #gate.hidden{display:none;}
 html.authwait #gate{visibility:hidden;}   /* 재방문 시 인증 확인 전까지 게이트 숨김 */
+html.handoff #gate,html.handoff #app{visibility:hidden;}   /* 웹앱 로그인 시트: 곧 닫히므로 허브를 그리지 않음 */
+/* 로그인 진행 중: 안내 문구·버튼 자리에 진행 표시 (구글로 넘어가기 직전과 돌아온 직후가 같은 화면) */
+html.authbusy #gate .gate-box>p,html.authbusy #login-btn,html.authbusy .denied{display:none;}
+.gate-busy{display:none; flex-direction:column; align-items:center; gap:var(--sp-3); margin-top:var(--sp-2); font-size:var(--fs-13); color:var(--sub);}
+html.authbusy .gate-busy{display:flex;}
+.gate-busy .sp{width:20px; height:20px; border-radius:50%; border:2px solid var(--fill2); border-top-color:var(--tint); animation:spin .9s var(--ease) infinite;}
+.gate-busy .dn-alt{display:none;} .gate-busy.can-cancel .dn-alt{display:inline-flex;}
 /* 유리가 비칠 빛 */
 .gate-orb{position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px); animation:orb 16s ease-in-out infinite alternate;}
 .gate-orb.o1{width:380px; height:380px; background:#0a9e90; opacity:.2; top:calc(50% - 300px); left:calc(50% - 320px);}
@@ -673,6 +682,7 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
     <h1>Jim<span class="s-mark">S</span>torage</h1>
     <p>구글 계정으로 로그인 해주세요.</p>
     <button class="gbtn" id="login-btn"><span class="glogo"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg></span>Google로 로그인</button>
+    <div class="gate-busy" id="gate-busy"><span class="sp"></span><span>로그인하는 중…</span><button class="dn-alt" id="gate-busy-x">취소</button></div>
   </div>
 </div>
 
@@ -864,8 +874,8 @@ let VIEWS={};
 let curFolder="root";
 let curDoc=null, curDocScope=null;
 /* 인증 확인 완료 → 게이트 감춤 해제 (확인이 늦어져도 5초 뒤에는 게이트를 보여줌) */
-function authReady(){ document.documentElement.classList.remove("authwait"); }
-setTimeout(authReady,5000);
+function authReady(){ document.documentElement.classList.remove("authwait","authbusy","handoff"); }
+setTimeout(()=>{ if(!SIGNING)authReady(); },5000); setTimeout(authReady,15000);
 /* 폰트 준비 후 게이트 공개 (FOUC 방지) */
 (function(){
   const done=()=>document.documentElement.classList.remove("booting");
@@ -917,19 +927,24 @@ const fmtTime=ts=>{const d=new Date(ts);return fmtDate(ts)+" "+String(d.getHours
 /* ================= 인증 ================= */
 const GOOGLE_CLIENT_ID="210701764992-a0omjn0iam90jm3v05te26nq6fajd1ff.apps.googleusercontent.com";
 let ONE_TAP_SKIP=false;   /* 구글 리다이렉트에서 막 돌아온 경우 원탭을 띄우지 않음 */
+let SIGNING=false;   /* 돌아온 토큰으로 로그인하는 중: 첫 null 콜백에서 게이트를 되살리지 않음 */
 function googleDirectRedirect(){
   /* 웹앱(iOS standalone)에서 Firebase 리다이렉트가 저장소 파티셔닝에 막히므로
      구글과 직접 왕복 후 ID 토큰으로 Firebase에 로그인 */
   const nonce=Math.random().toString(36).slice(2)+Date.now().toString(36);
   const redirect="https://wlals3875.github.io/Jim-document/"; /* 콘솔 등록값과 정확히 일치해야 함 */
+  const standalone=(navigator.standalone===true)||matchMedia("(display-mode: standalone)").matches;
+  document.documentElement.classList.add("authbusy"); $("gate-busy").classList.add("can-cancel");
   location.href="https://accounts.google.com/o/oauth2/v2/auth"
     +"?client_id="+encodeURIComponent(GOOGLE_CLIENT_ID)
     +"&redirect_uri="+encodeURIComponent(redirect)
     +"&response_type=id_token"
     +"&scope="+encodeURIComponent("openid email profile")
     +"&nonce="+nonce
+    +(standalone?"&state=pwa":"")
     +"&prompt=select_account";
 }
+$("gate-busy-x").onclick=()=>{ $("gate-busy").classList.remove("can-cancel"); authReady(); };
 /* 구글에서 돌아온 경우: 해시의 ID 토큰으로 로그인 */
 (function(){
   if(!location.hash)return;
@@ -948,9 +963,14 @@ function googleDirectRedirect(){
     }catch(e){}
   }
   if(idt){
-    ONE_TAP_SKIP=true;
-    const cred=firebase.auth.GoogleAuthProvider.credential(idt);
-    auth.signInWithCredential(cred).catch(e=>toast("로그인 실패: "+e.code));
+    ONE_TAP_SKIP=true; SIGNING=true;
+    const go=()=>{
+      document.documentElement.classList.remove("handoff");
+      const cred=firebase.auth.GoogleAuthProvider.credential(idt);
+      auth.signInWithCredential(cred).catch(e=>{ SIGNING=false; authReady(); toast("로그인 실패: "+e.code); });
+    };
+    /* iOS 웹앱에서 연 로그인 시트는 이 주소로 돌아오면 닫히고 웹앱이 같은 주소로 다시 열림 → 시트에서는 그리지 않고 대기 */
+    if(document.documentElement.classList.contains("handoff"))setTimeout(go,2500); else go();
   }
 })();
 $("login-btn").onclick=()=>{
@@ -1008,6 +1028,7 @@ $("avatar").onclick=()=>{ if(confirm("로그아웃할까요?")){ localStorage.re
 
 auth.onAuthStateChanged(u=>{
   if(u){
+    SIGNING=false;
     try{localStorage.removeItem("hub-noauto");}catch(e){}
     try{window.google&&google.accounts&&google.accounts.id.cancel();}catch(e){}
     /* 24시간 세션 체크 */
@@ -1033,6 +1054,7 @@ auth.onAuthStateChanged(u=>{
     $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); $("viewer").classList.add("hidden");
     const dn=$("denied"); if(dn)dn.remove();
     $("gate").classList.remove("denied-on");
+    if(SIGNING)return;   /* 토큰 로그인이 끝나면 사용자와 함께 다시 호출됨 */
     authReady();
     oneTap();
   }
