@@ -873,6 +873,8 @@ let DATA={pub:{folders:{},docs:{}}, priv:{folders:{},docs:{}}};
 let VIEWS={};
 let curFolder="root";
 let curDoc=null, curDocScope=null;
+/* 서비스 워커: 오프라인일 때 브라우저 기본 화면 대신 허브 디자인의 오프라인 화면 (sw.js는 index.html과 같은 폴더) */
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* 인증 확인 완료 → 게이트 감춤 해제 (확인이 늦어져도 5초 뒤에는 게이트를 보여줌) */
 function authReady(){ document.documentElement.classList.remove("authwait","authbusy","handoff"); }
 setTimeout(()=>{ if(!SIGNING)authReady(); },5000); setTimeout(authReady,15000);
