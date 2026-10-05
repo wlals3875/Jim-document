@@ -80,6 +80,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none; bo
   font-size:var(--fs-12); font-weight:600; white-space:nowrap; transition:background var(--fast) var(--ease), color var(--fast) var(--ease);}
 .rbtn:hover{background:var(--fill2); color:var(--ink);} .rbtn:active{transform:scale(.97);}
 .rbtn.tint{background:rgba(0,210,190,.14); color:var(--tint);}
+.wt .rbtn.wt-act{height:24px; padding:0 var(--sp-2); font-size:var(--fs-11);}
+.rbtn:disabled{opacity:.6; cursor:default;}
 .rbtn.warn{background:rgba(255,122,107,.12); color:var(--red);} .rbtn.warn:hover{background:rgba(255,122,107,.2);}
 .pill.tint,.tbtn.on,.hbtn.on{background:rgba(0,210,190,.14); color:var(--tint);}
 .hbtn,.tbtn{composes:pill;}
@@ -3205,7 +3207,7 @@ async function loadGmail(){
     const d=new Date(m.internalDate?+m.internalDate:H.Date);
     return {id:m.id,subj,from,d,unread:(m.labelIds||[]).includes("UNREAD")};
   }).filter(Boolean);
-  let html='<div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.2l8.5 6 8.5-6"/></svg> 메일 <span class="r">'+(unreadTotal?'<b>안읽음 '+unreadTotal+'</b> · ':'')+'기본 탭 7일</span></div>';
+  let html='<div class="wt"><svg class="wic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.2l8.5 6 8.5-6"/></svg> 메일 <span class="r">'+(unreadTotal?'<b>안읽음 '+unreadTotal+'</b> · ':'')+'기본 탭 7일<button class="rbtn wt-act" id="mail-allread" title="받은편지함 전체(모든 탭·보관함 포함)의 안 읽은 메일을 읽음으로">전체 읽기</button></span></div>';
   if(rows.length){
     html+='<div class="wsc">';
     html+=rows.slice(0,10).map(r=>
@@ -3218,6 +3220,28 @@ async function loadGmail(){
     html+='</div>';
   }else html+='<div class="w-empty">최근 7일 기본 탭 메일 없음</div>';
   $("w-mail").innerHTML=html;
+  const ab=$("mail-allread");
+  if(ab)ab.onclick=async()=>{
+    if(ab.disabled)return;
+    ab.disabled=true; ab.textContent="확인 중…";
+    try{
+      const ids=[]; let pt="";
+      do{   /* is:unread = 기본·소셜·프로모션 등 모든 탭과 보관함 (스팸·휴지통 제외) */
+        const r=await gfetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?q="+encodeURIComponent("is:unread")+"&maxResults=500"+(pt?"&pageToken="+pt:""));
+        (r.messages||[]).forEach(m=>ids.push(m.id)); pt=r.nextPageToken||"";
+      }while(pt&&ids.length<20000);
+      if(!ids.length){ toast("읽지 않은 메일이 없어요"); return; }
+      if(!confirm("읽지 않은 메일 "+ids.length.toLocaleString()+"통을 모두 읽음으로 바꿀까요?\n기본 탭뿐 아니라 소셜·프로모션 등 모든 메일이 대상이에요."))return;
+      ab.textContent="처리 중…";
+      for(let i=0;i<ids.length;i+=1000){
+        await gfetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify",
+          {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids:ids.slice(i,i+1000),removeLabelIds:["UNREAD"]})});
+      }
+      toast(ids.length.toLocaleString()+"통을 읽음으로 바꿨어요");
+      loadGmail().catch(()=>{});
+    }catch(err){ toast("전체 읽기 실패 — 연결을 다시 눌러 권한 갱신"); }
+    finally{ if(document.body.contains(ab)){ ab.disabled=false; ab.textContent="전체 읽기"; } }
+  };
   $("w-mail").querySelectorAll(".mrd").forEach(b=>b.onclick=async e=>{
     e.preventDefault(); e.stopPropagation();
     b.disabled=true;
