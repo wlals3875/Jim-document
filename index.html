@@ -3231,7 +3231,6 @@ async function loadGmail(){
         (r.messages||[]).forEach(m=>ids.push(m.id)); pt=r.nextPageToken||"";
       }while(pt&&ids.length<20000);
       if(!ids.length){ toast("읽지 않은 메일이 없어요"); return; }
-      if(!confirm("읽지 않은 메일 "+ids.length.toLocaleString()+"통을 모두 읽음으로 바꿀까요?\n기본 탭뿐 아니라 소셜·프로모션 등 모든 메일이 대상이에요."))return;
       ab.textContent="처리 중…";
       for(let i=0;i<ids.length;i+=1000){
         await gfetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify",
