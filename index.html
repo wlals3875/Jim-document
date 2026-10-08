@@ -3231,13 +3231,23 @@ async function loadGmail(){
         (r.messages||[]).forEach(m=>ids.push(m.id)); pt=r.nextPageToken||"";
       }while(pt&&ids.length<20000);
       if(!ids.length){ toast("읽지 않은 메일이 없어요"); return; }
+      if(!confirm("읽지 않은 메일 "+ids.length.toLocaleString()+"통을 모두 읽음으로 바꿀까요?\n기본 탭뿐 아니라 소셜·프로모션 등 모든 메일이 대상이에요."))return;
       ab.textContent="처리 중…";
       for(let i=0;i<ids.length;i+=1000){
         await gfetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify",
           {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids:ids.slice(i,i+1000),removeLabelIds:["UNREAD"]})});
       }
       toast(ids.length.toLocaleString()+"통을 읽음으로 바꿨어요");
-      loadGmail().catch(()=>{});
+      /* Gmail은 일괄 변경이 목록 조회에 반영되기까지 몇 초 걸림 → 화면은 바로 읽음으로 바꾸고, 잠시 뒤 다시 불러와 맞춤 */
+      const w=$("w-mail");
+      w.querySelectorAll(".mailrow").forEach(row=>{
+        const d=row.querySelector(".d"); if(d)d.classList.remove("today");
+        const t=row.querySelector(".t"); if(t)t.style.cssText="color:var(--sub)";
+        const mb=row.querySelector(".mrd"); if(mb)mb.remove();
+      });
+      const cb=w.querySelector(".wt .r b");
+      if(cb){ const nx=cb.nextSibling; if(nx&&nx.nodeType===3)nx.textContent=nx.textContent.replace(/^\s*·\s*/,""); cb.remove(); }
+      setTimeout(()=>loadGmail().catch(()=>{}),5000);
     }catch(err){ toast("전체 읽기 실패 — 연결을 다시 눌러 권한 갱신"); }
     finally{ if(document.body.contains(ab)){ ab.disabled=false; ab.textContent="전체 읽기"; } }
   };
