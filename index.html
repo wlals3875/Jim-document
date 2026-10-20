@@ -410,6 +410,8 @@ body:not(.is-master) #dash-acts{display:none;}
 .modal p{font-size:var(--fs-13); color:var(--sub); margin-top:var(--sp-2); line-height:1.6;}
 .modal p b{color:var(--ink); font-weight:700;}
 .modal .m-hint,.m-hint{font-size:var(--fs-12); color:var(--sub2); margin-top:var(--sp-3);}
+.m-msg{margin:0; font-size:var(--fs-15); font-weight:500; line-height:1.5; color:var(--sub); word-break:keep-all;}
+.m-copy{display:block; width:100%; height:44px; margin-top:var(--sp-3); padding:0 var(--sp-4); border:0; border-radius:var(--r-12); background:var(--fill); color:var(--ink); font-size:var(--fs-13);}
 .modal h3 .h-sub{font-size:var(--fs-12); font-weight:600; color:var(--sub2); letter-spacing:0;}
 a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-decoration:none;}
 .m-row .m-left{margin-right:auto;}
@@ -622,6 +624,7 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
 #viewer.vfull .v-bar,#viewer.vfull .v-side{display:none;}
 .v-side.closed #c-wrap{display:none;} .v-side.closed #c-toggle .arr{transform:rotate(-90deg);}
 .modal.wide{max-width:760px; height:min(780px,86vh);}
+.modal.alert{max-width:400px; min-height:0;}   /* 확인 창 — 브라우저 confirm 대신 쓰는 작은 모달 */
 #rp-rot-body.rp-view{animation:rpIn .38s var(--ease);}
 @keyframes rpIn{from{opacity:0; transform:translateY(7px);} to{opacity:1; transform:none;}}
 /* ── 와이드(≥1280): 폭 확장 + 위젯 한 줄 3개 ── */
@@ -659,6 +662,7 @@ html.apple :is(.hbtn:not(:has(>svg:only-child)),.tbtn,.mbtn,.qbtn,.connect-btn,.
   .modal-bg{align-items:flex-end; padding:0;}
   .modal{max-width:none; border-radius:var(--r-26) var(--r-26) 0 0; border-bottom:0; min-height:56dvh; max-height:92dvh; animation:sheetIn var(--sheet-t) var(--ease);}
   .modal.wide{max-width:none; height:92dvh;}
+  .modal.alert{min-height:0;}
   .modal::before{content:""; position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:2; width:36px; height:5px; border-radius:999px; background:rgba(255,255,255,.22);}
   .m-head{min-height:0; padding:var(--sp-6) calc(var(--sp-4) + var(--m-x) + var(--sp-2)) var(--sp-3) var(--sp-5);}   /* 오른쪽 = 16 + 32 + 8 */
   .m-x{top:var(--sp-5);}
@@ -1038,7 +1042,7 @@ function hubSignOut(){
   try{window.google&&google.accounts&&google.accounts.id.disableAutoSelect();}catch(e){}
   return auth.signOut();
 }
-$("avatar").onclick=$("avatar-ini").onclick=()=>{ if(confirm("로그아웃할까요?")){ localStorage.removeItem("hub-login-at"); try{localStorage.removeItem("hub-gtoken");}catch(e){} hubSignOut(); } };
+$("avatar").onclick=$("avatar-ini").onclick=async()=>{ if(await ask("로그아웃할까요?",{ok:"로그아웃"})){ localStorage.removeItem("hub-login-at"); try{localStorage.removeItem("hub-gtoken");}catch(e){} hubSignOut(); } };
 
 auth.onAuthStateChanged(u=>{
   if(u){
@@ -1169,7 +1173,7 @@ async function renderGuestbook(el, u, canModerate){
     }));
     el.innerHTML=rows.join("");
     el.querySelectorAll("[data-gdel]").forEach(b=>b.onclick=async()=>{
-      if(!confirm("이 방명록을 삭제할까요?"))return;
+      if(!await ask("이 방명록을 삭제할까요?",{ok:"삭제",danger:true}))return;
       const up={}; up["hub/guestbook/"+b.dataset.gdel]=null;
       if(b.dataset.gsec==="1")up["hub/guestbook_secret/"+b.dataset.gdel]=null;
       await db.ref().update(up); renderGuestbook(el,u,canModerate);
@@ -1491,6 +1495,36 @@ function modal(html,onOpen){
   return bg;
 }
 
+/* 확인 창 — 브라우저 confirm() 대신 허브 모달. 확인이면 true, 취소·닫기·바깥 클릭·Esc면 false */
+function ask(msg,opt){
+  opt=opt||{};
+  return new Promise(res=>{
+    let done=false, ob=null;
+    const bg=modal('<h3>'+esc(opt.title||"확인")+'</h3><p class="m-msg">'+esc(msg).replace(/\n/g,"<br>")+'</p>'
+      +'<div class="m-row"><button class="mbtn" data-cancel>'+esc(opt.cancel||"취소")+'</button>'
+      +'<button class="mbtn '+(opt.danger?"warn":"pri")+'" data-ok>'+esc(opt.ok||"확인")+'</button></div>');
+    bg.querySelector(".modal").classList.add("alert");
+    const fin=v=>{ if(done)return; done=true; if(ob)ob.disconnect(); document.removeEventListener("keydown",onKey); bg.remove(); res(v); };
+    const onKey=e=>{ if(e.key==="Escape")fin(false); else if(e.key==="Enter")fin(true); };
+    ob=new MutationObserver(()=>{ if(!document.body.contains(bg))fin(false); });   /* 다른 경로로 닫혀도 약속을 끝냄 */
+    ob.observe(document.body,{childList:true});
+    document.addEventListener("keydown",onKey);
+    bg.querySelector("[data-ok]").onclick=()=>fin(true);
+    bg.querySelector("[data-cancel]").onclick=()=>fin(false);
+    bg.querySelector(".m-x").onclick=()=>fin(false);
+    bg.onclick=e=>{ if(e.target===bg)fin(false); };
+    setTimeout(()=>{ const b=bg.querySelector("[data-ok]"); if(b)b.focus(); },30);
+  });
+}
+/* 클립보드 쓰기가 막혔을 때 — prompt() 대신 주소를 보여 주고 직접 복사하게 함 */
+function showCopy(url){
+  const bg=modal('<h3>링크 복사</h3><p class="m-msg">자동 복사가 막혀 있어요. 아래 주소를 선택해서 복사하세요.</p>'
+    +'<input class="m-copy" readonly value="'+esc(url)+'"><div class="m-row"><button class="mbtn" data-x>닫기</button></div>');
+  bg.querySelector(".modal").classList.add("alert");
+  bg.querySelector("[data-x]").onclick=()=>bg.remove();
+  const inp=bg.querySelector(".m-copy"); setTimeout(()=>{ inp.focus(); inp.select(); },30);
+}
+
 /* ================= 폴더 CRUD ================= */
 $("new-folder").onclick=()=>{
   const parentPriv=curFolderScope()==="priv";
@@ -1551,7 +1585,7 @@ function collectTree(fid){
 }
 async function deleteFolder(fid){
   const {fids,dids}=collectTree(fid);
-  if(!confirm(`폴더와 하위 폴더 ${fids.length-1}개, 문서 ${dids.length}개가 삭제돼요. 계속?`))return;
+  if(!await ask(`폴더와 하위 폴더 ${fids.length-1}개, 문서 ${dids.length}개가 삭제돼요. 계속?`,{ok:"삭제",danger:true}))return;
   const up={};
   fids.forEach(f=>up[`hub/${f.scope}/folders/${f.id}`]=null);
   for(const d of dids){
@@ -1714,12 +1748,12 @@ function docMenu(did,anchor){
     {label:(d.published?"게시 취소":'<svg class="wic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.7 2.4 2.7 14.6 0 17-2.7-2.4-2.7-14.6 0-17"/></svg> 웹에 게시'),fn:()=>togglePublish(did,scope)},
     {label:'<svg class="wic" viewBox="0 0 24 24"><path d="M9.7 14.3l4.6-4.6M8.2 11.2l-2.4 2.4a3.4 3.4 0 0 0 4.8 4.8l2.4-2.4M11 8.6L13.4 6.2a3.4 3.4 0 0 1 4.8 4.8L15.8 13.4"/></svg> 링크 복사',fn:()=>{
       const url=location.origin+location.pathname+"?d="+did;
-      navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>prompt("복사:",url));
+      navigator.clipboard.writeText(url).then(()=>toast("문서 링크 복사됨")).catch(()=>showCopy(url));
     }},
     {label:scope==="pub"?I_LOCK_S+" 비공개로 전환":I_GLOBE+" 공개로 전환",fn:()=>moveDocScope(did,scope)},
     "—",
     {label:"휴지통으로",warn:true,fn:async()=>{
-      if(!confirm(`"${d.name}" 을(를) 휴지통으로 보낼까요? (30일 후 자동 삭제)`))return;
+      if(!await ask(`"${d.name}" 을(를) 휴지통으로 보낼까요? (30일 후 자동 삭제)`,{ok:"휴지통으로"}))return;
       const up={};
       up[`hub/${scope}/docs/${did}/trashed`]=true;
       up[`hub/${scope}/docs/${did}/trashedAt`]=Date.now();
@@ -1807,10 +1841,10 @@ async function openDoc(did,scope){
   $("v-link").onclick=()=>{
     if(window.__pubOk){
       const url=location.origin+location.pathname+"?p="+did;
-      navigator.clipboard.writeText(url).then(()=>toast("공개 링크 복사됨 — 누구나 볼 수 있어")).catch(()=>prompt("복사:",url));
+      navigator.clipboard.writeText(url).then(()=>toast("공개 링크 복사됨 — 누구나 볼 수 있어")).catch(()=>showCopy(url));
     }else{
       const url=location.origin+location.pathname+"?d="+did;
-      navigator.clipboard.writeText(url).then(()=>toast("멤버용 링크 복사됨 · 친구에게 주려면 ⋯ 메뉴에서 \"게시\" 먼저!")).catch(()=>prompt("복사:",url));
+      navigator.clipboard.writeText(url).then(()=>toast("멤버용 링크 복사됨 · 친구에게 주려면 ⋯ 메뉴에서 \"게시\" 먼저!")).catch(()=>showCopy(url));
     }
   };
   const content=(await db.ref(`hub/${scope}/contents/${did}`).get()).val()||"";
@@ -1857,8 +1891,8 @@ function loadComments(did){
         </div>
         ${(IS_MASTER||c.uid===ME.uid)?`<button class="c-del" data-c="${cid}">삭제</button>`:""}
       </div>`).join("");
-    $("c-list").querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{
-      if(confirm("댓글 삭제?"))db.ref(`hub/comments/${did}/${b.dataset.c}`).remove();
+    $("c-list").querySelectorAll("[data-c]").forEach(b=>b.onclick=async()=>{
+      if(await ask("댓글 삭제?",{ok:"삭제",danger:true}))db.ref(`hub/comments/${did}/${b.dataset.c}`).remove();
     });
   });
   cOff=()=>r.off("value",h);
@@ -1879,7 +1913,7 @@ async function togglePublish(did,scope){
   const d=DATA[scope].docs[did];
   if(!d.published&&d.type&&d.type!=="html"){ toast("이미지·PDF·파일은 웹 게시를 지원하지 않아요 (딥링크/다운로드 사용)"); return; }
   if(d.published){
-    if(!confirm('"'+d.name+'" 게시를 내릴까요? 공개 링크가 즉시 끊겨요.'))return;
+    if(!await ask('"'+d.name+'" 게시를 내릴까요? 공개 링크가 즉시 끊겨요.',{ok:"게시 내리기",danger:true}))return;
     await db.ref().update({["hub/publish/"+did]:null,["hub/"+scope+"/docs/"+did+"/published"]:null});
     toast("게시 취소됨"); return;
   }
@@ -1947,7 +1981,7 @@ function openTrash(){
         toast("복구됨"); b.remove(); openTrash();
       });
       b.querySelectorAll("[data-purge]").forEach(bt=>bt.onclick=async()=>{
-        if(!confirm("영구 삭제하면 되돌릴 수 없어요. 계속?"))return;
+        if(!await ask("영구 삭제하면 되돌릴 수 없어요. 계속?",{ok:"영구 삭제",danger:true}))return;
         const did=bt.dataset.purge, sc=bt.dataset.sc, up={};
         up[`hub/${sc}/docs/${did}`]=null; up[`hub/${sc}/contents/${did}`]=null;
         up[`hub/${sc}/versions/${did}`]=null; up[`hub/comments/${did}`]=null;
@@ -2034,7 +2068,7 @@ function openMembers(){
         el.querySelectorAll("[data-ap]").forEach(b2=>b2.onclick=async()=>{await approveReq(b2.dataset.ap); drawList();});
         el.querySelectorAll("[data-rj]").forEach(b2=>b2.onclick=async()=>{await db.ref("hub/requests/"+b2.dataset.rj).remove(); drawList();});
         el.querySelectorAll("[data-k]").forEach(b2=>b2.onclick=async()=>{
-          if(confirm("이 멤버를 제거할까요? 즉시 접근이 차단돼요."))
+          if(await ask("이 멤버를 제거할까요? 즉시 접근이 차단돼요.",{ok:"제거",danger:true}))
             {await db.ref("hub/members/"+b2.dataset.k).remove(); drawList();}
         });
         el.querySelectorAll("[data-e]").forEach(b2=>b2.onclick=()=>{
@@ -2207,7 +2241,8 @@ async function _gfetch(url,opt){
   const r=await fetch(url,Object.assign({},opt,{headers:Object.assign({"Authorization":"Bearer "+t},(opt&&opt.headers)||{})}));
   if(r.status===401){try{localStorage.removeItem("hub-gtoken");}catch(e){} initDash(); throw new Error("expired");}
   if(!r.ok)throw new Error("api-"+r.status);
-  return r.json();
+  if(r.status===204)return null;                       /* batchModify 등은 본문 없는 204 → json() 예외 방지 */
+  const txt=await r.text(); return txt?JSON.parse(txt):null;
 }
 /* 빈 상태 마크업 — .w-empty 공통 컴포넌트. icon은 .wic SVG 문자열, btn은 버튼 마크업(선택) */
 const I_EMPTY={
@@ -3256,7 +3291,7 @@ async function loadGmail(){
         (r.messages||[]).forEach(m=>ids.push(m.id)); pt=r.nextPageToken||"";
       }while(pt&&ids.length<20000);
       if(!ids.length){ toast("읽지 않은 메일이 없어요"); return; }
-      if(!confirm("읽지 않은 메일 "+ids.length.toLocaleString()+"통을 모두 읽음으로 바꿀까요?\n기본 탭뿐 아니라 소셜·프로모션 등 모든 메일이 대상이에요."))return;
+      if(!await ask("읽지 않은 메일 "+ids.length.toLocaleString()+"통을 모두 읽음으로 바꿀까요?\n기본 탭뿐 아니라 소셜·프로모션 등 모든 메일이 대상이에요.",{title:"전체 읽기",ok:"모두 읽음"}))return;
       ab.textContent="처리 중…";
       for(let i=0;i<ids.length;i+=1000){
         await gfetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify",
@@ -3349,7 +3384,7 @@ $("q-in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("q-save").disabl
 $("q-save").onclick=qSave;
 async function qSave(){
   const p=qParse($("q-in").value); if(!p)return;
-  if(Math.abs(p.amt)>=10000000&&!confirm(p.amt.toLocaleString()+"원 — 금액이 맞나요?"))return;
+  if(Math.abs(p.amt)>=10000000&&!await ask(p.amt.toLocaleString()+"원 — 금액이 맞나요?",{title:"금액 확인",ok:"맞아요"}))return;
   if(Q.type)p.type=Q.type;
   if(p.inst<=1&&Q.inst>1)p.inst=Q.inst;
   const sel=$("q-cat"); if(sel&&sel.value)p.cat=sel.value;
@@ -3368,10 +3403,6 @@ async function qSave(){
         if(d.getMonth()!==((d0.getMonth()+i)%12))d=new Date(d0.getFullYear(),d0.getMonth()+i+1,0);
         insts.push({d,desc:p.desc+" ("+(i+1)+"/"+p.inst+")",amt:i===p.inst-1?p.amt-per*(p.inst-1):per});
       }
-      const lb=insts[0], le=insts[insts.length-1];
-      if(!confirm(Math.round(p.amt/p.inst).toLocaleString()+"원 × "+p.inst+"회 ("
-        +(lb.d.getMonth()+1)+"/"+lb.d.getDate()+" → "+(le.d.getMonth()+1)+"/"+le.d.getDate()
-        +") · 총 "+p.amt.toLocaleString()+"원 — 할부로 기록할까?")){ $("q-save").disabled=false; return; }
     }else insts.push({d:d0,desc:p.desc,amt:p.amt});
     /* 이번 달 회차만 예산(Details)에 가산 */
     const nowM=new Date();
