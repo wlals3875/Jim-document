@@ -520,6 +520,7 @@ a.mbtn{display:inline-flex; align-items:center; justify-content:center; text-dec
 @keyframes menuIn{from{opacity:0; transform:scale(.92);} to{opacity:1; transform:none;}}
 .menu button{display:flex; align-items:center; gap:12px; width:100%; height:42px; padding:0 var(--sp-4); text-align:left; font-size:var(--fs-15); font-weight:500; color:var(--ink);}
 .menu button:hover{background:rgba(255,255,255,.07);}
+.menu button .wic,.menu button .mi-sp{width:17px; height:17px; flex-shrink:0; color:var(--sub);}
 .menu button.warn{color:var(--red);} .menu button.warn:hover{background:rgba(255,122,107,.12);}
 .menu .sep,.menu .div{height:6px; background:rgba(0,0,0,.35);}
 
@@ -1461,11 +1462,13 @@ function showMenu(anchor,items){
   menuEl=document.createElement("div"); menuEl.className="menu";
   items.forEach(it=>{
     if(it==="—"){const d=document.createElement("div");d.className="div";menuEl.appendChild(d);return;}
-    const b=document.createElement("button"); b.textContent=it.label;
+    const b=document.createElement("button"); b.innerHTML=it.label;   /* 라벨은 코드에 적은 고정 문구뿐(아이콘 SVG 포함) — 사용자 입력은 넣지 않는다 */
     if(it.warn)b.className="warn";
     b.onclick=()=>{closeMenu();it.fn();};
     menuEl.appendChild(b);
   });
+  /* 아이콘 있는 항목이 하나라도 있으면, 없는 항목에 같은 폭의 빈칸을 넣어 글자 시작점을 맞춘다 */
+  if(menuEl.querySelector("button .wic"))menuEl.querySelectorAll("button").forEach(b=>{ if(!b.querySelector(".wic"))b.insertAdjacentHTML("afterbegin",'<span class="mi-sp"></span>'); });
   document.body.appendChild(menuEl);
   const r=anchor.getBoundingClientRect();
   menuEl.style.top=Math.min(r.bottom+4,innerHeight-menuEl.offsetHeight-10)+"px";
