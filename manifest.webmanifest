@@ -2,7 +2,7 @@
   "name": "JimStorage",
   "short_name": "JimStorage",
   "description": "Private Hub",
-  "id": "./",
+  "id": "/Jim-document/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

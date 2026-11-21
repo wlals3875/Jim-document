@@ -872,7 +872,7 @@ header.loading::after{content:""; position:absolute; left:0; bottom:-1px; height
   }
 })();
 const MASTER_EMAIL="wlals3875@gmail.com";   /* 마스터 계정 (본인 구글 이메일) */
-const SESSION_HOURS=24;
+const SESSION_DAYS=30;   /* 마지막으로 들어온 때부터 이 기간이 지나면 로그아웃. 들어올 때마다 다시 잰다 */
 const MAX_VERSIONS=3;
 const firebaseConfig={
   apiKey:"AIzaSyBWK9r4-HwOfhJWxFCy2uzvIceRDoMfZxQ",
@@ -1055,12 +1055,12 @@ auth.onAuthStateChanged(u=>{
     SIGNING=false;
     try{localStorage.removeItem("hub-noauto");}catch(e){}
     try{window.google&&google.accounts&&google.accounts.id.cancel();}catch(e){}
-    /* 24시간 세션 체크 */
+    /* 세션: 마지막 방문에서 SESSION_DAYS일. 그 안에 다시 들어오면 기한이 새로 시작된다 */
     const at=+localStorage.getItem("hub-login-at")||0;
-    if(at && Date.now()-at > SESSION_HOURS*3600*1000){
+    if(at && Date.now()-at > SESSION_DAYS*86400000){
       localStorage.removeItem("hub-login-at"); auth.signOut(); return;
     }
-    if(!at) localStorage.setItem("hub-login-at",Date.now());
+    localStorage.setItem("hub-login-at",Date.now());
     ME=u; IS_MASTER=(u.email===MASTER_EMAIL);
     if(!IS_MASTER){
       /* 화이트리스트 판정 */
