@@ -1,14 +1,14 @@
 {
   "name": "JimStorage",
   "short_name": "JimStorage",
-  "description": "Personal Document Hub",
+  "description": "Private Hub",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#06090b",
-  "theme_color": "#06090b",
+  "background_color": "#f4f3ef",
+  "theme_color": "#f4f3ef",
   "lang": "ko",
   "icons": [
     { "src": "앱아이콘-192.png", "sizes": "192x192", "type": "image/png" },
