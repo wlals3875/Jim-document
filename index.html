@@ -236,16 +236,27 @@ body:not(.is-master) .td-foot{display:none;}
 .week .has b::after{content:""; position:absolute; left:50%; bottom:4px; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--tint);}
 .week .on.has b::after{background:#fff;}
 
-/* ── 가계부: 남은 돈 큰 숫자 + 열 칸 게이지 ── */
+/* ── 가계부: 소진율 링 + 남은 돈 + 쓴 돈·쓸 수 있는 돈 (가운데 정렬) ── */
 .mny-k,.spn-k{font-size:var(--fs-12); font-weight:700; color:var(--sub);}
-.mny-k{margin-bottom:var(--sp-2);} .spn-k{margin-top:var(--sp-2); font-weight:600;}
+.spn-k{margin-top:var(--sp-2); font-weight:600;}
 .bnum{font-size:var(--fs-34); font-weight:800; letter-spacing:-.04em; line-height:1; white-space:nowrap;}
 .bnum small{font-size:var(--fs-15); font-weight:700; color:var(--sub); letter-spacing:0; margin-left:2px;}
 .bnum.sm{font-size:var(--fs-28);} .bnum.red{color:var(--red);}
-.seg10{display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:var(--sp-1); margin-top:var(--sp-4);}
-.seg10 i{height:22px; border-radius:6px; background:var(--fill);} .seg10 i.f{background:var(--tint);} .seg10.warn i.f{background:var(--red);}
-.mny-lg{display:flex; justify-content:space-between; gap:var(--sp-2); flex-wrap:wrap; margin-top:var(--sp-3); font-size:var(--fs-12); font-weight:700; color:var(--sub);}
-.mny-lg b{color:var(--ink);}
+.mny{flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;}
+.mring{position:relative; flex-shrink:0; width:120px; height:120px;}
+.mring svg{display:block; width:100%; height:100%; transform:rotate(-90deg);}
+.mring circle{fill:none; stroke-width:12;}
+.mring .bg{stroke:var(--fill2);} .mring .fg{stroke:var(--tint); stroke-linecap:round; transition:stroke-dashoffset .8s var(--ease);}
+.mring.warn .fg{stroke:var(--red);} .mring.zero .fg{display:none;}
+.mr-c{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.mr-c b{font-size:var(--fs-22); font-weight:800; letter-spacing:-.03em; line-height:1.1;}
+.mr-c span{margin-top:2px; font-size:var(--fs-12); font-weight:600; color:var(--sub);}
+.mny .mny-k{margin-top:var(--sp-4);}
+.mny .bnum{margin-top:var(--sp-1); max-width:100%; overflow:hidden; text-overflow:ellipsis;}
+.mny-st{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); width:100%; margin-top:var(--sp-4); padding-top:var(--sp-3); border-top:1px solid var(--hair);}
+.mny-st>div{min-width:0; padding:0 var(--sp-2);} .mny-st>div+div{border-left:1px solid var(--hair);}
+.mny-st span{display:block; font-size:var(--fs-12); font-weight:600; color:var(--sub); white-space:nowrap;}
+.mny-st b{display:block; margin-top:2px; font-size:var(--fs-15); font-weight:800; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 /* 가계부 상세 모달이 쓰는 숫자 상자 */
 .mon-nums{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:12px;}
 .mn{padding:12px; border-radius:var(--r-12); background:var(--fill); min-width:0; overflow:hidden;}
@@ -2521,18 +2532,23 @@ async function loadSheet(){
            :((budget!=null)?budget-(num(rows.고정지출)||0)-(num(rows.보험)||0)-(savePlan||0):null);
   /* 남은 돈 = 시트 잔여(10행) 우선, 없으면 계산 */
   const left=(remainRow!=null)?remainRow:((cap!=null&&spent!=null)?cap-spent:null);
-  const rate=(cap&&spent!=null)?spent/cap:null;
-  const w=v=>v==null?"—":Math.round(v).toLocaleString();
   $("money-mon").textContent=mk;
-  let html='<div class="mny-k">남은 돈</div>'
-    +'<div class="bnum num'+(left!=null&&left<0?" red":"")+'"><span data-n="'+(left!=null?Math.round(left):"")+'">'+w(left)+'</span><small>원</small></div>';
-  if(rate!=null){   /* 열 칸 가운데 쓴 만큼 채운다 */
-    const f=Math.max(0,Math.min(10,Math.round(rate*10)));
-    html+='<div class="seg10'+(rate>.9?" warn":"")+'" title="소진율 '+(rate*100).toFixed(1)+'%">'+Array.from({length:10},(_,i)=>'<i'+(i<f?' class="f"':"")+'></i>').join("")+'</div>';
-  }
-  html+='<div class="mny-lg"><span>쓴 돈 <b class="num">'+w(spent)+'</b></span><span>쓸 수 있는 돈 <b class="num">'+w(cap)+'</b></span></div>';
-  $("money-body").innerHTML=html;
+  $("money-body").innerHTML=moneyHTML(left,spent,cap);
   animateNums($("money-body"));
+}
+/* 가계부 카드 본문: 소진율 링 + 남은 돈 + 쓴 돈·쓸 수 있는 돈. 금액 길이와 상관없이 모두 가운데 정렬 */
+function moneyHTML(left,spent,cap){
+  const w=v=>v==null?"—":Math.round(v).toLocaleString();
+  const rate=(cap&&spent!=null)?spent/cap:null, C=2*Math.PI*50;   /* 링 둘레 (반지름 50) */
+  const fill=rate==null?0:Math.max(0,Math.min(1,rate));
+  return '<div class="mny">'
+    +'<div class="mring'+(rate!=null&&rate>.9?" warn":"")+(fill<=0?" zero":"")+'"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="bg" cx="60" cy="60" r="50"/>'
+    +'<circle class="fg" cx="60" cy="60" r="50" style="stroke-dasharray:'+C.toFixed(1)+';stroke-dashoffset:'+(C*(1-fill)).toFixed(1)+'"/></svg>'
+    +'<div class="mr-c"><b class="num">'+(rate!=null?Math.round(rate*100)+"%":"—")+'</b><span>소진율</span></div></div>'
+    +'<div class="mny-k">남은 돈</div>'
+    +'<div class="bnum sm num'+(left!=null&&left<0?" red":"")+'"><span data-n="'+(left!=null?Math.round(left):"")+'">'+w(left)+'</span>'+(left!=null?'<small>원</small>':"")+'</div>'
+    +'<div class="mny-st"><div><span>쓴 돈</span><b class="num">'+w(spent)+'</b></div><div><span>쓸 수 있는 돈</span><b class="num">'+w(cap)+'</b></div></div>'
+    +'</div>';
 }
 /* 숫자 카운트업 */
 function animateNums(root){
