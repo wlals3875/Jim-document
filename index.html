@@ -41,6 +41,7 @@ else if(localStorage.getItem("hub-login-at"))c.add("authwait");})();}catch(e){}<
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{height:100%;}
+html.toparm body{min-height:calc(100vh + 2px);}   /* 문서를 보는 동안 바깥 페이지를 1px 움직일 수 있게 (맨 위로 보내기 신호용) */
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Wanted Sans Variable","Pretendard Variable",Pretendard,system-ui,sans-serif;
   color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.45; word-break:keep-all;
@@ -977,6 +978,28 @@ setTimeout(()=>{ if(!SIGNING)authReady(); },5000); setTimeout(authReady,15000);
 
 let viewedThisSession={};
 let DEEP=new URLSearchParams(location.search).get("d");
+/* ================= 맨 위로 ================= */
+function toTop(){ window.scrollTo({top:0,behavior:"smooth"}); }
+function frameTop(fr){ try{ const w=fr&&fr.contentWindow; if(!w)return; w.scrollTo({top:0,behavior:"smooth"}); const el=w.document&&w.document.scrollingElement; if(el&&el.scrollTop>0)el.scrollTo({top:0,behavior:"smooth"}); }catch(e){} }
+/* 아이폰은 상태 표시줄(시계 줄)을 누르면 "페이지 자체"만 맨 위로 올린다. 문서는 프레임 안에서 스크롤되어 그 동작이 닿지 않는다.
+   그래서 문서를 보는 동안 바깥 페이지를 1px 내려 두고, 그 1px가 0으로 올라가는 순간(상태 표시줄을 누른 순간)에 프레임을 맨 위로 보낸다. */
+const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+let topArm=null;
+function armTop(fr){
+  if(!IS_IOS)return;
+  if(!topArm)topArm={y:window.scrollY}; topArm.fr=fr;
+  document.documentElement.classList.add("toparm");
+  if(document.documentElement.scrollHeight&&window.scrollY<1)window.scrollTo(0,1);
+  setTimeout(()=>{ if(topArm&&window.scrollY<1)window.scrollTo(0,1); },400);   /* 첫 로딩 때 브라우저가 스크롤을 0으로 되돌리는 경우 대비 */
+}
+function disarmTop(){ if(!topArm)return; const y=topArm.y; clearTimeout(topArm.t); topArm=null; document.documentElement.classList.remove("toparm"); window.scrollTo(0,y); }
+window.addEventListener("scroll",()=>{
+  if(!topArm||window.scrollY>0)return;
+  const a=document.activeElement; if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName))return;   /* 댓글 입력 중 키보드가 밀어 올린 경우는 제외 */
+  frameTop(topArm.fr);
+  clearTimeout(topArm.t); topArm.t=setTimeout(()=>{ if(topArm&&window.scrollY<1)window.scrollTo(0,1); },400);   /* 다음 누름을 위해 다시 1px */
+},{passive:true});
+
 /* 공개 게시 페이지: 로그인·허브 UI 없이 문서만 */
 (function(){
   const pid=new URLSearchParams(location.search).get("p");
@@ -986,6 +1009,7 @@ let DEEP=new URLSearchParams(location.search).get("d");
   wrap.style.cssText="position:fixed;inset:0;z-index:500;background:#f4f3ef";
   wrap.innerHTML='<iframe id="pub-frame" style="width:100%;height:100%;border:none;background:#fff" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals"></iframe>';
   document.body.appendChild(wrap);
+  armTop(document.getElementById("pub-frame"));
   db.ref("hub/publish/"+pid).get().then(s=>{
     const v=s.val();
     if(!v){wrap.innerHTML='<div class="pub-msg">게시된 문서가 아니에요</div>';return;}
@@ -1147,7 +1171,7 @@ auth.onAuthStateChanged(u=>{
     enterApp(u,null);
   }else{
     ME=null; IS_MASTER=false;
-    $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); $("viewer").classList.add("hidden");
+    $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); $("viewer").classList.add("hidden"); disarmTop();
     const dn=$("denied"); if(dn)dn.remove();
     $("gate").classList.remove("denied-on");
     if(SIGNING)return;   /* 토큰 로그인이 끝나면 사용자와 함께 다시 호출됨 */
@@ -1320,7 +1344,7 @@ function setView(v){
   renderTree();
   if(v==="home"){ if(IS_MASTER)initDash(); else renderMiniHome(); }
 }
-$("s-home").onclick=()=>{setView("home");closeAside();};
+$("s-home").onclick=()=>{ if(curView==="home")toTop(); else setView("home"); closeAside(); };   /* 홈에서 홈을 다시 누르면 맨 위로 */
 $("cal-ext").onclick=e=>{e.preventDefault();e.stopPropagation();openExt("comgooglecalendar://","https://calendar.google.com/");};
 $("sheet-ext").onclick=e=>{e.preventDefault();e.stopPropagation();openExt("googlesheets://","https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/edit");};
 
@@ -1485,6 +1509,7 @@ function renderTree(){
   $("dtree").innerHTML='<button class="tr'+(curView==="docs"&&curFolder==="root"&&!searching?" on":"")+'" data-go="root"><span class="tic all">'+GR+'</span><span class="tn">전체</span><span class="tc num">'+docsAll.length+'</span></button>'+build("root",0,"");
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
     if(b.dataset.locked){ toast("비공개 폴더라 열 수 없어요",I_LOCK_S); return; }
+    if(curView==="docs"&&curFolder===b.dataset.go&&!$("search").value){ toTop(); closeAside(); return; }   /* 보고 있던 곳을 다시 누르면 맨 위로 */
     curFolder=b.dataset.go; $("search").value=""; setView("docs"); render(); closeAside();
   });
   document.querySelectorAll('.s-item[data-go="root"]').forEach(b=>b.classList.toggle("on",curView==="docs"));   /* 하위 폴더에 있어도 문서 탭은 켜 둔다 */
@@ -1942,6 +1967,7 @@ async function openDoc(did,scope){
   curDoc=did; curDocScope=scope;
   $("viewer").classList.remove("hidden");
   $("v-up").classList.toggle("hidden",!IS_MASTER); $("v-up").onclick=()=>pickReplace(did);
+  armTop($("v-frame"));
   $("v-side").classList.toggle("closed",matchMedia("(max-width:640px)").matches);
   $("v-name").innerHTML=flagify(esc(d.name));
   document.querySelector(".v-side").style.display="";
@@ -1970,7 +1996,8 @@ async function openDoc(did,scope){
   $("v-meta").textContent=`${fmtDate(d.updatedAt||d.createdAt)} · 조회 ${(VIEWS[did]||0)+1}`;
   loadComments(did);
 }
-$("v-back").onclick=()=>{ const vw=$("viewer"); vw.classList.add("hidden"); vw.classList.remove("vfull"); if(cOff)cOff(); };
+$("v-back").onclick=()=>{ const vw=$("viewer"); vw.classList.add("hidden"); vw.classList.remove("vfull"); if(cOff)cOff(); disarmTop(); };
+document.querySelector("#viewer .v-bar").addEventListener("click",e=>{ if(!e.target.closest("button,a"))frameTop($("v-frame")); });   /* 윗줄을 누르면 문서 맨 위로 */
 $("v-full").onclick=()=>{
   const vw=$("viewer"), el=$("v-frame");
   const rf=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
