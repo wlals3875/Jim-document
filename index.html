@@ -409,11 +409,11 @@ body:not(.is-master) .td-foot{display:none;}
 #c-toggle .arr{margin-left:auto; transition:transform var(--fast) var(--ease);} #c-toggle.open .arr{transform:rotate(180deg);}
 #c-count{color:var(--tint);}
 #c-wrap{max-height:34vh; overflow:auto; padding:0 var(--sp-4) var(--sp-4);}
-.c-item{display:flex; gap:12px; padding:12px 0; font-size:var(--fs-13); position:relative; align-items:baseline;}
-.c-item+.c-item::before{content:""; position:absolute; top:0; left:44px; right:0; height:1px; background:var(--hair);}
-.c-item .who{font-weight:700; color:var(--sub); flex:0 0 auto; gap:8px;}
-.c-item .txt{flex:1; min-width:0; overflow-wrap:anywhere;}
-.c-item .when{color:var(--sub2); font-size:var(--fs-11); white-space:nowrap;}
+.c-item{display:flex; gap:12px; padding:12px 0; font-size:var(--fs-13); position:relative; align-items:flex-start;}
+.c-item+.c-item::before{content:""; position:absolute; top:0; left:40px; right:0; height:1px; background:var(--hair);}
+.c-item img,.c-item .c-ph{width:28px; height:28px; border-radius:50%; flex-shrink:0; object-fit:cover; background:var(--fill2);}   /* 프로필 사진은 크기를 정해 둔다 (안 정하면 원본 96px로 나온다) */
+.c-item .c-ph{display:grid; place-items:center; font-size:var(--fs-12); font-weight:700; color:var(--sub);}
+.c-item .c-body{flex:1; min-width:0;}
 .c-del{color:var(--sub2); font-size:var(--fs-11); margin-left:auto; padding:2px 8px; border-radius:6px;} .c-del:hover{color:var(--red); background:rgba(217,48,37,.08);}
 .c-form{display:flex; gap:8px; padding-top:12px;}
 .c-form input{flex:1; min-width:0; height:40px; padding:0 var(--sp-3); border:0; border-radius:var(--r-12); background:var(--fill); color:var(--ink); font-size:var(--fs-15);}
@@ -1993,8 +1993,8 @@ function loadComments(did){
     $("c-count").textContent=Object.keys(v).length||"";
     $("c-list").innerHTML=Object.entries(v).sort((a,b)=>a[1].at-b[1].at).map(([cid,c])=>`
       <div class="c-item">
-        ${c.photo?`<img src="${esc(c.photo)}" alt="">`:`<span style="width:26px"></span>`}
-        <div style="flex:1;min-width:0">
+        ${c.photo?`<img src="${esc(c.photo)}" alt="">`:`<span class="c-ph">${esc(String(c.name||"?").trim().charAt(0))}</span>`}
+        <div class="c-body">
           <div class="cn">${esc(c.name)}</div>
           <div class="ct">${esc(c.text)}</div>
           <div class="cd">${fmtTime(c.at)}</div>
